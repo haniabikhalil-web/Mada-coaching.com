@@ -669,6 +669,12 @@ def book():
         booking = f'<a class="btn btn-primary" href="{C.BOOKING["intro"]}" target="_blank" rel="noopener">Pick a time <span class="arrow" aria-hidden="true">&rarr;</span></a>'
     else:
         booking = f'<a class="btn btn-primary" href="{book_href("intro", "Free intro call")}">Email us to book <span class="arrow" aria-hidden="true">&rarr;</span></a>'
+    if live:
+        book_title = 'Pick a time that suits you.'
+        book_text = f'Choose a slot in the calendar and you&rsquo;ll get a confirmation by email. It helps if you have a few lines ready about where you are. Prefer to write first? Email <a href="mailto:{C.EMAIL}">{C.EMAIL}</a>.'
+    else:
+        book_title = 'Email us, and we&rsquo;ll send you times.'
+        book_text = f'Online booking is opening shortly. Until then, email <a href="mailto:{C.EMAIL}">{C.EMAIL}</a> with a few lines about where you are. We reply within one working day.'
     body = f'''
 <header class="subhero"><div class="wrap">
   <p class="eyebrow">Book a free 20-minute intro call</p>
@@ -681,8 +687,8 @@ def book():
     <div class="grid g2" style="gap:40px;align-items:start">
       <div class="card reveal" style="padding:36px">
         <span class="tag">How to book</span>
-        <h2 style="font-size:32px">Email us, and we&rsquo;ll send you times.</h2>
-        <p class="muted" style="margin-top:12px">Online booking is opening shortly. Until then, email <a href="mailto:{C.EMAIL}">{C.EMAIL}</a> with a few lines about where you are. We reply within one working day.</p>
+        <h2 style="font-size:32px">{book_title}</h2>
+        <p class="muted" style="margin-top:12px">{book_text}</p>
         <ul class="checks"><li>Where you are now (studying, working, already in consulting)</li><li>What you&rsquo;re targeting: firms, roles, office</li><li>Any deadlines, such as an interview date</li><li>Your time zone</li><li>Your CV, if you have one ready</li></ul>
         <div class="btn-row" style="margin-top:28px">{booking}</div>
       </div>
