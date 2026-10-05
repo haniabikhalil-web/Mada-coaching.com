@@ -64,15 +64,31 @@ def home():
   <div class="hero-ar" lang="ar" aria-hidden="true">مدى</div>
   <div class="wrap" style="position:relative">
     <p class="eyebrow">Consulting career coaching &middot; Middle East-first, open to candidates anywhere</p>
-    <h1>Reach the room. Rise in it.</h1>
-    <p class="lede">Coaching from consultants who have interviewed, hired and worked at the firms you&rsquo;re targeting. From your first target list to your first promotion.</p>
+    <h1>Get into consulting. Then get ahead in it.</h1>
+    <p class="lede">1:1 coaching from experienced consultants and interviewers across applications, CVs, networking, interviews, offers and life inside the firm, with deep expertise in Middle East consulting.</p>
+    <p class="brand-line">Reach the room. Rise in it.</p>
     <div class="btn-row">{intro_btn(ctx)}<a class="btn btn-ghost" href="{u('services')}">See services and prices</a></div>
     {HORIZON}
-    <div class="stats">
+    <div class="stats two">
       <div class="stat"><b>300+</b><span>candidates coached by our founder</span></div>
       <div class="stat"><b>200+</b><span>official interviews conducted for Oliver Wyman</span></div>
-      <div class="stat"><b>4</b><span>steps, from target list to promotion</span></div>
     </div>
+  </div>
+</section>
+
+<section class="bg-mist">
+  <div class="wrap">
+    <div class="section-head reveal">
+      <p class="eyebrow">Where are you now?</p>
+      <h2>Start at the step you&rsquo;re at.</h2>
+    </div>
+    <div class="grid g4">
+      <a class="card pick reveal" href="{u('services#position')}"><span class="tag">Applying</span><h3>I&rsquo;m applying, or about to</h3><p>Decide where to aim, sharpen your CV and LinkedIn, and plan your outreach.</p><span class="pick-go">Position and Connect <span class="arrow" aria-hidden="true">&rarr;</span></span></a>
+      <a class="card pick reveal" href="{u('services#mock')}"><span class="tag">Interview booked</span><h3>I have an interview coming up</h3><p>Realistic case and fit mocks with someone who has interviewed for real.</p><span class="pick-go">Mock interviews <span class="arrow" aria-hidden="true">&rarr;</span></span></a>
+      <a class="card pick reveal" href="{u('services#offer')}"><span class="tag">Offer received</span><h3>I have an offer</h3><p>Understand the level and package, then negotiate the right things.</p><span class="pick-go">Offer and negotiation <span class="arrow" aria-hidden="true">&rarr;</span></span></a>
+      <a class="card pick reveal" href="{u('services#progress')}"><span class="tag">Already consulting</span><h3>I&rsquo;m already a consultant</h3><p>Onboarding, reviews and promotion, with someone outside the problem.</p><span class="pick-go">Progress <span class="arrow" aria-hidden="true">&rarr;</span></span></a>
+    </div>
+    <p class="muted" style="margin-top:24px">Not sure? <a href="{u('services#full-journey')}">The Full Journey</a> covers the whole process as one engagement.</p>
   </div>
 </section>
 
@@ -91,58 +107,19 @@ def home():
   </div>
 </section>
 
-<section class="bg-navy">
-  <div class="wrap">
-    <p class="eyebrow">What we believe</p>
-    <h2 style="max-width:920px" class="reveal">Talent is everywhere. Access to people who know how the system works is not.</h2>
-    <div class="beliefs">
-      <div class="belief reveal"><h4>Our belief</h4><p>The gap is knowledge of the process, not potential.</p></div>
-      <div class="belief accent reveal"><h4>Our purpose</h4><p>Extend how far every candidate can reach: into the room, and beyond it.</p></div>
-      <div class="belief reveal"><h4>Beyond us</h4><p>As Mada grows, we intend to give a portion of our profits to UNESCO to help fund education in Lebanon.</p></div>
-    </div>
-  </div>
-</section>
-
-<section>
+<section class="bg-mist">
   <div class="wrap">
     <div class="section-head reveal">
       <p class="eyebrow">The journey</p>
       <h2>Four steps, from target list to promotion.</h2>
-      <p class="lede">Work through all four, or come in at the step where you need help.</p>
     </div>
     {journey_block(ctx)}
     <p style="margin-top:28px"><a href="{u('how-it-works')}">How a Mada engagement works <span class="arrow" aria-hidden="true">&rarr;</span></a></p>
-  </div>
-</section>
-
-<section class="bg-mist">
-  <div class="wrap">
-    <div class="split">
-      <div class="reveal">
-        <p class="eyebrow">Expert or AI, your choice</p>
-        <h2>Every service, expert-led or AI-assisted.</h2>
-        <p class="lede" style="margin-top:16px">Choose a live 1:1 session with a Mada coach, or the AI-assisted version: same method, your own pace.</p>
-        <div class="btn-row" style="margin-top:28px"><a class="btn btn-primary" href="{u('services')}">Compare services</a><a class="btn btn-ghost" href="{u('ai')}">Meet Mada AI</a></div>
-      </div>
-      <div class="modes reveal">
-        <div class="mode"><span class="tag">Expert-led</span><h3>Live with a coach</h3><p class="price-note">From $50</p><ul><li>1:1 by video</li><li>Coaches who have interviewed for real</li><li>Available now</li></ul></div>
-        <div class="mode ai"><span class="tag" style="color:var(--dawn)">AI-assisted</span><h3>Mada AI</h3><p class="price-note">From $30</p><ul><li>Async, at your own pace</li><li>Built on the same method</li><li class="soon-row"><span class="badge soon">Coming soon</span></li></ul></div>
-      </div>
-    </div>
+    <p class="muted" style="margin-top:12px">Every service is also coming as an AI-assisted version: same method, your own pace. <a href="{u('ai')}">Meet Mada AI <span class="arrow" aria-hidden="true">&rarr;</span></a></p>
   </div>
 </section>
 
 <section>
-  <div class="wrap">
-    <div class="section-head reveal">
-      <p class="eyebrow">Who we serve</p>
-      <h2>From first internship to first promotion.</h2>
-    </div>
-    <div class="grid g2">{segments_block()}</div>
-  </div>
-</section>
-
-<section class="bg-mist">
   <div class="wrap">
     <div class="section-head reveal">
       <p class="eyebrow">Who coaches</p>
@@ -154,7 +131,7 @@ def home():
   </div>
 </section>
 
-<section>
+<section class="bg-mist">
   <div class="wrap">
     <div class="section-head reveal">
       <p class="eyebrow">What candidates say</p>
@@ -162,17 +139,6 @@ def home():
       <p class="lede">Candidates Hani has coached, identified by first name only for privacy.</p>
     </div>
     <div class="grid g2">{testimonial_cards()}</div>
-  </div>
-</section>
-
-<section class="bg-mist">
-  <div class="wrap">
-    <div class="section-head reveal">
-      <p class="eyebrow">Our approach</p>
-      <h2>Four principles shape every engagement.</h2>
-    </div>
-    <div class="grid g4">{principles_block()}</div>
-    <p class="muted" style="margin-top:24px">Middle East depth, global reach: built around Gulf recruiting, open to candidates anywhere.</p>
   </div>
 </section>
 
@@ -185,8 +151,8 @@ def home():
 </section>
 {cta_band(ctx)}
 '''
-    page('', 'Mada Coaching | Consulting career coaching, from target list to promotion',
-         'Coaching from consultants who have interviewed, hired and worked at the firms you are targeting. CVs, networking, case and fit interviews, offers and your first years in consulting. Middle East-first, open to candidates anywhere.',
+    page('', 'Mada Coaching | Get into consulting. Then get ahead in it.',
+         '1:1 coaching from experienced consultants and interviewers: applications, CVs, networking, interviews, offers and life inside the firm. Middle East-first, open to candidates anywhere.',
          body, ctx)
 
 
@@ -288,7 +254,7 @@ def svc_row(ctx, svc):
     else:
         ai = '<div class="opt na"><div class="opt-label">AI-assisted</div><div class="opt-price">Expert only</div></div>'
     return f'''<div class="svc" id="{svc['key']}">
-  <div><h3>{svc['name']}</h3><p class="desc">{svc['desc']}</p><ul class="includes">{inc}</ul>{more}</div>
+  <div><h3>{svc['name']}</h3><p class="best"><b>Best for:</b> {svc['best']}</p><p class="desc">{svc['desc']}</p><ul class="includes">{inc}</ul>{more}</div>
   {expert}{ai}
 </div>'''
 
@@ -326,7 +292,8 @@ def services():
       <div>
         <span class="badge get">Position &rarr; Connect &rarr; Land</span>
         <h2>The Full Journey</h2>
-        <p class="muted">Career strategy through to a negotiated offer, run as one engagement with the same coach, at a package price.</p>
+        <p class="best"><b>Best for:</b> {fj['best']}</p>
+        <p class="muted">Career strategy through to a negotiated offer, with four mock interviews, run as one engagement with the same coach, at a package price.</p>
         <ul class="checks">{fj_inc}</ul>
       </div>
       <div style="display:flex;flex-direction:column;gap:14px">
@@ -723,7 +690,7 @@ def book():
         <h3>Already know what you need?</h3>
         <p class="muted">Every service can be booked directly, expert-led today, with AI-assisted versions coming soon.</p>
         <div class="grid" style="gap:12px;margin-top:20px">
-          <a class="card" style="text-decoration:none;padding:20px 24px" href="{u('services#full-journey')}"><b style="color:var(--ink)">The Full Journey</b> <span class="muted">&middot; $250</span><br><span class="small muted">Position to Land as one engagement</span></a>
+          <a class="card" style="text-decoration:none;padding:20px 24px" href="{u('services#full-journey')}"><b style="color:var(--ink)">The Full Journey</b> <span class="muted">&middot; $750</span><br><span class="small muted">Position to Land as one engagement</span></a>
           <a class="card" style="text-decoration:none;padding:20px 24px" href="{u('services#mock')}"><b style="color:var(--ink)">Mock interview + feedback</b> <span class="muted">&middot; $200</span><br><span class="small muted">Case and fit, in real conditions</span></a>
           <a class="card" style="text-decoration:none;padding:20px 24px" href="{u('cv-review')}"><b style="color:var(--ink)">CV Review</b> <span class="muted">&middot; $50</span><br><span class="small muted">Video review in 48 hours, no meeting</span></a>
           <a class="card" style="text-decoration:none;padding:20px 24px" href="{u('services#membership')}"><b style="color:var(--ink)">Mentorship membership</b> <span class="muted">&middot; $50/month</span><br><span class="small muted">For consultants already in role</span></a>

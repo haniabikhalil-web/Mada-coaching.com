@@ -367,3 +367,15 @@ a:hover .arrow{transform:translateX(3px)}
 @media (max-width:680px){section{padding:64px 0}.subhero{padding:64px 0 56px}.hero{padding-top:72px}.section-head{margin-bottom:32px}}
 .subhero .btn-ghost{color:#fff;border-color:rgba(255,255,255,.35)}
 .subhero .btn-ghost:hover{color:#fff;border-color:#fff}
+
+/* home: brand line, two-stat row, "where are you now" cards, service "best for" */
+.hero .brand-line{font-family:var(--display);font-weight:700;font-size:clamp(18px,2.2vw,22px);letter-spacing:-.01em;color:var(--dawn);margin:20px 0 0}
+.stats.two{grid-template-columns:repeat(2,1fr)}
+@media (max-width:680px){.stats.two{grid-template-columns:1fr}}
+.pick{display:flex;flex-direction:column;text-decoration:none;color:var(--ink);transition:border-color .15s,transform .15s}
+.pick h3{color:var(--ink)}
+.pick p{color:var(--stone)}
+.pick:hover{border-color:var(--cobalt);transform:translateY(-2px)}
+.pick .pick-go{margin-top:auto;padding-top:16px;font-weight:700;color:var(--cobalt)}
+.svc .best,.featured .best{font-size:14px;line-height:1.45;color:var(--ink);margin:0 0 10px}
+.svc .best b,.featured .best b{color:var(--cobalt)}
