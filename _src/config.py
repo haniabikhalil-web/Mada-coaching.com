@@ -2,7 +2,7 @@
 
 DOMAIN = 'mada-coaching.com'
 EMAIL = 'hello@mada-coaching.com'
-VERSION = '5'   # bump to force browsers to reload CSS/JS after changes
+VERSION = '6'   # bump to force browsers to reload CSS/JS after changes
 
 # Online booking links (Calendly, Cal.com, Stripe checkout…).
 # While a value is None, the button opens a pre-filled email to EMAIL instead.

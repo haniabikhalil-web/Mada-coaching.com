@@ -68,8 +68,16 @@ def waitlist_href(label):
                   f"Hi Mada team,\n\nPlease let me know when {label} opens.\n\nWhat I'm targeting:\n")
 
 
+def intro_attrs(ctx):
+    """Straight to the calendar when the intro link is live, otherwise to the Book page."""
+    link = C.BOOKING.get('intro')
+    if link:
+        return f'href="{link}" target="_blank" rel="noopener"'
+    return f'href="{ctx.url("book")}"'
+
+
 def intro_btn(ctx, cls='btn-primary', text='Book a free intro call'):
-    return f'<a class="btn {cls}" href="{ctx.url("book")}">{text} <span class="arrow" aria-hidden="true">&rarr;</span></a>'
+    return f'<a class="btn {cls}" {intro_attrs(ctx)}>{text} <span class="arrow" aria-hidden="true">&rarr;</span></a>'
 
 
 ICONS = {
@@ -140,7 +148,7 @@ def header(ctx):
     <a class="logo" href="{ctx.url('')}" aria-label="Mada Coaching home">{LOGO}</a>
     <ul class="nav-links">{links}</ul>
     <div class="nav-cta">
-      <a class="btn btn-primary btn-sm" href="{ctx.url('book')}">Book a free intro call</a>
+      <a class="btn btn-primary btn-sm" {intro_attrs(ctx)}>Book a free intro call</a>
       <button class="menu-btn" aria-expanded="false" aria-controls="nav-panel" aria-label="Menu">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
       </button>
@@ -148,7 +156,7 @@ def header(ctx):
   </div>
   <div class="nav-panel" id="nav-panel"><div class="wrap">
     <ul>{mobile}<li><a href="{ctx.url('cv-review')}">CV Review</a></li></ul>
-    <a class="btn btn-primary" href="{ctx.url('book')}">Book a free intro call</a>
+    <a class="btn btn-primary" {intro_attrs(ctx)}>Book a free intro call</a>
   </div></div>
 </header>'''
 
