@@ -379,3 +379,12 @@ a:hover .arrow{transform:translateX(3px)}
 .pick .pick-go{margin-top:auto;padding-top:16px;font-weight:700;color:var(--cobalt)}
 .svc .best,.featured .best{font-size:14px;line-height:1.45;color:var(--ink);margin:0 0 10px}
 .svc .best b,.featured .best b{color:var(--cobalt)}
+
+/* services: single-price cards, outcome line; cross-sell strip */
+.svc.one{grid-template-columns:minmax(0,2fr) minmax(0,1fr)}
+@media (max-width:880px){.svc.one{grid-template-columns:1fr}.svc.one > div:first-child{grid-column:auto}}
+.svc .outcome,.featured .outcome{font-weight:600;color:var(--ink);margin:0 0 8px;line-height:1.45}
+.xsell{display:flex;gap:24px;align-items:center;justify-content:space-between;flex-wrap:wrap}
+.xsell h2{font-size:clamp(20px,2.4vw,26px);margin:0 0 6px}
+.xsell p{margin:0;max-width:60ch}
+.coach-card .card-foot a{font-weight:600}

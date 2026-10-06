@@ -1,3 +1,4 @@
+import re
 """Page content. Each function builds one page."""
 from build import (Ctx, page, icon, faq, cta_band, intro_btn, book_href, waitlist_href, mailto, C)
 from data import (STAGES, FULL_JOURNEY, AI_TOOLS, HANI, COACHES, TESTIMONIALS, SEGMENTS, PRINCIPLES, faq_full)
@@ -22,10 +23,16 @@ def journey_block(ctx, link=True):
 def coach_cards(ctx):
     out = []
     for c in COACHES:
+        foot = []
+        if c.get('count'):
+            foot.append(f'<b style="color:var(--ink)">{c["count"]}</b> candidates coached')
+        if c.get('linkedin'):
+            foot.append(f'<a href="{c["linkedin"]}" target="_blank" rel="noopener" aria-label="{c["name"]} on LinkedIn">LinkedIn <span class="arrow" aria-hidden="true">&rarr;</span></a>')
+        foot_html = f'<div class="card-foot">{" &middot; ".join(foot)}</div>' if foot else ''
         out.append(f'''<div class="card coach-card reveal">
   <div class="coach"><img src="{ctx.asset('img/' + c['photo'])}" alt="{c['name']}" width="84" height="84" loading="lazy">
   <div><h3>{c['name']}</h3><p class="role">{c['role']}</p><p class="count">{c['edu']}</p></div></div>
-  <div class="card-foot"><b style="color:var(--ink)">{c['count']}</b> candidates coached</div>
+  {foot_html}
 </div>''')
     return ''.join(out)
 
@@ -115,7 +122,7 @@ def home():
     </div>
     {journey_block(ctx)}
     <p style="margin-top:28px"><a href="{u('how-it-works')}">How a Mada engagement works <span class="arrow" aria-hidden="true">&rarr;</span></a></p>
-    <p class="muted" style="margin-top:12px">Every service is also coming as an AI-assisted version: same method, your own pace. <a href="{u('ai')}">Meet Mada AI <span class="arrow" aria-hidden="true">&rarr;</span></a></p>
+    <p class="muted" style="margin-top:12px">Want to practice between sessions? <a href="{u('ai')}">Mada AI</a> is coming soon: self-serve tools for CV feedback, case practice and interview prep. <a href="{u('ai')}">Meet Mada AI <span class="arrow" aria-hidden="true">&rarr;</span></a></p>
   </div>
 </section>
 
@@ -202,7 +209,7 @@ def how_it_works():
     <div class="grid g4">
       <div class="card reveal"><span class="tag">1 &middot; Intro call</span><h3>Tell us where you are</h3><p>A free 20-minute call. We&rsquo;ll tell you where to start, or honestly if we&rsquo;re not the right help.</p></div>
       <div class="card reveal"><span class="tag">2 &middot; Matching</span><h3>We pick your coach</h3><p>Based on your target firms, level and what you need. Every coach is vetted by the Mada team.</p></div>
-      <div class="card reveal"><span class="tag">3 &middot; Sessions</span><h3>Expert or AI, per service</h3><p>Choose live 1:1 sessions, or the AI-assisted version of a service when you&rsquo;d rather work at your own pace.</p></div>
+      <div class="card reveal"><span class="tag">3 &middot; Sessions</span><h3>Live 1:1 sessions</h3><p>Work with your coach at the step where you need help: a single session, a package or the Full Journey.</p></div>
       <div class="card dark reveal"><span class="tag">4 &middot; Beyond the offer</span><h3>Stay for Progress</h3><p>Your first 90 days, reviews and promotion, with someone outside the problem.</p></div>
     </div>
   </div>
@@ -218,10 +225,10 @@ def how_it_works():
 <section class="bg-navy">
   <div class="wrap">
     <div class="split">
-      <div class="reveal"><p class="eyebrow">Expert where it matters, AI where it scales</p>
-        <h2>Live coaching for the moments that count. AI for practice and prep.</h2></div>
-      <div class="reveal"><p>Mada uses AI in four places: an AI-assisted option for each service, practice and follow-up between your live sessions, standalone self-serve tools, and our own operations so coaches spend their time on you.</p>
-        <p>The AI-assisted options are coming soon. Every expert-led service is available now.</p>
+      <div class="reveal"><p class="eyebrow">Between sessions</p>
+        <h2>Practice more with Mada AI.</h2></div>
+      <div class="reveal"><p>Mada AI is a set of self-serve tools for CV feedback, case practice and interview preparation, for when repetition matters.</p>
+        <p>The tools are coming soon. Every coaching service is available now.</p>
         <div class="btn-row" style="margin-top:24px"><a class="btn btn-light" href="{u('ai')}">Meet Mada AI</a></div></div>
     </div>
   </div>
@@ -235,7 +242,9 @@ def how_it_works():
 
 # ---------------------------------------------------------------- services
 def svc_row(ctx, svc):
-    inc = ''.join(f'<li>{x}</li>' for x in svc.get('includes', []))
+    skip = re.compile(r'minute|^\d calls|Delivered within 48|Nothing to schedule')
+    inc_items = [x for x in svc.get('includes', []) if not skip.search(x)]
+    inc = f'<ul class="includes">{"".join(f"<li>{x}</li>" for x in inc_items)}</ul>' if inc_items else ''
     more = (f'<p style="margin:10px 0 0"><a href="{ctx.url(svc["more"])}">How CV Review works <span class="arrow" aria-hidden="true">&rarr;</span></a></p>'
             if svc.get('more') else '')
     label = svc['name'].split(' <span')[0].replace('&amp;', '&')
@@ -244,18 +253,12 @@ def svc_row(ctx, svc):
     if svc.get('package'):
         k, pname, pprice = svc['package']
         pkg = f'<p class="small" style="margin:6px 0 0">{pname}: <b style="color:var(--ink)">{pprice}</b> &middot; <a href="{book_href(k, pname)}">Book</a></p>'
-    expert = f'''<div class="opt"><div class="opt-label">Expert-led <span class="badge">Available</span></div>
+    price = f'''<div class="opt"><div class="opt-label">{svc['format']}</div>
   <div class="opt-price">{svc['expert']}</div>{pkg}
   <a class="btn btn-primary btn-sm" href="{book_href(svc['key'], label)}">{cta}</a></div>'''
-    if svc.get('ai'):
-        ai = f'''<div class="opt ai"><div class="opt-label">AI-assisted <span class="badge soon">Coming soon</span></div>
-  <div class="opt-price">{svc['ai']}</div>
-  <a class="btn btn-ghost btn-sm" href="{waitlist_href('AI-assisted ' + label)}">Join waitlist</a></div>'''
-    else:
-        ai = '<div class="opt na"><div class="opt-label">AI-assisted</div><div class="opt-price">Expert only</div></div>'
-    return f'''<div class="svc" id="{svc['key']}">
-  <div><h3>{svc['name']}</h3><p class="best"><b>Best for:</b> {svc['best']}</p><p class="desc">{svc['desc']}</p><ul class="includes">{inc}</ul>{more}</div>
-  {expert}{ai}
+    return f'''<div class="svc one" id="{svc['key']}">
+  <div><h3>{svc['name']}</h3><p class="outcome">{svc['outcome']}</p><p class="best"><b>Best for:</b> {svc['best']}</p>{inc}{more}</div>
+  {price}
 </div>'''
 
 
@@ -267,57 +270,65 @@ def services():
         rise = ' rise' if s['phase'] == 'rise' else ''
         rows = ''.join(svc_row(ctx, x) for x in s['services'])
         groups.append(f'''<div class="svc-group" id="{s['id']}">
-  <div class="svc-group-head{rise}"><span class="num">{s['num']}</span><h2>{s['name']}</h2><p>{s['line']}</p></div>
+  <div class="svc-group-head{rise}"><span class="num">{s['num']}</span><h2>{s['name']}</h2><p>{s['svc_line']}</p></div>
   {rows}
 </div>''')
     fj = FULL_JOURNEY
     fj_inc = ''.join(f'<li>{x}</li>' for x in fj['includes'])
     body = f'''
 <header class="subhero"><div class="wrap">
-  <p class="eyebrow">Services &amp; prices</p>
-  <h1>Every service, expert-led or AI-assisted.</h1>
-  <p class="lede">Book a single service at the step where you need help, or the Full Journey as one engagement. All prices in USD.</p>
-  <div class="btn-row">{intro_btn(ctx, text='Not sure where to start? Free intro call')}</div>
+  <p class="eyebrow">Mada Experts &middot; 1:1 coaching</p>
+  <h1>Expert coaching for every stage of your consulting journey.</h1>
+  <p class="lede">Work 1:1 with experienced consultants and interviewers who understand what it takes to break into consulting&mdash;and succeed once you&rsquo;re there.</p>
+  <p class="lede" style="margin-top:12px">Whether you need help choosing your target firms, strengthening your application, preparing for interviews, evaluating an offer or navigating life inside consulting, start with the support you need.</p>
+  <div class="btn-row"><a class="btn btn-primary" href="#coaching">Explore expert coaching <span class="arrow" aria-hidden="true">&darr;</span></a></div>
 </div></header>
 
 <section class="tight" style="padding-bottom:0">
   <div class="wrap">
-    <div class="notice">{icon('info', False)}<div><b>AI-assisted versions are coming soon.</b> Join the waitlist on any service and we&rsquo;ll tell you when it opens. Online booking is on its way too: for now, the Book buttons open an email to {C.EMAIL} and we reply within one working day.</div></div>
+    <div class="notice">{icon('info', False)}<div><b>Booking.</b> For now, the Book buttons open an email to {C.EMAIL} and we reply within one working day. Online booking is on its way. All prices in USD.</div></div>
   </div>
 </section>
 
-<section id="full-journey" class="tight">
-  <div class="wrap">
-    <div class="featured reveal">
-      <div>
-        <span class="badge get">Position &rarr; Connect &rarr; Land</span>
-        <h2>The Full Journey</h2>
-        <p class="best"><b>Best for:</b> {fj['best']}</p>
-        <p class="muted">Career strategy through to a negotiated offer, with four mock interviews, run as one engagement with the same coach, at a package price.</p>
-        <ul class="checks">{fj_inc}</ul>
-      </div>
-      <div style="display:flex;flex-direction:column;gap:14px">
-        <div class="opt"><div class="opt-label">Expert-led <span class="badge">Available</span></div>
-          <div class="opt-price">{fj['expert']} <small>vs {fj['separately']} booked separately</small></div>
-          <a class="btn btn-primary btn-sm" href="{book_href('full-journey', 'Full Journey')}">Book the Full Journey</a></div>
-        <div class="opt ai"><div class="opt-label">AI-assisted <span class="badge soon">Coming soon</span></div>
-          <div class="opt-price">{fj['ai']}</div>
-          <a class="btn btn-ghost btn-sm" href="{waitlist_href('AI-assisted Full Journey')}">Join waitlist</a></div>
-      </div>
-    </div>
-  </div>
-</section>
-
-<section style="padding-top:32px">
+<section id="coaching" style="padding-top:32px">
   <div class="wrap">
     {''.join(groups)}
     <p class="muted small">Indicative USD prices. Multi-session packages are used within 6 months of purchase. See <a href="{u('terms')}">terms</a> and <a href="{u('refunds')}">cancellations and refunds</a>.</p>
   </div>
 </section>
+
+<section id="full-journey" class="tight" style="padding-top:0">
+  <div class="wrap">
+    <div class="featured reveal">
+      <div>
+        <span class="badge get">Position &rarr; Connect &rarr; Land</span>
+        <h2>The Full Journey</h2>
+        <p class="outcome">{fj['outcome']}</p>
+        <p class="best"><b>Best for:</b> {fj['best']}</p>
+        <ul class="checks">{fj_inc}</ul>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:14px">
+        <div class="opt"><div class="opt-label">Package &middot; one engagement</div>
+          <div class="opt-price">{fj['expert']} <small>vs {fj['separately']} booked separately</small></div>
+          <a class="btn btn-primary btn-sm" href="{book_href('full-journey', 'Full Journey')}">Book the Full Journey</a></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="bg-mist tight">
+  <div class="wrap">
+    <div class="xsell reveal">
+      <div><h2>Want to practice between coaching sessions? <span class="badge soon">Coming soon</span></h2>
+        <p class="muted">Use Mada AI for on-demand CV feedback, case practice and interview preparation whenever you need it.</p></div>
+      <a class="btn btn-ghost" href="{u('ai')}">Explore Mada AI</a>
+    </div>
+  </div>
+</section>
 {cta_band(ctx, 'Not sure which service you need?', 'Tell us where you are on a free 20-minute call and we&rsquo;ll point you to the right starting step.')}
 '''
-    page('services', 'Services & prices',
-         'Career strategy, CV and LinkedIn, networking, mock case and fit interviews, offer negotiation and support once you are in. Expert-led from $50, with AI-assisted versions coming soon.',
+    page('services', 'Expert coaching & prices',
+         'Expert 1:1 coaching from experienced consultants and interviewers: career strategy, CV and LinkedIn, applications and networking, mock interviews, offer negotiation and support once you are in. From $50.',
          body, ctx)
 
 
@@ -327,68 +338,34 @@ def ai():
     u = ctx.url
     tools = ''.join(f'''<div class="card tool reveal">{icon(t['icon'])}<span class="badge soon">Coming soon</span>
 <h3>{t['name']}</h3><p>{t['desc']}</p>
-<a class="btn btn-ghost btn-sm" href="{waitlist_href('Mada AI ' + t['name'])}" style="margin-top:8px">Join waitlist</a></div>''' for t in AI_TOOLS)
-    ai_rows = []
-    for s in STAGES:
-        for svc in s['services']:
-            if svc.get('ai'):
-                name = svc['name'].split(' <span')[0]
-                ai_rows.append(f'<tr><td><b>{name}</b><br><span class="small muted">{s["name"]}</span></td><td>{svc["expert"]}</td><td><b style="color:var(--cobalt)">{svc["ai"]}</b></td></tr>')
-    ai_rows.append(f'<tr><td><b>Full Journey</b><br><span class="small muted">Position to Land</span></td><td>{FULL_JOURNEY["expert"]}</td><td><b style="color:var(--cobalt)">{FULL_JOURNEY["ai"]}</b></td></tr>')
+<a class="btn btn-ghost btn-sm" href="{waitlist_href(t['name'])}" style="margin-top:8px">Join waitlist</a></div>''' for t in AI_TOOLS)
     body = f'''
 <header class="subhero"><div class="wrap">
   <p class="eyebrow">Mada AI &middot; Coming soon</p>
-  <h1>Expert where it matters. AI where it scales.</h1>
-  <p class="lede">Live coaching is for the moments that count. Practice and preparation shouldn&rsquo;t have to wait for a calendar slot. Mada AI is being built around the same method our coaches use.</p>
-  <div class="btn-row"><a class="btn btn-primary" href="#waitlist">Join the waitlist</a><a class="btn btn-ghost" href="{u('services')}">Book an expert now</a></div>
+  <h1>Practice more. Prepare anytime.</h1>
+  <p class="lede">Mada AI gives you always-on tools to sharpen your consulting applications and interview skills at your own pace.</p>
+  <p class="lede" style="margin-top:12px">Review your CV, practice cases, prepare fit answers and improve through repetition&mdash;whenever you need it.</p>
+  <p class="lede" style="margin-top:12px">For personalized guidance and high-stakes decisions, work with a <a href="{u('services')}">Mada expert</a>.</p>
+  <div class="btn-row"><a class="btn btn-primary" href="#tools">Explore Mada AI <span class="arrow" aria-hidden="true">&darr;</span></a></div>
 </div></header>
 
-<section>
-  <div class="wrap">
-    <div class="section-head reveal"><p class="eyebrow">Where AI fits</p><h2>AI on four layers of Mada.</h2></div>
-    <div class="grid g4">
-      <div class="card reveal">{icon('compass')}<h3>AI or Expert, per service</h3><p>Choose a live 1:1 session or the AI-assisted version of each service.</p></div>
-      <div class="card reveal">{icon('clock')}<h3>Between your sessions</h3><p>Prepare before a session, practise between sessions and follow up after, so live time goes on what needs a person.</p></div>
-      <div class="card reveal">{icon('bolt')}<h3>Self-serve tools</h3><p>Standalone tools for CV scoring, case practice, outreach and tracking, whenever you need them.</p></div>
-      <div class="card reveal">{icon('shield')}<h3>Behind the scenes</h3><p>Intake, matching support and quality control. The Mada team still makes every coach match.</p></div>
-    </div>
-  </div>
-</section>
-
-<section class="bg-mist">
+<section class="bg-mist" id="tools">
   <div class="wrap">
     <div class="section-head reveal"><p class="eyebrow">Self-serve tools</p><h2>Four tools, in development.</h2><p class="lede">Join the waitlist for any of them and we&rsquo;ll email you when it opens.</p></div>
     <div class="grid g2">{tools}</div>
   </div>
 </section>
 
-<section>
-  <div class="wrap">
-    <div class="split" style="align-items:start">
-      <div class="reveal"><p class="eyebrow">AI-assisted services</p><h2>The same services, at your own pace.</h2>
-        <p class="lede" style="margin-top:16px">Each AI-assisted service follows the same method as its expert-led version. You work through it asynchronously on Mada&rsquo;s tools instead of in a live session.</p>
-        <p class="muted">Mentorship membership, 30-Day support and First 90 days stay expert-only.</p></div>
-      <div class="card reveal" style="padding:8px 24px;overflow-x:auto">
-        <table style="width:100%;border-collapse:collapse;font-size:16px">
-          <thead><tr style="text-align:left;color:var(--stone);font-size:13px;letter-spacing:.1em;text-transform:uppercase"><th style="padding:14px 0">Service</th><th>Expert</th><th>AI <span class="badge soon" style="font-size:10px">Soon</span></th></tr></thead>
-          <tbody>{''.join(ai_rows)}</tbody>
-        </table>
-      </div>
-    </div>
-  </div>
-</section>
-
-<section class="bg-navy" id="waitlist">
+<section class="bg-navy">
   <div class="wrap narrow center" style="text-align:center">
-    <p class="eyebrow">Waitlist</p>
-    <h2>Be first to try Mada AI.</h2>
-    <p class="lede center" style="margin-top:16px">Send us a one-line email and tell us what you&rsquo;re preparing for. We&rsquo;ll let you know as each tool opens.</p>
-    <div class="btn-row" style="justify-content:center;margin-top:28px"><a class="btn btn-light" href="{waitlist_href('Mada AI')}">Join the waitlist</a><a class="btn btn-ghost" href="{u('book')}">Or talk to a coach now</a></div>
+    <h2>Need a human perspective?</h2>
+    <p class="lede center" style="margin-top:16px">Some decisions need more than an algorithm. Work 1:1 with an experienced consultant or interviewer for personalized feedback, nuanced career advice and high-stakes preparation.</p>
+    <div class="btn-row" style="justify-content:center;margin-top:28px"><a class="btn btn-light" href="{u('services')}">Explore expert coaching</a></div>
   </div>
 </section>
 '''
     page('ai', 'Mada AI',
-         'AI-assisted versions of every Mada service and self-serve tools for CV scoring, case practice, outreach and tracking. Coming soon: join the waitlist.',
+         'Self-serve AI tools for CV feedback, case practice, fit interview practice and application support: practice more, prepare anytime. Coming soon: join the waitlist.',
          body, ctx)
 
 
@@ -612,7 +589,7 @@ def cv_review():
     <div class="split">
       <div class="reveal"><p class="eyebrow">After the review</p><h2>Want help applying the feedback?</h2></div>
       <div class="reveal"><p>A review tells you what to change. If you&rsquo;d rather work through the rewrite with a coach, and build the story that goes with it, book a live CV &amp; LinkedIn session.</p>
-        <p>An AI-assisted version of CV Review, and the self-serve <a href="{u('ai')}">CV Scorer</a>, are coming soon.</p>
+        <p>A self-serve AI CV review is coming soon on <a href="{u('ai')}">Mada AI</a>.</p>
         <div class="btn-row" style="margin-top:20px"><a class="btn btn-primary" href="{book}">Request a CV Review</a><a class="btn btn-ghost" href="{u('services#cv-linkedin')}">Live CV &amp; LinkedIn session</a></div></div>
     </div>
   </div>
@@ -652,6 +629,9 @@ def resources():
     <div class="filters" role="group" aria-label="Filter guides">{filters}</div>
     {''.join(cats)}
   </div>
+</section>
+<section class="tight" style="padding-top:0">
+  <div class="wrap"><p class="muted">From reading to doing: practice with <a href="{u('ai')}">Mada AI</a> (coming soon), or work 1:1 with an <a href="{u('services')}">expert coach</a>.</p></div>
 </section>
 {cta_band(ctx, 'Want this applied to your own situation?', 'A free 20-minute intro call is the quickest way to find out where to focus.')}
 '''
@@ -694,7 +674,7 @@ def book():
       </div>
       <div class="reveal">
         <h3>Already know what you need?</h3>
-        <p class="muted">Every service can be booked directly, expert-led today, with AI-assisted versions coming soon.</p>
+        <p class="muted">Every service can be booked directly.</p>
         <div class="grid" style="gap:12px;margin-top:20px">
           <a class="card" style="text-decoration:none;padding:20px 24px" href="{u('services#full-journey')}"><b style="color:var(--ink)">The Full Journey</b> <span class="muted">&middot; $750</span><br><span class="small muted">Position to Land as one engagement</span></a>
           <a class="card" style="text-decoration:none;padding:20px 24px" href="{u('services#mock')}"><b style="color:var(--ink)">Mock interview + feedback</b> <span class="muted">&middot; $200</span><br><span class="small muted">Case and fit, in real conditions</span></a>
@@ -758,7 +738,7 @@ def legal_pages():
     legal('terms', 'Terms &amp; Conditions', [
         ('These terms', f'<p>These terms apply when you book or receive coaching from Mada Coaching. {ENTITY} By booking a session you agree to them. If you are booking on behalf of someone else, you confirm you have their authority to do so.</p>'),
         ('What we provide', '<p>We provide 1:1 career and interview coaching for consulting: advice, structured preparation, feedback on your materials, mock interviews and guidance through the stages of a job search and the early years of a consulting career. Sessions are delivered remotely by video call unless we agree otherwise. Sessions may be delivered by the founder or by a coach from the Mada bench, matched to you by Mada.</p>'),
-        ('AI-assisted services', '<p>Some services will be offered in an AI-assisted version that runs on Mada&rsquo;s own tools rather than in a live session. AI-generated feedback can be wrong or incomplete; use it as one input to your own judgement. Specific terms for each AI-assisted service will be shown before you buy it.</p>'),
+        ('Mada AI tools', '<p>Mada AI tools are self-serve products that run on Mada&rsquo;s own tools rather than in a live session. AI-generated feedback can be wrong or incomplete; use it as one input to your own judgement. Specific terms for each tool will be shown before you buy or use it.</p>'),
         ('What we do not provide', '<p>We are not a recruitment agency and we do not place candidates into jobs. We have no role in any employer&rsquo;s hiring decision, and we cannot and do not guarantee an interview, an offer, a salary level, a promotion or any other outcome. Nothing on this website or in a session should be read as a promise of employment. We do not provide legal, immigration, tax or financial advice, and any commentary on an offer is general information for your own decision-making, not professional advice in those fields.</p>'),
         ('Booking and payment', '<p>Sessions are paid in advance unless agreed otherwise. Prices are shown in US dollars on the Services page. Where a multi-session package is purchased, sessions must be scheduled within 6 months of purchase. Memberships are billed monthly and can be cancelled before the next billing date. We may change our prices at any time, but never for a session you have already paid for.</p>'),
         ('Rescheduling, cancellation and refunds', '<p>Our <a href="{{refunds}}">Cancellation &amp; Refund Policy</a> forms part of these terms.</p>'),
