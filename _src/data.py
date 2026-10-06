@@ -130,7 +130,7 @@ COACHES = [
      'prev': None,
      'edu': ['MBA, INSEAD'], 'count': None,
      'linkedin': 'https://www.linkedin.com/in/ana-bonilla-albornoz/'},
-    {'name': 'Nicolas Khoriati', 'photo': None, 'role': 'Former Strategy&amp; consultant',
+    {'name': 'Nicolas Khoriati', 'photo': 'nicolas.jpg', 'role': 'Former Strategy&amp; consultant',
      'prev': 'Four years at Strategy&amp;',
      'edu': ['MBA, INSEAD'], 'count': None,
      'linkedin': 'https://www.linkedin.com/in/nicolas-khoriati/'},
