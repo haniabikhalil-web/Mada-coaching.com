@@ -388,3 +388,35 @@ a:hover .arrow{transform:translateX(3px)}
 .xsell h2{font-size:clamp(20px,2.4vw,26px);margin:0 0 6px}
 .xsell p{margin:0;max-width:60ch}
 .coach-card .card-foot a{font-weight:600}
+
+/* ---- services v3: card per service with a navy price panel ---- */
+.svc-card{display:grid;grid-template-columns:minmax(0,1.75fr) minmax(0,1fr);background:#fff;border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);overflow:hidden;margin-top:20px;transition:border-color .15s,box-shadow .15s,transform .15s}
+.svc-card:hover{border-color:var(--cobalt);transform:translateY(-2px);box-shadow:0 2px 4px rgba(15,31,75,.05),0 16px 36px rgba(15,31,75,.10)}
+.svc-main{padding:30px 34px}
+.svc-main h3{font-size:clamp(22px,2.4vw,27px);margin-bottom:10px}
+.svc-main .outcome{font-weight:600;color:var(--ink);margin:0 0 8px;line-height:1.45}
+.svc-main .desc{color:var(--stone);margin:0 0 16px}
+.svc-best{display:block;font-size:14px;line-height:1.45;color:var(--ink);background:var(--cobalt-tint);border-radius:var(--radius-sm);padding:10px 14px;margin:0}
+.svc-best b{color:var(--cobalt);text-transform:uppercase;letter-spacing:.1em;font-size:12px;margin-right:6px}
+.svc-main .checks.cols{margin-top:18px;display:grid;grid-template-columns:1fr 1fr;column-gap:24px;font-size:15px}
+.svc-main .checks.cols li{margin:6px 0}
+.svc-price{position:relative;background:linear-gradient(160deg,var(--navy),var(--navy-2));color:#fff;padding:30px 28px;display:flex;flex-direction:column;gap:12px;justify-content:center}
+.svc-card.rise .svc-price::before{content:"";position:absolute;left:0;top:0;bottom:0;width:5px;background:var(--dawn)}
+.svc-price .lbl{font-size:12px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--on-navy-eyebrow)}
+.svc-price .amt{font-family:var(--display);font-size:clamp(40px,4.4vw,52px);font-weight:700;letter-spacing:-.03em;line-height:1;color:#fff}
+.svc-price .amt small{font-family:var(--body);font-size:15px;font-weight:500;color:var(--on-navy);letter-spacing:0}
+.svc-price .pkg{margin:0;font-size:14px;color:var(--on-navy)}
+.svc-price .pkg b{color:#fff}
+.svc-price .pkg a{color:#fff;font-weight:600}
+.svc-price .btn{align-self:flex-start;margin-top:6px}
+.svc-group-head{border-bottom:0;margin-bottom:0;padding-bottom:6px}
+.svc-group-head::after{content:"";flex:1 0 100%;height:3px;border-radius:3px;background:linear-gradient(90deg,var(--cobalt) 0 72px,var(--line) 72px)}
+.svc-group-head.rise::after{background:linear-gradient(90deg,var(--dawn) 0 72px,var(--line) 72px)}
+@media (max-width:880px){.svc-card{grid-template-columns:1fr}.svc-main{padding:24px}.svc-main .checks.cols{grid-template-columns:1fr}}
+
+/* ---- coach cards ---- */
+.coach .avatar{width:84px;height:84px;border-radius:50%;flex:none;display:grid;place-items:center;background:linear-gradient(160deg,var(--navy),var(--cobalt));color:#fff;font-family:var(--display);font-weight:700;font-size:30px;letter-spacing:.02em;border:3px solid #fff;box-shadow:var(--shadow)}
+.coach-rows{display:flex;flex-direction:column;gap:10px}
+.coach-row{display:grid;grid-template-columns:92px 1fr;gap:12px;font-size:15px;line-height:1.45}
+.coach-row .k{font-size:12px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--stone);padding-top:2px}
+.coach-card .card-foot{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-top:auto}

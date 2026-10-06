@@ -23,15 +23,26 @@ def journey_block(ctx, link=True):
 def coach_cards(ctx):
     out = []
     for c in COACHES:
+        if c.get('photo'):
+            avatar = f'<img src="{ctx.asset("img/" + c["photo"])}" alt="{c["name"]}" width="84" height="84" loading="lazy">'
+        else:
+            initials = ''.join(w[0] for w in c['name'].split()[:2])
+            avatar = f'<span class="avatar" aria-hidden="true">{initials}</span>'
+        rows = []
+        if c.get('prev'):
+            rows.append(f'<div class="coach-row"><span class="k">Previously</span><span>{c["prev"]}</span></div>')
+        if c.get('edu'):
+            rows.append(f'<div class="coach-row"><span class="k">Education</span><span>{"<br>".join(c["edu"])}</span></div>')
         foot = []
         if c.get('count'):
-            foot.append(f'<b style="color:var(--ink)">{c["count"]}</b> candidates coached')
+            foot.append(f'<span><b style="color:var(--ink)">{c["count"]}</b> candidates coached</span>')
         if c.get('linkedin'):
             foot.append(f'<a href="{c["linkedin"]}" target="_blank" rel="noopener" aria-label="{c["name"]} on LinkedIn">LinkedIn <span class="arrow" aria-hidden="true">&rarr;</span></a>')
-        foot_html = f'<div class="card-foot">{" &middot; ".join(foot)}</div>' if foot else ''
+        foot_html = f'<div class="card-foot">{"".join(foot)}</div>' if foot else ''
         out.append(f'''<div class="card coach-card reveal">
-  <div class="coach"><img src="{ctx.asset('img/' + c['photo'])}" alt="{c['name']}" width="84" height="84" loading="lazy">
-  <div><h3>{c['name']}</h3><p class="role">{c['role']}</p><p class="count">{c['edu']}</p></div></div>
+  <div class="coach">{avatar}
+  <div><h3>{c['name']}</h3><p class="role">{c['role']}</p></div></div>
+  <div class="coach-rows">{''.join(rows)}</div>
   {foot_html}
 </div>''')
     return ''.join(out)
@@ -241,24 +252,31 @@ def how_it_works():
 
 
 # ---------------------------------------------------------------- services
-def svc_row(ctx, svc):
-    skip = re.compile(r'minute|^\d calls|Delivered within 48|Nothing to schedule')
-    inc_items = [x for x in svc.get('includes', []) if not skip.search(x)]
-    inc = f'<ul class="includes">{"".join(f"<li>{x}</li>" for x in inc_items)}</ul>' if inc_items else ''
-    more = (f'<p style="margin:10px 0 0"><a href="{ctx.url(svc["more"])}">How CV Review works <span class="arrow" aria-hidden="true">&rarr;</span></a></p>'
+def svc_row(ctx, svc, rise=False):
+    inc_items = svc.get('includes', [])
+    inc = f'<ul class="checks cols">{"".join(f"<li>{x}</li>" for x in inc_items)}</ul>' if inc_items else ''
+    more = (f'<p style="margin:14px 0 0"><a href="{ctx.url(svc["more"])}">How CV Review works <span class="arrow" aria-hidden="true">&rarr;</span></a></p>'
             if svc.get('more') else '')
     label = svc['name'].split(' <span')[0].replace('&amp;', '&')
     cta = svc.get('cta', 'Book')
     pkg = ''
     if svc.get('package'):
         k, pname, pprice = svc['package']
-        pkg = f'<p class="small" style="margin:6px 0 0">{pname}: <b style="color:var(--ink)">{pprice}</b> &middot; <a href="{book_href(k, pname)}">Book</a></p>'
-    price = f'''<div class="opt"><div class="opt-label">{svc['format']}</div>
-  <div class="opt-price">{svc['expert']}</div>{pkg}
-  <a class="btn btn-primary btn-sm" href="{book_href(svc['key'], label)}">{cta}</a></div>'''
-    return f'''<div class="svc one" id="{svc['key']}">
-  <div><h3>{svc['name']}</h3><p class="outcome">{svc['outcome']}</p><p class="best"><b>Best for:</b> {svc['best']}</p>{inc}{more}</div>
-  {price}
+        pkg = f'<p class="pkg">{pname}: <b>{pprice}</b> &middot; <a href="{book_href(k, pname)}">Book</a></p>'
+    r = ' rise' if rise else ''
+    return f'''<div class="svc-card{r} reveal" id="{svc['key']}">
+  <div class="svc-main">
+    <h3>{svc['name']}</h3>
+    <p class="outcome">{svc['outcome']}</p>
+    <p class="desc">{svc['desc']}</p>
+    <p class="svc-best"><b>Best for</b> {svc['best']}</p>
+    {inc}{more}
+  </div>
+  <div class="svc-price">
+    <div class="lbl">{svc['format']}</div>
+    <div class="amt">{svc['expert']}</div>{pkg}
+    <a class="btn btn-light" href="{book_href(svc['key'], label)}">{cta}</a>
+  </div>
 </div>'''
 
 
@@ -268,7 +286,7 @@ def services():
     groups = []
     for s in STAGES:
         rise = ' rise' if s['phase'] == 'rise' else ''
-        rows = ''.join(svc_row(ctx, x) for x in s['services'])
+        rows = ''.join(svc_row(ctx, x, s['phase'] == 'rise') for x in s['services'])
         groups.append(f'''<div class="svc-group" id="{s['id']}">
   <div class="svc-group-head{rise}"><span class="num">{s['num']}</span><h2>{s['name']}</h2><p>{s['svc_line']}</p></div>
   {rows}
@@ -290,14 +308,14 @@ def services():
   </div>
 </section>
 
-<section id="coaching" style="padding-top:32px">
+<section class="tight" style="padding-bottom:0">
   <div class="wrap">
-    {''.join(groups)}
-    <p class="muted small">Indicative USD prices. Multi-session packages are used within 6 months of purchase. See <a href="{u('terms')}">terms</a> and <a href="{u('refunds')}">cancellations and refunds</a>.</p>
+    <div class="section-head reveal"><p class="eyebrow">Choose your step</p><h2>Four steps, one journey.</h2></div>
+    {journey_block(ctx)}
   </div>
 </section>
 
-<section id="full-journey" class="tight" style="padding-top:0">
+<section id="full-journey" class="tight">
   <div class="wrap">
     <div class="featured reveal">
       <div>
@@ -313,6 +331,13 @@ def services():
           <a class="btn btn-primary btn-sm" href="{book_href('full-journey', 'Full Journey')}">Book the Full Journey</a></div>
       </div>
     </div>
+  </div>
+</section>
+
+<section id="coaching" style="padding-top:8px">
+  <div class="wrap">
+    {''.join(groups)}
+    <p class="muted small">Indicative USD prices. Multi-session packages are used within 6 months of purchase. See <a href="{u('terms')}">terms</a> and <a href="{u('refunds')}">cancellations and refunds</a>.</p>
   </div>
 </section>
 
