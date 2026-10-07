@@ -446,8 +446,6 @@ def coaches():
 def about():
     ctx = Ctx('about')
     u = ctx.url
-    chips = ''.join(f'<span class="chip">{c}</span>' for c in
-                    ['An interview story', 'A career move', 'Difficult feedback', 'A choice between two offers', 'A staffing problem', 'A conversation you need to have'])
     body = f'''
 <header class="subhero"><div class="wrap">
   <p class="eyebrow">About Mada</p>
@@ -468,30 +466,6 @@ def about():
           <div lang="ar" style="font-family:var(--arabic);font-weight:700;font-size:clamp(110px,14vw,170px);line-height:1;color:var(--dawn)">مدى</div>
           <p style="color:#fff;font-weight:600;margin-top:24px">Mada (n.): reach, range, horizon.</p>
         </div>
-      </div>
-    </div>
-  </div>
-</section>
-
-<section class="bg-mist" id="story">
-  <div class="wrap">
-    <div class="section-head reveal"><p class="eyebrow">Why I coach &middot; Hani Abi Khalil, founder</p><h2>The advice I wish I had earlier.</h2></div>
-    <div class="split" style="align-items:start">
-      <div class="note reveal">
-        <p>When I was applying to consulting, I had very little guidance. I made mistakes that, with the right advice at the right moment, could easily have been avoided.</p>
-        <p>After I joined consulting, there were moments where one honest conversation with someone who understood the environment &mdash; but was outside the immediate situation &mdash; could have helped me see things more clearly. I did not always have that person.</p>
-        <p class="pull">Getting into consulting is hard. Staying in consulting can be even harder.</p>
-        <p>Over the years I have coached students, graduates, MBA candidates, experienced professionals and consultants. I experienced many of these decisions myself, first as a candidate, later as a consultant and eventually as an official interviewer.</p>
-        <p>Breaking in requires preparation, persistence and strong interview performance. Succeeding once inside requires a different set of skills: managing expectations, building relationships, navigating staffing, responding to feedback, understanding performance decisions, communicating with senior stakeholders, and building a career that is both successful and sustainable. Many of those lessons are rarely taught explicitly.</p>
-        <p>If I can help someone avoid an unnecessary mistake, make a better career decision or approach an important opportunity with greater clarity, I want to do it.</p>
-      </div>
-      <div class="card dark reveal" style="padding:36px">
-        <span class="tag">Sometimes the most useful thing</span>
-        <h3 style="font-size:30px">is having someone outside the problem.</h3>
-        <p style="margin-top:12px">Someone who is not your manager, teammate, recruiter or colleague, and therefore does not have an organizational agenda or personal stake in the decision.</p>
-        <span class="tag" style="margin-top:24px">You might bring me</span>
-        <div class="chips">{chips}</div>
-        <p style="border-top:1px solid var(--navy-line);padding-top:20px;color:#fff">My role is not necessarily to tell you what to do. It is to stress-test your thinking, identify blind spots and help you reach a decision you can stand behind.</p>
       </div>
     </div>
   </div>
