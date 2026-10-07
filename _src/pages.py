@@ -30,7 +30,7 @@ def coach_cards(ctx):
             avatar = f'<span class="avatar" aria-hidden="true">{initials}</span>'
         rows = []
         if c.get('prev'):
-            rows.append(f'<div class="coach-row"><span class="k">Previously</span><span>{c["prev"]}</span></div>')
+            rows.append(f'<div class="coach-row"><span class="k">Worked for</span><span>{c["prev"]}</span></div>')
         if c.get('edu'):
             rows.append(f'<div class="coach-row"><span class="k">Education</span><span>{"<br>".join(c["edu"])}</span></div>')
         foot = []
@@ -81,15 +81,15 @@ def home():
 <section class="hero">
   <div class="hero-ar" lang="ar" aria-hidden="true">مدى</div>
   <div class="wrap" style="position:relative">
-    <p class="eyebrow">Consulting career coaching &middot; Middle East-first, open to candidates anywhere</p>
-    <h1>Get into consulting. Then get ahead in it.</h1>
-    <p class="lede">1:1 coaching from experienced consultants and interviewers across applications, CVs, networking, interviews, offers and life inside the firm, with deep expertise in Middle East consulting.</p>
+    <p class="eyebrow">Consulting career coaching &middot; Middle East-focused</p>
+    <h1>Get into consulting.<br>Then get ahead in it.</h1>
+    <p class="lede">Expert 1:1 coaching from consultants who went through the process, now work at the firms and were hired into those roles. Plus Mada AI, coming soon, to build your skills between sessions.</p>
     <p class="brand-line">Reach the room. Rise in it.</p>
     <div class="btn-row">{intro_btn(ctx)}<a class="btn btn-ghost" href="{u('services')}">See services and prices</a></div>
     {HORIZON}
     <div class="stats two">
-      <div class="stat"><b>300+</b><span>candidates coached by our founder</span></div>
-      <div class="stat"><b>200+</b><span>official interviews conducted for Oliver Wyman</span></div>
+      <div class="stat"><b>1,000+</b><span>candidates coached by our coaches</span></div>
+      <div class="stat"><b>500+</b><span>official interviews conducted for consulting firms</span></div>
     </div>
   </div>
 </section>
@@ -141,7 +141,7 @@ def home():
   <div class="wrap">
     <div class="section-head reveal">
       <p class="eyebrow">Who coaches</p>
-      <h2>Coaches who have hired, vetted by the Mada team.</h2>
+      <h2>Coaches who have been hired, and invited by the Mada team.</h2>
       <p class="lede">Every coach is vetted by the Mada team before joining, and every candidate is matched to the right coach.</p>
     </div>
     <div class="grid g2">{coach_cards(ctx)}</div>
@@ -170,7 +170,7 @@ def home():
 {cta_band(ctx)}
 '''
     page('', 'Mada Coaching | Get into consulting. Then get ahead in it.',
-         '1:1 coaching from experienced consultants and interviewers: applications, CVs, networking, interviews, offers and life inside the firm. Middle East-first, open to candidates anywhere.',
+         '1:1 coaching from experienced consultants and interviewers: applications, CVs, networking, interviews, offers and life inside the firm. Middle East-focused.',
          body, ctx)
 
 
@@ -262,7 +262,7 @@ def svc_row(ctx, svc, rise=False):
     pkg = ''
     if svc.get('package'):
         k, pname, pprice = svc['package']
-        pkg = f'<p class="pkg">{pname}: <b>{pprice}</b> &middot; <a href="{book_href(k, pname)}">Book</a></p>'
+        pkg = f'<p class="pkg">{pname}: <b>{pprice}</b></p>'
     r = ' rise' if rise else ''
     return f'''<div class="svc-card{r} reveal" id="{svc['key']}">
   <div class="svc-main">
@@ -275,7 +275,6 @@ def svc_row(ctx, svc, rise=False):
   <div class="svc-price">
     <div class="lbl">{svc['format']}</div>
     <div class="amt">{svc['expert']}</div>{pkg}
-    <a class="btn btn-light" href="{book_href(svc['key'], label)}">{cta}</a>
   </div>
 </div>'''
 
@@ -304,12 +303,6 @@ def services():
 
 <section class="tight" style="padding-bottom:0">
   <div class="wrap">
-    <div class="notice">{icon('info', False)}<div><b>Booking.</b> For now, the Book buttons open an email to {C.EMAIL} and we reply within one working day. Online booking is on its way. All prices in USD.</div></div>
-  </div>
-</section>
-
-<section class="tight" style="padding-bottom:0">
-  <div class="wrap">
     <div class="section-head reveal"><p class="eyebrow">Choose your step</p><h2>Four steps, one journey.</h2></div>
     {journey_block(ctx)}
   </div>
@@ -327,8 +320,7 @@ def services():
       </div>
       <div style="display:flex;flex-direction:column;gap:14px">
         <div class="opt"><div class="opt-label">Package &middot; one engagement</div>
-          <div class="opt-price">{fj['expert']} <small>vs {fj['separately']} booked separately</small></div>
-          <a class="btn btn-primary btn-sm" href="{book_href('full-journey', 'Full Journey')}">Book the Full Journey</a></div>
+          <div class="opt-price">{fj['expert']} <small>{fj['saving']}</small></div></div>
       </div>
     </div>
   </div>
@@ -404,7 +396,7 @@ def coaches():
     body = f'''
 <header class="subhero"><div class="wrap">
   <p class="eyebrow">Coaches</p>
-  <h1>Coaches who have hired, vetted by the Mada team.</h1>
+  <h1>Coaches who have been hired, and invited by the Mada team.</h1>
   <p class="lede">Every Mada coach has worked at the kind of firm you&rsquo;re targeting. Every one is vetted by the Mada team before joining, and every candidate is matched to the right coach.</p>
 </div></header>
 
