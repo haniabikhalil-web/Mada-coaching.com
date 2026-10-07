@@ -39,13 +39,26 @@ def coach_cards(ctx):
         if c.get('linkedin'):
             foot.append(f'<a href="{c["linkedin"]}" target="_blank" rel="noopener" aria-label="{c["name"]} on LinkedIn">LinkedIn <span class="arrow" aria-hidden="true">&rarr;</span></a>')
         foot_html = f'<div class="card-foot">{"".join(foot)}</div>' if foot else ''
-        out.append(f'''<div class="card coach-card reveal">
+        role_html = f'<p class="role">{c["role"]}</p>' if c.get('role') else ''
+        out.append(f'''<div class="card coach-card reveal" data-companies="{'|'.join(c['companies'])}" data-schools="{'|'.join(c['schools'])}">
   <div class="coach">{avatar}
-  <div><h3>{c['name']}</h3><p class="role">{c['role']}</p></div></div>
+  <div><h3>{c['name']}</h3>{role_html}</div></div>
   <div class="coach-rows">{''.join(rows)}</div>
   {foot_html}
 </div>''')
     return ''.join(out)
+
+
+def coach_filters():
+    def opts(key):
+        vals = sorted({v for c in COACHES for v in c[key]}, key=lambda x: x.replace('&amp;', '&').lower())
+        return '<option value="">All</option>' + ''.join(f'<option value="{v}">{v}</option>' for v in vals)
+    return f'''<div class="coach-filters" role="group" aria-label="Filter coaches">
+  <label class="select-pill"><span>Company</span><select id="f-company" data-coach-filter="companies">{opts('companies')}</select></label>
+  <label class="select-pill"><span>School</span><select id="f-school" data-coach-filter="schools">{opts('schools')}</select></label>
+  <button class="filter" type="button" id="f-reset" hidden>Clear filters</button>
+  <p class="muted small" id="f-count" aria-live="polite"></p>
+</div>'''
 
 
 def testimonial_cards():
@@ -403,7 +416,9 @@ def coaches():
 <section class="bg-mist">
   <div class="wrap">
     <div class="section-head reveal"><p class="eyebrow">Our coaches</p><h2>Experienced consultants, vetted by the Mada team.</h2></div>
-    <div class="grid g2">{coach_cards(ctx)}</div>
+    {coach_filters()}
+    <div class="grid g2" id="coach-grid">{coach_cards(ctx)}</div>
+    <p class="card" id="f-empty" hidden style="margin-top:20px">No coach matches both filters yet. Try clearing one, or tell us what you need on the intro call and we&rsquo;ll match you.</p>
     <p class="muted small" style="margin-top:20px">Our bench is growing. New coaches join only after being vetted by the Mada team.</p>
   </div>
 </section>

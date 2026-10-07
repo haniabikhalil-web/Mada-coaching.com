@@ -46,6 +46,30 @@
     });
   });
 
+  // Coach filters (company + school)
+  var sels = document.querySelectorAll('[data-coach-filter]');
+  if (sels.length) {
+    var cards = document.querySelectorAll('#coach-grid .coach-card');
+    var reset = document.getElementById('f-reset'), count = document.getElementById('f-count'), empty = document.getElementById('f-empty');
+    var apply = function(){
+      var n = 0, active = false;
+      cards.forEach(function(c){
+        var ok = true;
+        sels.forEach(function(s){
+          if (!s.value) return;
+          active = true;
+          if ((c.getAttribute('data-' + s.getAttribute('data-coach-filter')) || '').split('|').indexOf(s.value) < 0) ok = false;
+        });
+        c.hidden = !ok; if (ok) { n++; c.classList.add('in'); }
+      });
+      reset.hidden = !active;
+      count.textContent = active ? n + ' of ' + cards.length + ' coaches' : '';
+      empty.hidden = n > 0;
+    };
+    sels.forEach(function(s){ s.addEventListener('change', apply); });
+    reset.addEventListener('click', function(){ sels.forEach(function(s){ s.value = ''; }); apply(); });
+  }
+
   // Reveal on scroll
   if ('IntersectionObserver' in window) {
     var io = new IntersectionObserver(function(entries){

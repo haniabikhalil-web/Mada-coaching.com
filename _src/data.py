@@ -131,14 +131,33 @@ COACHES = [
      'edu': ['MBA, INSEAD', 'BA International Relations and Economics, Brown University'], 'count': '20+',
      'linkedin': 'https://www.linkedin.com/in/ana-bonilla-albornoz/'},
     {'name': 'Nicolas Khoriati', 'photo': 'nicolas.jpg', 'role': 'Consultant',
-     'prev': 'Strategy&amp; (four years)',
+     'prev': 'Strategy&amp;',
      'edu': ['MBA candidate, INSEAD', 'BSc Economics, Saint Joseph University of Beirut'], 'count': '20+',
      'linkedin': 'https://www.linkedin.com/in/nicolas-khoriati/'},
     {'name': 'Alberto Sinibaldi', 'photo': 'alberto.jpg', 'role': 'Consultant',
-     'prev': 'Boston Consulting Group',
+     'prev': 'Boston Consulting Group &middot; Oliver Wyman',
      'edu': ['MBA, INSEAD', 'MSc Industrial Management Engineering, Politecnico di Milano', 'BSc Management Engineering, Politecnico di Milano'], 'count': '20+',
      'linkedin': 'https://www.linkedin.com/in/alberto-sinibaldi/'},
+    {'name': 'Nabil Habib', 'photo': 'nabil.jpg', 'role': '',
+     'prev': 'AlixPartners',
+     'edu': ['BSc Economics, Saint Joseph University of Beirut'], 'count': '30+',
+     'linkedin': 'https://www.linkedin.com/in/nabil-habib1/'},
 ]
+
+# Schools used by the coaches-page filter (short names)
+SCHOOLS = {
+    'Hani Abi Khalil': ['INSEAD', 'London School of Economics', 'Saint Joseph University of Beirut'],
+    'Samer Rayess': ['Columbia University', 'American University of Beirut', 'Lebanese American University'],
+    'Christian Whaibe': ['HEC Paris', 'Lebanese University'],
+    'Karim Chamesddine': ['INSEAD', 'American University of Beirut'],
+    'Ana Bonilla': ['INSEAD', 'Brown University'],
+    'Nicolas Khoriati': ['INSEAD', 'Saint Joseph University of Beirut'],
+    'Alberto Sinibaldi': ['INSEAD', 'Politecnico di Milano'],
+    'Nabil Habib': ['Saint Joseph University of Beirut'],
+}
+for _c in COACHES:
+    _c['companies'] = [x.strip() for x in _c['prev'].split('&middot;')]
+    _c['schools'] = SCHOOLS[_c['name']]
 
 # ---------------------------------------------------------------- proof
 TESTIMONIALS = [
