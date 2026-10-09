@@ -731,7 +731,7 @@ def book():
 
 
 # ---------------------------------------------------------------- legal
-ENTITY = ('Mada Coaching is being registered in the United Arab Emirates; the registered entity will be named here once registration is complete.')
+ENTITY = ('Mada Coaching is operated by Mada Coaching FZE, registered at the Sharjah Publishing City Free Zone, Sharjah, United Arab Emirates (registration number 4432288), with its address at Business Centre, Sharjah Publishing City Free Zone, Sharjah, United Arab Emirates.')
 
 
 def legal(path, title, sections, desc):
