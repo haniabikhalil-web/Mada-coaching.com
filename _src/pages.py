@@ -1,5 +1,5 @@
-import re
 """Page content. Each function builds one page."""
+import re
 from build import (Ctx, page, icon, faq, cta_band, intro_btn, book_href, waitlist_href, mailto, C)
 from data import (STAGES, FULL_JOURNEY, AI_TOOLS, HANI, COACHES, TESTIMONIALS, SEGMENTS, PRINCIPLES, faq_full)
 
@@ -25,7 +25,7 @@ HOME_COACHES = ['Hani Abi Khalil', 'Ana Bonilla', 'Alberto Sinibaldi', 'Samer Ra
 
 def more_coaches_card(ctx, n):
     return f'''<a class="card reveal" href="{ctx.url('coaches')}" style="display:flex;flex-direction:column;justify-content:center;gap:10px;text-decoration:none;color:inherit">
-  <h3>See the other {n} coaches</h3>
+  <h3>See the other coaches</h3>
   <p class="muted">Ex-MBB, Tier 2 strategy firms and Big Four strategy practices. Filter by firm or school.</p>
   <span>Meet all our coaches <span class="arrow" aria-hidden="true">&rarr;</span></span>
 </a>'''
@@ -277,6 +277,12 @@ def how_it_works():
 
 
 # ---------------------------------------------------------------- services
+def book_btn(key, label, text, cls='btn-light'):
+    href = book_href(key, label)
+    ext = ' target="_blank" rel="noopener"' if href.startswith('http') else ''
+    return f'<a class="btn {cls} btn-sm" href="{href}"{ext}>{text} <span class="arrow" aria-hidden="true">&rarr;</span></a>'
+
+
 def svc_row(ctx, svc, rise=False):
     inc_items = svc.get('includes', [])
     inc = f'<ul class="checks cols">{"".join(f"<li>{x}</li>" for x in inc_items)}</ul>' if inc_items else ''
@@ -288,6 +294,11 @@ def svc_row(ctx, svc, rise=False):
     if svc.get('package'):
         k, pname, pprice = svc['package']
         pkg = f'<p class="pkg">{pname}: <b>{pprice}</b></p>'
+    plain = re.sub(r'<[^>]+>', '', label).strip()
+    btns = book_btn(svc['key'], plain, cta)
+    if svc.get('package'):
+        btns += book_btn(k, pname, 'Book the package')
+    btns = f'<div class="svc-btns">{btns}</div>'
     r = ' rise' if rise else ''
     return f'''<div class="svc-card{r} reveal" id="{svc['key']}">
   <div class="svc-main">
@@ -300,6 +311,7 @@ def svc_row(ctx, svc, rise=False):
   <div class="svc-price">
     <div class="lbl">{svc['format']}</div>
     <div class="amt">{svc['expert']}</div>{pkg}
+    {btns}
   </div>
 </div>'''
 
@@ -346,6 +358,7 @@ def services():
       <div style="display:flex;flex-direction:column;gap:14px">
         <div class="opt"><div class="opt-label">Package &middot; one engagement</div>
           <div class="opt-price">{fj['expert']} <small>{fj['saving']}</small></div></div>
+        <div class="btn-row">{book_btn(fj['key'], 'The Full Journey', 'Book the Full Journey', 'btn-primary')}</div>
       </div>
     </div>
   </div>

@@ -405,6 +405,7 @@ a:hover .arrow{transform:translateX(3px)}
 .svc-price .lbl{font-size:12px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--on-navy-eyebrow)}
 .svc-price .amt{font-family:var(--display);font-size:clamp(40px,4.4vw,52px);font-weight:700;letter-spacing:-.03em;line-height:1;color:#fff}
 .svc-price .amt small{font-family:var(--body);font-size:15px;font-weight:500;color:var(--on-navy);letter-spacing:0}
+.svc-btns{display:flex;flex-wrap:wrap;gap:10px;margin-top:6px}
 .svc-price .pkg{margin:0;font-size:14px;color:var(--on-navy)}
 .svc-price .pkg b{color:#fff}
 .svc-price .pkg a{color:#fff;font-weight:600}
