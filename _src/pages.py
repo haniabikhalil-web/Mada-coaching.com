@@ -781,6 +781,21 @@ def legal_pages():
     ], 'The cookies and similar technologies used on mada-coaching.com.')
 
 
+# ---------------------------------------------------------------- thank you (Stripe redirect)
+def thank_you():
+    ctx = Ctx('thank-you')
+    u = ctx.url
+    body = f'''
+<header class="subhero" style="padding:96px 0"><div class="wrap">
+  <p class="eyebrow">Payment received</p>
+  <h1>Thank you. You&rsquo;re booked in.</h1>
+  <p class="lede">We&rsquo;re matching you with the right coach now. Within one business day, the Mada team will email you with your coach and a link to schedule your session.</p>
+  <div class="btn-row"><a class="btn btn-primary" href="{u('resources')}">Read the guides while you wait <span class="arrow" aria-hidden="true">&rarr;</span></a><a class="btn btn-ghost" href="{u('')}">Back to the homepage</a></div>
+  <p class="muted small" style="margin-top:28px">Nothing in your inbox after a business day? Check your spam folder, then write to <a href="mailto:{C.EMAIL}">{C.EMAIL}</a>.</p>
+</div></header>'''
+    page('thank-you', 'Thank you', 'Thank you for booking with Mada Coaching.', body, ctx, noindex=True)
+
+
 # ---------------------------------------------------------------- 404
 def not_found():
     import os
@@ -801,10 +816,10 @@ def not_found():
 
 def build_all():
     not_found()
-    home(); how_it_works(); services(); ai(); coaches(); about(); cv_review(); resources(); book(); legal_pages()
+    home(); how_it_works(); services(); ai(); coaches(); about(); cv_review(); resources(); book(); legal_pages(); thank_you()
     root_files()
     return ['', 'how-it-works', 'services', 'ai', 'coaches', 'about', 'cv-review', 'resources', 'book',
-            'privacy', 'terms', 'refunds', 'cookies', '404']
+            'privacy', 'terms', 'refunds', 'cookies', 'thank-you', '404']
 
 
 def root_files():

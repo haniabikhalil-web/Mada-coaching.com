@@ -213,7 +213,7 @@ def footer(ctx):
 </footer>'''
 
 
-def page(path, title, description, body, ctx=None, og_title=None):
+def page(path, title, description, body, ctx=None, og_title=None, noindex=False):
     ctx = ctx or Ctx(path)
     canonical = f'https://{C.DOMAIN}/' + (f'{path}/' if path else '')
     full_title = title if path == '' else f'{title} | Mada Coaching'
@@ -227,6 +227,7 @@ def page(path, title, description, body, ctx=None, og_title=None):
 <title>{full_title}</title>
 <meta name="description" content="{desc}">
 <link rel="canonical" href="{canonical}">
+{'<meta name="robots" content="noindex">' if noindex else ''}
 <meta name="theme-color" content="#0F1F4B">
 <link rel="icon" href="{ctx.rel}favicon.ico" sizes="32x32">
 <link rel="icon" type="image/svg+xml" href="{ctx.rel}favicon.svg">

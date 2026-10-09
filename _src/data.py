@@ -41,9 +41,9 @@ STAGES = [
         'bullets': ['Case and fit mocks', 'Offer evaluation', 'Negotiation'],
         'icon': 'check',
         'services': [
-            {'key': 'mock', 'outcome': 'Specific feedback on case and fit from someone who has interviewed for real, so you know what to fix before the real thing.', 'format': '1 &times; 45-min mock + feedback', 'best': 'Candidates with a first-round or final-round interview coming up.', 'name': 'Mock interview + feedback',
+            {'key': 'mock', 'outcome': 'Specific feedback on case and fit from someone who has interviewed for real, so you know what to fix before the real thing.', 'format': '1 &times; 60-min mock + feedback', 'best': 'Candidates with a first-round or final-round interview coming up.', 'name': 'Mock interview + feedback',
              'desc': 'A realistic case and fit interview, run the way your target firm runs it, by someone who has interviewed for real. Then detailed, specific feedback.',
-             'includes': ['45-minute mock interview', 'Detailed feedback on case and fit', 'Your priorities before the real thing'],
+             'includes': ['60-minute mock interview', 'Detailed feedback on case and fit', 'Your priorities before the real thing'],
              'expert': '$200', 'ai': '$100',
              'package': ('mock-4', '4-mock package', '$600')},
             {'key': 'offer', 'outcome': 'Confidence in your level and package, and a plan to negotiate the right things.', 'format': '1:1 session', 'best': 'Candidates holding an offer, or about to, who want to check level and package before accepting.', 'name': 'Offer evaluation &amp; negotiation',
@@ -79,7 +79,7 @@ STAGES = [
 ]
 
 FULL_JOURNEY = {
-    'key': 'full-journey', 'outcome': 'One coherent campaign, from target list to negotiated offer, with the same coach throughout.', 'expert': '$750', 'ai': '$450', 'saving': 'Save 17% vs booking separately',
+    'key': 'full-journey', 'outcome': 'One coherent campaign, from target list to negotiated offer, with the same coach throughout.', 'expert': '$750', 'ai': '$450', 'saving': 'Save 25% vs booking separately',
     'best': 'Candidates starting from scratch who want the whole process handled as one engagement.',
     'includes': ['Career strategy session', 'CV &amp; LinkedIn review', 'Application &amp; networking session',
                  'Four mock interviews with feedback', 'Offer negotiation session', 'Email check-ins between stages'],
@@ -126,6 +126,10 @@ COACHES = [
      'prev': 'FTI',
      'edu': ['MBA, INSEAD', 'BEng Computer and Communication Engineering, American University of Beirut'], 'count': '50+',
      'linkedin': 'https://www.linkedin.com/in/karim-a-chamseddine-/'},
+    {'name': 'Beatriz Marques', 'photo': 'beatriz.jpg', 'role': 'Engagement Manager',
+     'prev': 'McKinsey',
+     'edu': ['MBA, INSEAD'], 'count': '20+',
+     'linkedin': 'https://www.linkedin.com/in/beatriz-godinho-marques/'},
     {'name': 'Ana Bonilla', 'photo': 'ana.jpg', 'role': 'Engagement Manager',
      'prev': 'FTI',
      'edu': ['MBA, INSEAD', 'BA International Relations and Economics, Brown University'], 'count': '20+',
@@ -150,6 +154,7 @@ SCHOOLS = {
     'Samer Rayess': ['Columbia University', 'American University of Beirut', 'Lebanese American University'],
     'Christian Whaibe': ['HEC Paris', 'Lebanese University'],
     'Karim Chamesddine': ['INSEAD', 'American University of Beirut'],
+    'Beatriz Marques': ['INSEAD'],
     'Ana Bonilla': ['INSEAD', 'Brown University'],
     'Nicolas Khoriati': ['INSEAD', 'Saint Joseph University of Beirut'],
     'Alberto Sinibaldi': ['INSEAD', 'Politecnico di Milano'],
@@ -199,7 +204,7 @@ def faq_full(url):
         ('When will Mada AI open?',
          f'We&rsquo;re building it now. <a href="{url("ai")}#tools">Join the waitlist</a> for any tool and we&rsquo;ll email you when it opens. All coaching is available today.'),
         ('How long are sessions?',
-         'Most sessions run 60 minutes. A mock interview is a 45-minute realistic interview followed by detailed feedback.'),
+         'Most sessions run 60 minutes. A mock interview is a 60-minute realistic interview followed by detailed feedback.'),
         ('Can I book one service, or combine them?',
          'Both. Every service stands on its own, and most candidates combine two or three. If you want the whole process handled as one engagement, that&rsquo;s the Full Journey.'),
         ('My interview is next week. Can you still help?',
