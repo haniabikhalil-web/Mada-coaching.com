@@ -20,9 +20,21 @@ def journey_block(ctx, link=True):
 <div class="journey">{''.join(cards)}</div>'''
 
 
-def coach_cards(ctx):
+HOME_COACHES = ['Hani Abi Khalil', 'Ana Bonilla', 'Alberto Sinibaldi', 'Samer Rayess', 'Karim Chamesddine']
+
+
+def more_coaches_card(ctx, n):
+    return f'''<a class="card reveal" href="{ctx.url('coaches')}" style="display:flex;flex-direction:column;justify-content:center;gap:10px;text-decoration:none;color:inherit">
+  <h3>See the other {n} coaches</h3>
+  <p class="muted">Ex-MBB, Tier 2 strategy firms and Big Four strategy practices. Filter by firm or school.</p>
+  <span>Meet all our coaches <span class="arrow" aria-hidden="true">&rarr;</span></span>
+</a>'''
+
+
+def coach_cards(ctx, names=None):
     out = []
-    for c in COACHES:
+    pool = COACHES if names is None else [next(c for c in COACHES if c['name'] == n) for n in names]
+    for c in pool:
         if c.get('photo'):
             avatar = f'<img src="{ctx.asset("img/" + c["photo"])}" alt="{c["name"]}" width="84" height="84" loading="lazy">'
         else:
@@ -157,7 +169,7 @@ def home():
       <h2>Coaches who have been hired, and invited by the Mada team.</h2>
       <p class="lede">Every coach is vetted by the Mada team before joining, and every candidate is matched to the right coach.</p>
     </div>
-    <div class="grid g2">{coach_cards(ctx)}</div>
+    <div class="grid g2">{coach_cards(ctx, HOME_COACHES)}{more_coaches_card(ctx, len(COACHES) - len(HOME_COACHES))}</div>
     <p style="margin-top:28px"><a href="{u('coaches')}">Meet the coaches <span class="arrow" aria-hidden="true">&rarr;</span></a></p>
   </div>
 </section>
