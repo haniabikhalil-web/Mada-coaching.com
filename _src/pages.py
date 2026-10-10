@@ -399,14 +399,14 @@ def ai():
   <p class="eyebrow">Mada AI &middot; Coming soon</p>
   <h1>Practice more. Prepare anytime.</h1>
   <p class="lede">Mada AI gives you always-on tools to sharpen your consulting applications and interview skills at your own pace.</p>
-  <p class="lede" style="margin-top:12px">Review your CV, practice cases, prepare fit answers and improve through repetition&mdash;whenever you need it.</p>
+  <p class="lede" style="margin-top:12px">Review your CV, practice cases, sharpen your case maths, prepare fit answers and improve through repetition&mdash;whenever you need it.</p>
   <p class="lede" style="margin-top:12px">For personalized guidance and high-stakes decisions, work with a <a href="{u('services')}">Mada expert</a>.</p>
   <div class="btn-row"><a class="btn btn-primary" href="#tools">Explore Mada AI <span class="arrow" aria-hidden="true">&darr;</span></a></div>
 </div></header>
 
 <section class="bg-mist" id="tools">
   <div class="wrap">
-    <div class="section-head reveal"><p class="eyebrow">Self-serve tools</p><h2>Four tools, in development.</h2><p class="lede">Join the waitlist for any of them and we&rsquo;ll email you when it opens.</p></div>
+    <div class="section-head reveal"><p class="eyebrow">Self-serve tools</p><h2>Five tools, in development.</h2><p class="lede">Join the waitlist for any of them and we&rsquo;ll email you when it opens.</p></div>
     <div class="grid g2">{tools}</div>
   </div>
 </section>
@@ -420,7 +420,7 @@ def ai():
 </section>
 '''
     page('ai', 'Mada AI',
-         'Self-serve AI tools for CV feedback, case practice, fit interview practice and application support: practice more, prepare anytime. Coming soon: join the waitlist.',
+         'Self-serve AI tools for CV feedback, case practice, case maths drills, fit interview practice and application support: practice more, prepare anytime. Coming soon: join the waitlist.',
          body, ctx)
 
 
