@@ -90,7 +90,7 @@ a:hover .arrow{transform:translateX(3px)}
 }
 .nav-panel{display:none;border-top:1px solid var(--line);background:#fff;padding:12px 0 24px}
 .nav-panel ul{list-style:none;padding:0;margin:0 0 16px}
-.nav-panel a{display:block;padding:12px 0;font-size:18px;font-weight:600;color:var(--navy);text-decoration:none;border-bottom:1px solid var(--mist)}
+.nav-panel ul a{display:block;padding:12px 0;font-size:18px;font-weight:600;color:var(--navy);text-decoration:none;border-bottom:1px solid var(--mist)}
 .nav-panel .btn{width:100%}
 
 /* Hero */

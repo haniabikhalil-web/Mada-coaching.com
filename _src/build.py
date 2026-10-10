@@ -155,7 +155,7 @@ def header(ctx):
     </div>
   </div>
   <div class="nav-panel" id="nav-panel"><div class="wrap">
-    <ul>{mobile}<li><a href="{ctx.url('cv-review')}">CV Review</a></li></ul>
+    <ul>{mobile}</ul>
     <a class="btn btn-primary" {intro_attrs(ctx)}>Book a free call</a>
   </div></div>
 </header>'''
