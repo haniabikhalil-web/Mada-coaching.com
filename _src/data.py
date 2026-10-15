@@ -152,6 +152,22 @@ COACHES = [
      'prev': 'AlixPartners',
      'edu': ['BSc Economics, Saint Joseph University of Beirut'], 'count': '30+',
      'linkedin': 'https://www.linkedin.com/in/nabil-habib1/'},
+    {'name': 'Elie Haddad', 'role': 'Project Leader',
+     'prev': 'Boston Consulting Group',
+     'edu': ['MBA, William &amp; Mary (Fulbright Scholar)', 'BS Banking and Finance, Lebanese American University'],
+     'linkedin': 'https://www.linkedin.com/in/eliedhaddad/'},
+    {'name': 'Joelle El Batal', 'role': 'Consultant',
+     'prev': 'Strategy&amp;',
+     'edu': ['MBA candidate, London Business School', 'Lebanese American University'],
+     'linkedin': 'https://www.linkedin.com/in/joelle-elbatal/'},
+    {'name': 'Kareem Ayoub', 'role': 'Engagement Manager',
+     'prev': 'Oliver Wyman &middot; Strategy&amp;',
+     'edu': ['MBA, INSEAD', 'Computer and Communication Engineering and Business Administration (Finance), American University of Beirut'],
+     'linkedin': 'https://www.linkedin.com/in/kaa54/'},
+    {'name': 'Karim Riman', 'role': 'Senior Consultant',
+     'prev': 'Oliver Wyman',
+     'edu': ['American University of Beirut'],
+     'linkedin': 'https://www.linkedin.com/in/karimriman/'},
 ]
 
 # Schools used by the coaches-page filter (short names)
@@ -166,6 +182,10 @@ SCHOOLS = {
     'Nicolas Khoriati': ['INSEAD', 'Saint Joseph University of Beirut'],
     'Alberto Sinibaldi': ['INSEAD', 'Politecnico di Milano'],
     'Nabil Habib': ['Saint Joseph University of Beirut'],
+    'Elie Haddad': ['William &amp; Mary', 'Lebanese American University'],
+    'Joelle El Batal': ['London Business School', 'Lebanese American University'],
+    'Kareem Ayoub': ['INSEAD', 'American University of Beirut'],
+    'Karim Riman': ['American University of Beirut'],
 }
 for _c in COACHES:
     _c['companies'] = [x.strip() for x in _c['prev'].split('&middot;')]
