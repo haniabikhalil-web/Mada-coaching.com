@@ -73,7 +73,7 @@ STAGES = [
             {'key': 'membership', 'outcome': 'A standing mentor for projects, feedback and career decisions.', 'format': 'Monthly membership', 'best': 'Consultants in role who want a standing mentor over time.', 'name': 'Mentorship membership',
              'desc': 'For consultants already in role who want a standing mentor: someone with no organisational agenda who helps you think projects, feedback and career decisions through.',
              'includes': ['Mentor calls', 'Project check-ins', 'End-of-project reviews'],
-             'expert': '$50<small>/month</small>', 'ai': None, 'cta': 'Request to join'},
+             'expert': '$50<small>/month</small>', 'ai': None, 'cta': 'Enroll now'},
         ],
     },
 ]
