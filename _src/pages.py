@@ -406,7 +406,7 @@ def ai():
 
 <section class="bg-mist" id="tools">
   <div class="wrap">
-    <div class="section-head reveal"><p class="eyebrow">Self-serve tools</p><h2>Five tools, in development.</h2><p class="lede">Join the waitlist for any of them and we&rsquo;ll email you when it opens.</p></div>
+    <div class="section-head reveal"><p class="eyebrow">Self-serve tools</p><h2>Six tools, in development.</h2><p class="lede">Join the waitlist for any of them and we&rsquo;ll email you when it opens.</p></div>
     <div class="grid g2">{tools}</div>
   </div>
 </section>
@@ -420,7 +420,7 @@ def ai():
 </section>
 '''
     page('ai', 'Mada AI',
-         'Self-serve AI tools for CV feedback, case practice, case maths drills, fit interview practice and application support: practice more, prepare anytime. Coming soon: join the waitlist.',
+         'Self-serve AI tools for CV feedback, case practice, a personalized case prep program, case maths drills, fit interview practice and application support: practice more, prepare anytime. Coming soon: join the waitlist.',
          body, ctx)
 
 

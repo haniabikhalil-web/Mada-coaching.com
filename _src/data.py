@@ -73,7 +73,7 @@ STAGES = [
             {'key': 'membership', 'outcome': 'A standing mentor for projects, feedback and career decisions.', 'format': 'Monthly membership', 'best': 'Consultants in role who want a standing mentor over time.', 'name': 'Mentorship membership',
              'desc': 'For consultants already in role who want a standing mentor: someone with no organisational agenda who helps you think projects, feedback and career decisions through.',
              'includes': ['Mentor calls', 'Project check-ins', 'End-of-project reviews'],
-             'expert': '$50<small>/month</small>', 'ai': None, 'cta': 'Request to join'},
+             'expert': '$50<small>/month</small>', 'ai': None, 'cta': 'Enroll now'},
         ],
     },
 ]
@@ -91,6 +91,8 @@ AI_TOOLS = [
      'desc': 'Upload your consulting CV and receive structured feedback and recommendations.'},
     {'name': 'AI Case Practice', 'icon': 'chart',
      'desc': 'Practice consulting cases on demand and receive feedback on your approach, structure and performance.'},
+    {'name': 'AI Case Prep Program', 'icon': 'route',
+     'desc': 'A personalized case interview preparation journey. Start with an assessment, identify your weaknesses and follow a tailored practice plan that adapts as you improve.'},
     {'name': 'AI Case Maths Practice', 'icon': 'bolt',
      'desc': 'Drill the arithmetic that case interviews turn on: percentages and growth, breakeven, market sizing, CAGR, weighted averages and unit economics. Timed questions, worked solutions and the traps to avoid.'},
     {'name': 'AI Fit Interview Practice', 'icon': 'mic',
@@ -172,6 +174,20 @@ COACHES = [
      'edu': ['American University of Beirut'],
      'count': '20+',
      'linkedin': 'https://www.linkedin.com/in/karimriman/'},
+    {'name': 'Jimmy Saliba', 'photo': 'jimmy.jpg',
+     'prev': 'MSE &middot; Kearney',
+     'edu': ['BE Mechanical Engineering, American University of Beirut'],
+     'count': '30+',
+     'linkedin': 'https://www.linkedin.com/in/jimmysaliba/'},
+    {'name': 'Talita Barbosa', 'photo': 'talita.jpg', 'role': 'Manager', 'prev': 'Bain &amp; Company',
+     'edu': ['MBA, INSEAD', 'International MSc Finance and BSc Business Management, Nova School of Business and Economics'],
+     'count': '50+',
+     'linkedin': 'https://www.linkedin.com/in/talita-barbosa/'},
+    {'name': 'Mark Nasr', 'photo': 'mark.jpg', 'role': 'Associate',
+     'prev': 'McKinsey &middot; Korn Ferry',
+     'edu': ['MBA, INSEAD', 'Bachelor&rsquo;s in Civil Engineering, minor in Environmental Science, Lebanese American University'],
+     'count': '20+',
+     'linkedin': 'https://www.linkedin.com/in/mark-nasr-56b84112a/'},
 ]
 
 # Schools used by the coaches-page filter (short names)
@@ -190,6 +206,9 @@ SCHOOLS = {
     'Joelle El Batal': ['London Business School', 'Lebanese American University'],
     'Kareem Ayoub': ['INSEAD', 'American University of Beirut'],
     'Karim Riman': ['American University of Beirut'],
+    'Jimmy Saliba': ['American University of Beirut'],
+    'Talita Barbosa': ['INSEAD', 'Nova School of Business and Economics'],
+    'Mark Nasr': ['INSEAD', 'Lebanese American University'],
 }
 for _c in COACHES:
     _c['companies'] = [x.strip() for x in _c['prev'].split('&middot;')]
