@@ -177,7 +177,7 @@ COACHES = [
      'edu': ['BE Mechanical Engineering, American University of Beirut'],
      'count': '30+',
      'linkedin': 'https://www.linkedin.com/in/jimmysaliba/'},
-    {'name': 'Talita Barbosa', 'role': 'Manager', 'prev': 'Bain &amp; Company',
+    {'name': 'Talita Barbosa', 'photo': 'talita.jpg', 'role': 'Manager', 'prev': 'Bain &amp; Company',
      'edu': ['MBA, INSEAD', 'International MSc Finance and BSc Business Management, Nova School of Business and Economics'],
      'count': '50+',
      'linkedin': 'https://www.linkedin.com/in/talita-barbosa/'},
