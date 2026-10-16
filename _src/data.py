@@ -177,6 +177,10 @@ COACHES = [
      'edu': ['BE Mechanical Engineering, American University of Beirut'],
      'count': '30+',
      'linkedin': 'https://www.linkedin.com/in/jimmysaliba/'},
+    {'name': 'Talita Barbosa', 'role': 'Manager', 'prev': 'Bain &amp; Company',
+     'edu': ['MBA, INSEAD', 'International MSc Finance and BSc Business Management, Nova School of Business and Economics'],
+     'count': '50+',
+     'linkedin': 'https://www.linkedin.com/in/talita-barbosa/'},
 ]
 
 # Schools used by the coaches-page filter (short names)
@@ -196,6 +200,7 @@ SCHOOLS = {
     'Kareem Ayoub': ['INSEAD', 'American University of Beirut'],
     'Karim Riman': ['American University of Beirut'],
     'Jimmy Saliba': ['American University of Beirut'],
+    'Talita Barbosa': ['INSEAD', 'Nova School of Business and Economics'],
 }
 for _c in COACHES:
     _c['companies'] = [x.strip() for x in _c['prev'].split('&middot;')]
