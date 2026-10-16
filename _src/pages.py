@@ -542,8 +542,8 @@ def about():
       {icon('heart')}
       <p class="eyebrow">Giving back</p>
       <h2>Your journey can help support someone else&rsquo;s.</h2>
-      <p class="lede" style="margin-top:16px">Mada is built on the idea that access to the right guidance can change someone&rsquo;s trajectory. As Mada grows, we intend to donate a portion of our profits to UNESCO to help fund education in Lebanon.</p>
-      <p class="muted small">This is a contribution we intend to make, not a partnership, endorsement or affiliation with UNESCO. Details of how and when donations are made will be published here once they are formalised.</p>
+      <p class="lede" style="margin-top:16px">Mada is built on the idea that access to the right guidance can change someone&rsquo;s trajectory. As Mada grows, we intend to donate a portion of our profits to support education in Lebanon, including through UNESCO and LIFE Lebanon.</p>
+      <p class="muted small">This is a contribution we intend to make, not a partnership, endorsement or affiliation with UNESCO or LIFE Lebanon. Details of how and when donations are made will be published here once they are formalised.</p>
     </div>
   </div>
 </section>
