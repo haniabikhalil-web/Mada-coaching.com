@@ -91,6 +91,8 @@ AI_TOOLS = [
      'desc': 'Upload your consulting CV and receive structured feedback and recommendations.'},
     {'name': 'AI Case Practice', 'icon': 'chart',
      'desc': 'Practice consulting cases on demand and receive feedback on your approach, structure and performance.'},
+    {'name': 'AI Case Prep Program', 'icon': 'route',
+     'desc': 'A personalized case interview preparation journey. Start with an assessment, identify your weaknesses and follow a tailored practice plan that adapts as you improve.'},
     {'name': 'AI Case Maths Practice', 'icon': 'bolt',
      'desc': 'Drill the arithmetic that case interviews turn on: percentages and growth, breakeven, market sizing, CAGR, weighted averages and unit economics. Timed questions, worked solutions and the traps to avoid.'},
     {'name': 'AI Fit Interview Practice', 'icon': 'mic',
