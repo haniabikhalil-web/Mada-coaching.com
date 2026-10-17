@@ -171,7 +171,7 @@ COACHES = [
      'linkedin': 'https://www.linkedin.com/in/kaa54/'},
     {'name': 'Karim Riman', 'photo': 'karimriman.jpg', 'role': 'Senior Consultant',
      'prev': 'Oliver Wyman',
-     'edu': ['American University of Beirut'],
+     'edu': ['BE Industrial Engineering, minor in Statistics, American University of Beirut'],
      'count': '20+',
      'linkedin': 'https://www.linkedin.com/in/karimriman/'},
     {'name': 'Jimmy Saliba', 'photo': 'jimmy.jpg',
