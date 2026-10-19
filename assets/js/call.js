@@ -20,7 +20,12 @@
   var paidReturn = /[?&]paid=1/.test(location.search);
   var CONSENT_VERSION = '2026-10-v1';
   var RETENTION_DAYS = 90;
-  var token = null;
+  // The sign-in survives the trip to Stripe and back in this tab only (sessionStorage), so the candidate
+  // is not asked for their email and code twice. It is cleared when the tab closes, on expiry and on 401.
+  var STORE = 'mada_ai_session';
+  function loadSaved() { try { var j = JSON.parse(sessionStorage.getItem(STORE) || 'null'); return j && j.token && j.email ? j : null; } catch (e) { return null; } }
+  function saveSession() { try { if (token) sessionStorage.setItem(STORE, JSON.stringify({ token: token, email: email })); else sessionStorage.removeItem(STORE); } catch (e) {} }
+  var token = null; saveSession();
   var email = '';
   var conv = null;
   var timer = null;
@@ -78,7 +83,7 @@
       btn.disabled = true;
       post('/auth/v1/verify', { type: 'email', email: email, token: input.value.trim() }).then(function (r) {
         return r.ok ? r.json() : Promise.reject();
-      }).then(function (j) { token = j.access_token; gate(); }, function () { signInForm('That code did not work. Request a new one.'); });
+      }).then(function (j) { token = j.access_token; saveSession(); gate(); }, function () { signInForm('That code did not work. Request a new one.'); });
     });
     app.appendChild(form);
   }
@@ -86,7 +91,7 @@
   // ---------------------------------------------------------------- 2. pay
   function balance() {
     return post('/functions/v1/interview-checkout', { action: 'balance' }, token).then(function (r) {
-      if (r.status === 401) { token = null; return -1; }
+      if (r.status === 401) { token = null; saveSession(); return -1; }
       return r.ok ? r.json().then(function (j) { return j.credits; }) : 0;
     });
   }
@@ -115,7 +120,7 @@
     btn.addEventListener('click', function () {
       btn.disabled = true;
       post('/functions/v1/interview-checkout', { action: 'checkout' }, token).then(function (r) {
-        if (r.status === 401) { token = null; return signInForm('Your session expired. Sign in again.'); }
+        if (r.status === 401) { token = null; saveSession(); return signInForm('Your session expired. Sign in again.'); }
         return r.json().then(function (j) {
           if (r.ok && j.url && j.url.indexOf('https://') === 0) { location.href = j.url; return; }
           if (j && j.error && j.error.code === 'already_has_credit') return gate();
@@ -214,7 +219,7 @@
   function start(caseType) {
     say('Starting your call…');
     post('/functions/v1/interview-start', { interviewer: 'victoria', case_type: caseType, consent: true, consent_version: CONSENT_VERSION }, token).then(function (r) {
-      if (r.status === 401) { token = null; return signInForm('Your session expired. Sign in again.'); }
+      if (r.status === 401) { token = null; saveSession(); return signInForm('Your session expired. Sign in again.'); }
       return r.json().then(function (j) {
         if (!r.ok) {
           var code = j && j.error && j.error.code;
@@ -329,7 +334,7 @@
     (function poll() {
       tries++;
       post('/functions/v1/interview-status', { session_id: sessionId }, token).then(function (r) {
-        if (r.status === 401) { token = null; return signInForm('Your session expired. Sign in again to see your report; it has also been emailed to you.'); }
+        if (r.status === 401) { token = null; saveSession(); return signInForm('Your session expired. Sign in again to see your report; it has also been emailed to you.'); }
         return r.json().then(function (j) {
           if (j.status === 'ready') return window.MadaReport.render(j.report, app);
           if (j.status === 'in_review') return say('Your report needs a little more time. We will email it to ' + email + ' as soon as it is ready.');
@@ -343,5 +348,7 @@
   }
 
   if (!ready()) { say('AI case practice is opening soon.'); return; }
-  signInForm(paidReturn ? 'Payment received. Sign in with the same email to continue to your interview.' : undefined);
+  var saved = loadSaved();
+  if (saved) { token = saved.token; email = saved.email; gate(); }
+  else signInForm(paidReturn ? 'Payment received. Sign in with the same email to continue to your interview.' : undefined);
 })();
