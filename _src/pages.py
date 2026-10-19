@@ -388,12 +388,19 @@ def services():
 
 
 # ---------------------------------------------------------------- Mada AI
+def ai_tool_button(ctx, t):
+    """Tools with their own page link to it; the rest join the waitlist."""
+    if t.get('page'):
+        return f'<a class="btn btn-primary btn-sm" href="{ctx.url(t["page"])}" style="margin-top:8px">{t["cta"]} <span class="arrow" aria-hidden="true">&rarr;</span></a>'
+    return f'<a class="btn btn-ghost btn-sm" href="{waitlist_href(t["name"])}" style="margin-top:8px">Join waitlist</a>'
+
+
 def ai():
     ctx = Ctx('ai')
     u = ctx.url
-    tools = ''.join(f'''<div class="card tool reveal">{icon(t['icon'])}<span class="badge soon">Coming soon</span>
+    tools = ''.join(f'''<div class="card tool reveal">{icon(t['icon'])}<span class="badge soon">{'Opening soon' if t.get('page') else 'Coming soon'}</span>
 <h3>{t['name']}</h3><p>{t['desc']}</p>
-<a class="btn btn-ghost btn-sm" href="{waitlist_href(t['name'])}" style="margin-top:8px">Join waitlist</a></div>''' for t in AI_TOOLS)
+{ai_tool_button(ctx, t)}</div>''' for t in AI_TOOLS)
     body = f'''
 <header class="subhero"><div class="wrap">
   <p class="eyebrow">Mada AI &middot; Coming soon</p>
@@ -421,6 +428,69 @@ def ai():
 '''
     page('ai', 'Mada AI',
          'Self-serve AI tools for CV feedback, case practice, a personalized case prep program, case maths drills, fit interview practice and application support: practice more, prepare anytime. Coming soon: join the waitlist.',
+         body, ctx)
+
+
+# ---------------------------------------------------------------- AI case practice: choose your interviewer
+INTERVIEWERS = [
+    {'name': 'Victoria', 'kind': 'Case interview', 'icon': 'chart', 'available': True,
+     'desc': 'A spoken, candidate-led case interview. Victoria presents a business case, you structure and solve it out loud, and she responds the way an interviewer would.',
+     'facts': ['Up to 25 minutes, by voice', 'Case: The Private Jet Dilemma (investment decision)',
+               'Written report: five case skills, six case milestones, your strengths and one thing to practise next']},
+    {'name': 'Alex', 'kind': 'Fit interview', 'icon': 'mic', 'available': False,
+     'desc': 'Behavioural and fit questions, with feedback on your stories and how you tell them.', 'facts': []},
+    {'name': 'More interviewers', 'kind': 'More cases', 'icon': 'route', 'available': False,
+     'desc': 'Further cases and interviewer styles are on the way.', 'facts': []},
+]
+
+
+def ai_case_practice():
+    ctx = Ctx('ai/case-practice')
+    u = ctx.url
+    live = C.AI_PRACTICE_LIVE
+    cards = ''
+    for i in INTERVIEWERS:
+        facts = ''.join(f'<li>{f}</li>' for f in i['facts'])
+        facts = f'<ul>{facts}</ul>' if facts else ''
+        if i['available']:
+            price = f'<p class="muted" style="margin-top:12px"><strong>${C.AI_PRACTICE_PRICE_USD}</strong> per session.</p>' if live else ''
+            btn = (f'<a class="btn btn-primary" href="{u("ai/case-practice/start")}" style="margin-top:16px">Start with Victoria <span class="arrow" aria-hidden="true">&rarr;</span></a>'
+                   if live else
+                   f'<a class="btn btn-primary" href="{waitlist_href("AI case practice with Victoria")}" style="margin-top:16px">Join the waitlist</a>')
+            badge = '<span class="badge">Available</span>' if live else '<span class="badge soon">Opening soon</span>'
+        else:
+            price, btn, badge = '', f'<a class="btn btn-ghost btn-sm" href="{waitlist_href(i["name"])}" style="margin-top:16px">Join waitlist</a>', '<span class="badge soon">Coming soon</span>'
+        cards += f'''<div class="card tool reveal">{icon(i['icon'])}{badge}
+<span class="tag" style="margin-top:12px">{i['kind']}</span>
+<h3>{i['name']}</h3><p>{i['desc']}</p>{facts}{price}{btn}</div>'''
+    body = f'''
+<header class="subhero"><div class="wrap">
+  <p class="eyebrow">Mada AI &middot; AI case practice</p>
+  <h1>Choose your interviewer.</h1>
+  <p class="lede">Practise out loud, on your own schedule, and get a structured report on how you did.</p>
+</div></header>
+
+<section class="bg-mist">
+  <div class="wrap">
+    <div class="grid g3">{cards}</div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap narrow">
+    <div class="section-head reveal"><p class="eyebrow">Good to know</p><h2>How it works.</h2></div>
+    <ol class="steps-list">
+      <li><strong>Choose Victoria and enter your email.</strong> Your report is tied to it.</li>
+      <li><strong>Agree to the recording notice.</strong> Your voice is recorded and transcribed so the interview can be assessed. We will tell you how long it is kept before you start.</li>
+      <li><strong>Have the interview.</strong> Up to 25 minutes, by voice, with a quiet space and a microphone.</li>
+      <li><strong>Get your report.</strong> Scores for each skill, backed by quotes from your own interview. A Mada coach reviews reports before they are released, so expect it by email rather than instantly.</li>
+    </ol>
+    <p class="muted" style="margin-top:24px">The report is a Mada developmental assessment, not official employer scoring. For personal feedback from someone who has interviewed candidates at consulting firms, <a href="{u('services')}">book a coach</a>.</p>
+  </div>
+</section>
+'''
+    page('ai/case-practice', 'AI Case Practice',
+         'Choose your AI interviewer. Practise a spoken consulting case interview with Victoria and get a structured, evidence-based report.',
          body, ctx)
 
 
@@ -841,16 +911,16 @@ def not_found():
 
 def build_all():
     not_found()
-    home(); how_it_works(); services(); ai(); coaches(); about(); cv_review(); resources(); book(); legal_pages(); thank_you()
+    home(); how_it_works(); services(); ai(); ai_case_practice(); coaches(); about(); cv_review(); resources(); book(); legal_pages(); thank_you()
     root_files()
-    return ['', 'how-it-works', 'services', 'ai', 'coaches', 'about', 'cv-review', 'resources', 'book',
+    return ['', 'how-it-works', 'services', 'ai', 'ai/case-practice', 'coaches', 'about', 'cv-review', 'resources', 'book',
             'privacy', 'terms', 'refunds', 'cookies', 'thank-you', '404']
 
 
 def root_files():
     import os
     from build import ROOT
-    pages_ = ['', 'how-it-works/', 'services/', 'ai/', 'coaches/', 'about/', 'cv-review/', 'resources/', 'book/',
+    pages_ = ['', 'how-it-works/', 'services/', 'ai/', 'ai/case-practice/', 'coaches/', 'about/', 'cv-review/', 'resources/', 'book/',
               'privacy/', 'terms/', 'refunds/', 'cookies/']
     urls = ''.join(f'  <url><loc>https://{C.DOMAIN}/{p}</loc><lastmod>2026-10-02</lastmod></url>\n' for p in pages_)
     files = {

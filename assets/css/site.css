@@ -429,3 +429,4 @@ a:hover .arrow{transform:translateX(3px)}
 .select-pill:focus-within{border-color:var(--navy)}
 .coach-filters .muted{margin:0 0 0 auto}
 .coach-card[hidden]{display:none}
+.steps-list{padding-left:22px}.steps-list li{margin:14px 0;color:var(--ink)}
