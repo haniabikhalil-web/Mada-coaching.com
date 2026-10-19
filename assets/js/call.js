@@ -14,17 +14,20 @@
 (function () {
   var app = document.getElementById('call-app');
   if (!app) return;
+  // The payment return URL is the bare domain, so the saved sign-in must live there too.
+  if (location.hostname === 'www.mada-coaching.com') { location.replace('https://mada-coaching.com' + location.pathname + location.search); return; }
   var API = app.getAttribute('data-api');
   var KEY = app.getAttribute('data-key');
   var PRICE = app.getAttribute('data-price') || '50';
   var paidReturn = /[?&]paid=1/.test(location.search);
   var CONSENT_VERSION = '2026-10-v1';
   var RETENTION_DAYS = 90;
-  // The sign-in survives the trip to Stripe and back in this tab only (sessionStorage), so the candidate
-  // is not asked for their email and code twice. It is cleared when the tab closes, on expiry and on 401.
+  // The sign-in survives the trip to Stripe and back in this browser (localStorage, www and non-www are folded into one host below), so the candidate
+  // is not asked for their email and code twice. It expires after 50 minutes and is cleared on any 401.
   var STORE = 'mada_ai_session';
-  function loadSaved() { try { var j = JSON.parse(sessionStorage.getItem(STORE) || 'null'); return j && j.token && j.email ? j : null; } catch (e) { return null; } }
-  function saveSession() { try { if (token) sessionStorage.setItem(STORE, JSON.stringify({ token: token, email: email })); else sessionStorage.removeItem(STORE); } catch (e) {} }
+  var KEEP_MS = 50 * 60 * 1000; // the access token lasts an hour; never keep it longer than 50 minutes
+  function loadSaved() { try { var j = JSON.parse(localStorage.getItem(STORE) || 'null'); return j && j.token && j.email && j.until > Date.now() ? j : null; } catch (e) { return null; } }
+  function saveSession() { try { if (token) localStorage.setItem(STORE, JSON.stringify({ token: token, email: email, until: Date.now() + KEEP_MS })); else localStorage.removeItem(STORE); } catch (e) {} }
   var token = null; saveSession();
   var email = '';
   var conv = null;
@@ -111,10 +114,10 @@
   function payScreen(msg) {
     clear();
     var card = el('div', 'rp-form card');
-    card.appendChild(el('h3', null, 'One call with Victoria: $' + PRICE));
+    card.appendChild(el('h3', null, 'One AI case interview: $' + PRICE));
     if (msg) card.appendChild(el('p', 'rp-notice', msg));
     var ul = el('ul');
-    ['One spoken case interview, about 25 minutes.', 'A structured report at the end of the call, also emailed to you.', 'Secure payment by card on Stripe\u2019s page. We never see your card details.'].forEach(function (t) { ul.appendChild(el('li', null, t)); });
+    ['One spoken case interview, about 25 minutes. You choose the interviewer and case after paying.', 'A structured report at the end of the call, also emailed to you.', 'Secure payment by card on Stripe\u2019s page. We never see your card details.'].forEach(function (t) { ul.appendChild(el('li', null, t)); });
     card.appendChild(ul);
     var btn = el('button', 'btn btn-primary', 'Pay $' + PRICE + ' and continue'); btn.type = 'button';
     btn.addEventListener('click', function () {
@@ -149,6 +152,12 @@
     { id: 'soon-3', name: 'M&A', desc: 'Case type', open: false }
   ];
 
+  var DIFFICULTIES = [
+    { id: 'standard', name: 'Standard', desc: 'Typical first-round difficulty.', open: true },
+    { id: 'soon-e', name: 'Easier', desc: 'More guidance and a slower pace.', open: false },
+    { id: 'soon-h', name: 'Harder', desc: 'Less guidance, tougher follow-ups.', open: false }
+  ];
+
   function picker(title, items, chosen, onPick, avatar) {
     var wrap = el('div', 'pk');
     wrap.appendChild(el('h4', 'pk-title', title));
@@ -173,18 +182,19 @@
 
   function setup(msg) {
     clear();
-    var chosenI = 'victoria', chosenC = 'investment';
+    var chosenI = 'victoria', chosenC = 'investment', chosenD = 'standard';
     var form = el('form', 'rp-form rp-wide card');
-    form.appendChild(el('h3', null, 'Set up your interview'));
+    form.appendChild(el('h3', null, 'Set up your AI interview'));
     if (msg) form.appendChild(el('p', 'rp-notice', msg));
-    var slotI = el('div'), slotC = el('div');
+    var slotI = el('div'), slotC = el('div'), slotD = el('div');
     function draw() {
-      slotI.textContent = ''; slotC.textContent = '';
+      slotI.textContent = ''; slotC.textContent = ''; slotD.textContent = '';
       slotI.appendChild(picker('1. Choose your interviewer', INTERVIEWERS, chosenI, function (id) { chosenI = id; draw(); }, true));
       slotC.appendChild(picker('2. Choose a case type', CASE_TYPES, chosenC, function (id) { chosenC = id; draw(); }, false));
+      slotD.appendChild(picker('3. Choose a difficulty', DIFFICULTIES, chosenD, function (id) { chosenD = id; draw(); }, false));
     }
     draw();
-    form.appendChild(slotI); form.appendChild(slotC);
+    form.appendChild(slotI); form.appendChild(slotC); form.appendChild(slotD);
     form.appendChild(el('p', 'muted', 'You will get a case of this type at random. You need a quiet place, a microphone and about 25 minutes.'));
 
     var box = el('div', 'rp-consent');
@@ -235,7 +245,7 @@
 
   function connect(s) {
     clear();
-    var stage = el('div', 'call-stage');
+    var stage = el('div', 'call-stage call-grid');
     var orbWrap = el('div', 'orb-wrap');
     var orb = el('div', 'orb is-connecting');
     orbWrap.appendChild(el('div', 'orb-ring'));
@@ -250,7 +260,12 @@
     var mute = el('button', 'call-btn', 'Mute'); mute.type = 'button'; mute.disabled = true;
     var end = el('button', 'call-btn call-btn-end', 'End call'); end.type = 'button'; end.disabled = true;
     bar.appendChild(mute); bar.appendChild(end);
-    [orbWrap, name, stat, clock, tr, bar].forEach(function (n) { stage.appendChild(n); });
+    var side = el('div', 'call-side');
+    [orbWrap, name, stat, clock, bar].forEach(function (n) { side.appendChild(n); });
+    var main = el('div', 'call-main');
+    main.appendChild(el('p', 'call-tr-title', 'Live transcript'));
+    main.appendChild(tr);
+    stage.appendChild(side); stage.appendChild(main);
     app.appendChild(stage);
 
     var done = false, mode = 'listening', raf = null, muted = false;
@@ -331,8 +346,10 @@
     card.appendChild(stat);
     app.appendChild(card);
     var tries = 0;
+    var steps = ['Collecting your transcript\u2026', 'Checking each answer against the case\u2026', 'Scoring your skills\u2026', 'Writing your feedback\u2026'];
     (function poll() {
       tries++;
+      stat.textContent = steps[Math.min(steps.length - 1, Math.floor(tries / 6))] + ' This usually takes under a minute. Keep this page open.';
       post('/functions/v1/interview-status', { session_id: sessionId }, token).then(function (r) {
         if (r.status === 401) { token = null; saveSession(); return signInForm('Your session expired. Sign in again to see your report; it has also been emailed to you.'); }
         return r.json().then(function (j) {
@@ -340,10 +357,10 @@
           if (j.status === 'in_review') return say('Your report needs a little more time. We will email it to ' + email + ' as soon as it is ready.');
           if (j.status === 'failed') return say('We could not score this call. It may have been too short, or there was a technical problem. Please email us and we will sort it out.');
           if (j.status === 'expired') return say('This call did not start in time. You can start again.');
-          if (tries > 60) return say('Your report is taking longer than usual. We will email it to ' + email + ' when it is ready.');
-          setTimeout(poll, 4000);
+          if (tries > 110) return say('Your report is taking longer than usual. We will email it to ' + email + ' when it is ready.');
+          setTimeout(poll, 2000);
         });
-      }, function () { if (tries > 60) say('We lost the connection. Your report will be emailed to ' + email + '.'); else setTimeout(poll, 6000); });
+      }, function () { if (tries > 110) say('We lost the connection. Your report will be emailed to ' + email + '.'); else setTimeout(poll, 6000); });
     })();
   }
 

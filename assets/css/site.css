@@ -496,3 +496,17 @@ a:hover .arrow{transform:translateX(3px)}
 .call-btn-end{background:#D93A3A;border-color:#D93A3A}.call-btn-end:hover:not(:disabled){background:#bf2e2e;border-color:#bf2e2e}
 .call-wait{padding-bottom:36px}
 @media (prefers-reduced-motion:reduce){.orb,.orb-ring{transition:none;animation:none!important}}
+
+/* v2 call layout: side panel plus a large transcript */
+.rp-form{margin-inline:auto}
+.rp{max-width:820px;margin:0 auto}
+.call-grid{display:grid;grid-template-columns:300px 1fr;gap:28px;align-items:stretch;text-align:left;padding:28px;min-height:560px}
+.call-side{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;text-align:center}
+.call-main{display:flex;flex-direction:column;min-width:0}
+.call-tr-title{margin:0 0 10px;font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--on-navy-eyebrow)}
+.call-grid .call-transcript{flex:1;height:auto;max-width:none;min-height:420px;max-height:64vh;margin:0;padding:20px 22px}
+.call-grid .call-line{font-size:18px;line-height:1.55;margin-bottom:16px}
+.call-grid .call-who{font-size:12px}
+.call-grid .call-tr-empty{font-size:17px}
+.call-wait{padding:48px 20px 56px}
+@media (max-width:820px){.call-grid{grid-template-columns:1fr;padding:22px 16px;min-height:0}.call-grid .call-transcript{min-height:300px}.call-grid .call-line{font-size:16px}}
