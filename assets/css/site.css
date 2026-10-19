@@ -429,3 +429,21 @@ a:hover .arrow{transform:translateX(3px)}
 .select-pill:focus-within{border-color:var(--navy)}
 .coach-filters .muted{margin:0 0 0 auto}
 .coach-card[hidden]{display:none}
+
+/* ---- Mada AI interview report (ai/report) ---- */
+.rp h2{margin:8px 0 20px}.rp h3{margin:36px 0 12px}
+.rp-disclaimer{display:inline-block;font-size:13px;font-weight:600;color:var(--stone);background:var(--mist);border-radius:999px;padding:6px 14px}
+.rp-big{font-family:var(--display);font-size:clamp(40px,7vw,64px);line-height:1;color:var(--navy);margin:4px 0 10px}
+.rp-notices{margin:16px 0 0;padding:14px 18px;border-left:4px solid var(--dawn);background:var(--dawn-tint);border-radius:var(--radius-sm)}
+.rp-notices p{margin:4px 0;color:var(--ink);font-size:15px}
+.rp-comp{margin:12px 0}.rp-comp-head{display:flex;justify-content:space-between;gap:12px;align-items:baseline}
+.rp-score{font-weight:700;color:var(--cobalt);white-space:nowrap}
+.rp-scorebar{display:flex;gap:6px;margin:10px 0 12px}.rp-seg{flex:1;height:8px;border-radius:99px;background:var(--line)}.rp-seg.on{background:var(--cobalt)}
+.rp-quote{margin:12px 0 0;padding:10px 14px;border-left:3px solid var(--line);color:var(--ink);font-size:15px;font-style:italic}
+.rp-turn{font-style:normal;font-size:12px;color:var(--stone);white-space:nowrap}
+.rp-ms{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:14px}.rp-m{padding:20px;display:flex;flex-direction:column;gap:8px}.rp-m p{margin:0;font-size:15px}
+.rp-badge{align-self:flex-start;font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;padding:5px 10px;border-radius:999px;background:var(--mist);color:var(--stone)}
+.rp-good{background:#DDF3E6;color:#14532D}.rp-ok{background:var(--cobalt-tint);color:var(--cobalt)}.rp-help{background:var(--dawn-tint);color:#9A3412}.rp-work{background:#FDE2E2;color:#991B1B}.rp-none{background:var(--mist);color:var(--stone)}
+.rp-two{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px;margin-top:36px}.rp-two h3{margin-top:0}
+.rp-next{margin-top:14px}.rp-next p{font-size:18px;color:#fff;margin:0}
+.rp-form{display:flex;flex-direction:column;gap:14px;max-width:460px}.rp-form input{font:inherit;padding:14px 16px;border:1.5px solid var(--line);border-radius:var(--radius-sm)}.rp-form input:focus{outline:none;border-color:var(--navy)}

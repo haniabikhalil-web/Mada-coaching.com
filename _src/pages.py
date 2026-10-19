@@ -424,6 +424,34 @@ def ai():
          body, ctx)
 
 
+
+# ---------------------------------------------------------------- Mada AI interview report (signed-in)
+def ai_report():
+    ctx = Ctx('ai/report')
+    u = ctx.url
+    cfg_url = C.SUPABASE_URL if C.SUPABASE_PUBLISHABLE_KEY else ''
+    cfg_key = C.SUPABASE_PUBLISHABLE_KEY or ''
+    body = f'''
+<header class="subhero"><div class="wrap">
+  <p class="eyebrow">Mada AI &middot; Interview report</p>
+  <h1>Your interview report.</h1>
+  <p class="lede">Evidence-based feedback on your practice interview, reviewed by a Mada coach before it reaches you.</p>
+</div></header>
+<section>
+  <div class="wrap narrow">
+    <div id="report-app" data-api="{cfg_url}" data-key="{cfg_key}" aria-live="polite">
+      <noscript><p>This page needs JavaScript to show your report.</p></noscript>
+      <p class="muted" id="report-status">Loading&hellip;</p>
+    </div>
+    <p class="muted" style="margin-top:32px">Questions about your report? <a href="mailto:{C.EMAIL}">{C.EMAIL}</a> or <a href="{u('services')}">book a coach</a>.</p>
+  </div>
+</section>
+'''
+    page('ai/report', 'Your interview report',
+         'Your Mada AI interview report: scores, evidence from your interview and one thing to practise next.',
+         body, ctx, noindex=True, extra_js=('js/report.js',))
+
+
 # ---------------------------------------------------------------- coaches
 def coaches():
     ctx = Ctx('coaches')
@@ -841,9 +869,9 @@ def not_found():
 
 def build_all():
     not_found()
-    home(); how_it_works(); services(); ai(); coaches(); about(); cv_review(); resources(); book(); legal_pages(); thank_you()
+    home(); how_it_works(); services(); ai(); ai_report(); coaches(); about(); cv_review(); resources(); book(); legal_pages(); thank_you()
     root_files()
-    return ['', 'how-it-works', 'services', 'ai', 'coaches', 'about', 'cv-review', 'resources', 'book',
+    return ['', 'how-it-works', 'services', 'ai', 'ai/report', 'coaches', 'about', 'cv-review', 'resources', 'book',
             'privacy', 'terms', 'refunds', 'cookies', 'thank-you', '404']
 
 
