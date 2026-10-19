@@ -529,11 +529,11 @@ def ai_start():
     body = f'''
 <header class="subhero"><div class="wrap">
   <p class="eyebrow">Mada AI &middot; AI case practice</p>
-  <h1>Your interview with Victoria.</h1>
+  <h1>Your AI interview.</h1>
   <p class="lede">A spoken case interview, then a structured report on how you did.</p>
 </div></header>
 <section>
-  <div class="wrap narrow">
+  <div class="wrap">
     <div id="call-app" data-api="{cfg_url}" data-key="{cfg_key}" data-price="{C.AI_PRACTICE_PRICE_USD}" aria-live="polite">
       <noscript><p>This page needs JavaScript and a microphone.</p></noscript>
       <p class="muted">Loading&hellip;</p>
