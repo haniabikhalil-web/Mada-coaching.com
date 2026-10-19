@@ -35,4 +35,4 @@ AI_PRACTICE_PRICE_USD = 50   # per session; shown only when live. Revisit once r
 # meant for browsers). Leave the key as None until the Phase A functions are deployed: the report
 # page then shows "not available yet" and makes no network calls. Never put a secret key here.
 SUPABASE_URL = 'https://gjijobwtergfgeaaildq.supabase.co'
-SUPABASE_PUBLISHABLE_KEY = None
+SUPABASE_PUBLISHABLE_KEY = 'sb_publishable_bQyU2LHpTxWVnqBN1eMoNA_LBozNVx6'
