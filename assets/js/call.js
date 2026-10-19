@@ -20,7 +20,12 @@
   var paidReturn = /[?&]paid=1/.test(location.search);
   var CONSENT_VERSION = '2026-10-v1';
   var RETENTION_DAYS = 90;
-  var token = null;
+  // The sign-in survives the trip to Stripe and back in this tab only (sessionStorage), so the candidate
+  // is not asked for their email and code twice. It is cleared when the tab closes, on expiry and on 401.
+  var STORE = 'mada_ai_session';
+  function loadSaved() { try { var j = JSON.parse(sessionStorage.getItem(STORE) || 'null'); return j && j.token && j.email ? j : null; } catch (e) { return null; } }
+  function saveSession() { try { if (token) sessionStorage.setItem(STORE, JSON.stringify({ token: token, email: email })); else sessionStorage.removeItem(STORE); } catch (e) {} }
+  var token = null; saveSession();
   var email = '';
   var conv = null;
   var timer = null;
@@ -56,6 +61,7 @@
       btn.disabled = true;
       email = input.value.trim();
       post('/auth/v1/otp', { email: email, create_user: true }).then(function (r) {
+        if (r.status === 429) { signInForm('Please wait a minute before asking for another code, then try again.'); return; }
         if (!r.ok) throw new Error();
         codeForm();
       }, function () { signInForm('Could not reach the sign-in service. Try again.'); }).catch(function () { signInForm('Could not send a code. Check the email address and try again.'); });
@@ -77,7 +83,7 @@
       btn.disabled = true;
       post('/auth/v1/verify', { type: 'email', email: email, token: input.value.trim() }).then(function (r) {
         return r.ok ? r.json() : Promise.reject();
-      }).then(function (j) { token = j.access_token; gate(); }, function () { signInForm('That code did not work. Request a new one.'); });
+      }).then(function (j) { token = j.access_token; saveSession(); gate(); }, function () { signInForm('That code did not work. Request a new one.'); });
     });
     app.appendChild(form);
   }
@@ -85,7 +91,7 @@
   // ---------------------------------------------------------------- 2. pay
   function balance() {
     return post('/functions/v1/interview-checkout', { action: 'balance' }, token).then(function (r) {
-      if (r.status === 401) { token = null; return -1; }
+      if (r.status === 401) { token = null; saveSession(); return -1; }
       return r.ok ? r.json().then(function (j) { return j.credits; }) : 0;
     });
   }
@@ -114,7 +120,7 @@
     btn.addEventListener('click', function () {
       btn.disabled = true;
       post('/functions/v1/interview-checkout', { action: 'checkout' }, token).then(function (r) {
-        if (r.status === 401) { token = null; return signInForm('Your session expired. Sign in again.'); }
+        if (r.status === 401) { token = null; saveSession(); return signInForm('Your session expired. Sign in again.'); }
         return r.json().then(function (j) {
           if (r.ok && j.url && j.url.indexOf('https://') === 0) { location.href = j.url; return; }
           if (j && j.error && j.error.code === 'already_has_credit') return gate();
@@ -127,17 +133,58 @@
     app.appendChild(card);
   }
 
+
   // ---------------------------------------------------------------- 3. set up
+  // Only Victoria and the investment case are open today. The other cards show what is coming and cannot be picked;
+  // the server accepts nothing else either (interview-start validates interviewer and case type).
+  var INTERVIEWERS = [
+    { id: 'victoria', name: 'Victoria', desc: 'Structured, warm, probing. Pushes on your reasoning.', open: true },
+    { id: 'soon-a', name: 'Interviewer 2', desc: 'Fast-paced, numbers-first interviewer.', open: false },
+    { id: 'soon-b', name: 'Interviewer 3', desc: 'Partner-style interviewer who challenges your synthesis.', open: false }
+  ];
+  var CASE_TYPES = [
+    { id: 'investment', name: 'Investment decision', desc: 'Should the client invest? Market, economics, risks.', open: true },
+    { id: 'soon-1', name: 'Market entry', desc: 'Case type', open: false },
+    { id: 'soon-2', name: 'Profitability', desc: 'Case type', open: false },
+    { id: 'soon-3', name: 'M&A', desc: 'Case type', open: false }
+  ];
+
+  function picker(title, items, chosen, onPick, avatar) {
+    var wrap = el('div', 'pk');
+    wrap.appendChild(el('h4', 'pk-title', title));
+    var grid = el('div', 'pk-grid');
+    items.forEach(function (it) {
+      var b = el('button', 'pk-card' + (it.open ? '' : ' is-soon') + (it.id === chosen ? ' is-on' : ''));
+      b.type = 'button';
+      if (!it.open) { b.disabled = true; b.setAttribute('aria-disabled', 'true'); }
+      if (avatar) b.appendChild(el('span', 'pk-avatar', it.open ? it.name.charAt(0) : '?'));
+      var txt = el('span', 'pk-text');
+      txt.appendChild(el('strong', null, it.name));
+      txt.appendChild(el('span', 'pk-desc', it.desc));
+      if (!it.open) txt.appendChild(el('span', 'pk-badge', 'Coming soon'));
+      else if (it.id === chosen) txt.appendChild(el('span', 'pk-badge pk-badge-on', 'Selected'));
+      b.appendChild(txt);
+      if (it.open) b.addEventListener('click', function () { onPick(it.id); });
+      grid.appendChild(b);
+    });
+    wrap.appendChild(grid);
+    return wrap;
+  }
+
   function setup(msg) {
     clear();
-    var form = el('form', 'rp-form card');
-    form.appendChild(el('h3', null, 'Your interview with Victoria'));
+    var chosenI = 'victoria', chosenC = 'investment';
+    var form = el('form', 'rp-form rp-wide card');
+    form.appendChild(el('h3', null, 'Set up your interview'));
     if (msg) form.appendChild(el('p', 'rp-notice', msg));
-    var label = el('label', null, 'Case type');
-    var sel = el('select');
-    var opt = el('option', null, 'Investment decision'); opt.value = 'investment'; sel.appendChild(opt);
-    label.appendChild(sel);
-    form.appendChild(label);
+    var slotI = el('div'), slotC = el('div');
+    function draw() {
+      slotI.textContent = ''; slotC.textContent = '';
+      slotI.appendChild(picker('1. Choose your interviewer', INTERVIEWERS, chosenI, function (id) { chosenI = id; draw(); }, true));
+      slotC.appendChild(picker('2. Choose a case type', CASE_TYPES, chosenC, function (id) { chosenC = id; draw(); }, false));
+    }
+    draw();
+    form.appendChild(slotI); form.appendChild(slotC);
     form.appendChild(el('p', 'muted', 'You will get a case of this type at random. You need a quiet place, a microphone and about 25 minutes.'));
 
     var box = el('div', 'rp-consent');
@@ -163,7 +210,7 @@
       e.preventDefault();
       if (!cb.checked) return;
       btn.disabled = true;
-      start(sel.value);
+      start(chosenC);
     });
     app.appendChild(form);
   }
@@ -172,7 +219,7 @@
   function start(caseType) {
     say('Starting your call…');
     post('/functions/v1/interview-start', { interviewer: 'victoria', case_type: caseType, consent: true, consent_version: CONSENT_VERSION }, token).then(function (r) {
-      if (r.status === 401) { token = null; return signInForm('Your session expired. Sign in again.'); }
+      if (r.status === 401) { token = null; saveSession(); return signInForm('Your session expired. Sign in again.'); }
       return r.json().then(function (j) {
         if (!r.ok) {
           var code = j && j.error && j.error.code;
@@ -188,38 +235,82 @@
 
   function connect(s) {
     clear();
-    var card = el('div', 'rp-form card');
-    card.appendChild(el('h3', null, 'Connecting to Victoria…'));
-    var stat = el('p', 'muted', 'Allow the microphone when your browser asks.');
-    var end = el('button', 'btn btn-ghost', 'End call'); end.type = 'button'; end.disabled = true;
-    card.appendChild(stat); card.appendChild(end);
-    app.appendChild(card);
-    var head = card.firstChild;
-    var done = false;
+    var stage = el('div', 'call-stage');
+    var orbWrap = el('div', 'orb-wrap');
+    var orb = el('div', 'orb is-connecting');
+    orbWrap.appendChild(el('div', 'orb-ring'));
+    orbWrap.appendChild(orb);
+    var name = el('p', 'call-name', 'Victoria');
+    var stat = el('p', 'call-status', 'Connecting… allow the microphone when your browser asks.');
+    var clock = el('p', 'call-clock', '0:00');
+    var tr = el('div', 'call-transcript');
+    tr.setAttribute('aria-live', 'off');
+    tr.appendChild(el('p', 'call-tr-empty', 'The conversation will appear here as you speak.'));
+    var bar = el('div', 'call-bar');
+    var mute = el('button', 'call-btn', 'Mute'); mute.type = 'button'; mute.disabled = true;
+    var end = el('button', 'call-btn call-btn-end', 'End call'); end.type = 'button'; end.disabled = true;
+    bar.appendChild(mute); bar.appendChild(end);
+    [orbWrap, name, stat, clock, tr, bar].forEach(function (n) { stage.appendChild(n); });
+    app.appendChild(stage);
+
+    var done = false, mode = 'listening', raf = null, muted = false;
     function finish() {
       if (done) return;
       done = true;
       if (timer) { clearInterval(timer); timer = null; }
+      if (raf) cancelAnimationFrame(raf);
       waitForReport(s.session_id);
     }
+    function setMode(m) {
+      mode = m;
+      orb.className = 'orb is-' + (m === 'speaking' ? 'speaking' : 'listening');
+      stat.textContent = m === 'speaking' ? 'Victoria is speaking' : 'Listening… your turn';
+    }
+    function addLine(source, text) {
+      if (!text) return;
+      var empty = tr.querySelector('.call-tr-empty');
+      if (empty) tr.removeChild(empty);
+      var line = el('p', 'call-line ' + (source === 'user' ? 'is-you' : 'is-victoria'));
+      line.appendChild(el('span', 'call-who', source === 'user' ? 'You' : 'Victoria'));
+      line.appendChild(el('span', 'call-text', text));
+      tr.appendChild(line);
+      tr.scrollTop = tr.scrollHeight;
+    }
+    function animate() {
+      if (done) return;
+      var v = 0;
+      try { v = conv ? (mode === 'speaking' ? conv.getOutputVolume() : conv.getInputVolume()) : 0; } catch (e) { v = 0; }
+      v = Math.min(1, Math.max(0, v || 0));
+      orbWrap.style.setProperty('--lvl', (1 + v * 0.45).toFixed(3));
+      raf = requestAnimationFrame(animate);
+    }
+
     window.MadaVoice.Conversation.startSession({
       conversationToken: s.token,
       connectionType: 'webrtc',
       dynamicVariables: s.dynamic_variables,
       onConnect: function () {
-        head.textContent = 'You are speaking with Victoria';
-        stat.textContent = 'Speak naturally. End the call when the interview is over.';
-        end.disabled = false;
+        setMode('listening');
+        end.disabled = false; mute.disabled = false;
         var t0 = Date.now();
         timer = setInterval(function () {
           var sec = Math.floor((Date.now() - t0) / 1000);
-          stat.textContent = 'In call · ' + Math.floor(sec / 60) + ':' + ('0' + (sec % 60)).slice(-2);
+          clock.textContent = Math.floor(sec / 60) + ':' + ('0' + (sec % 60)).slice(-2);
         }, 1000);
+        raf = requestAnimationFrame(animate);
       },
+      onModeChange: function (m) { setMode(m && m.mode === 'speaking' ? 'speaking' : 'listening'); },
+      onMessage: function (m) { if (m && m.message) addLine(m.source === 'user' ? 'user' : 'ai', String(m.message)); },
       onDisconnect: finish,
       onError: function () { stat.textContent = 'There was a connection problem.'; }
     }).then(function (c) {
       conv = c;
+      mute.addEventListener('click', function () {
+        muted = !muted;
+        try { c.setMicMuted(muted); } catch (e) { muted = !muted; return; }
+        mute.textContent = muted ? 'Unmute' : 'Mute';
+        mute.classList.toggle('is-on', muted);
+      });
       end.addEventListener('click', function () { end.disabled = true; c.endSession().then(finish, finish); });
     }, function () {
       done = true;
@@ -230,19 +321,23 @@
   // ---------------------------------------------------------------- 5. the report
   function waitForReport(sessionId) {
     clear();
-    var card = el('div', 'rp-form card');
-    card.appendChild(el('h3', null, 'Preparing your report'));
-    var stat = el('p', 'muted', 'This usually takes about a minute. Keep this page open.');
+    var card = el('div', 'call-stage call-wait');
+    var orbWrap = el('div', 'orb-wrap');
+    orbWrap.appendChild(el('div', 'orb-ring'));
+    orbWrap.appendChild(el('div', 'orb is-thinking'));
+    card.appendChild(orbWrap);
+    card.appendChild(el('h3', 'call-name', 'Preparing your report'));
+    var stat = el('p', 'call-status', 'Victoria’s notes are being scored. This usually takes about a minute. Keep this page open.');
     card.appendChild(stat);
     app.appendChild(card);
     var tries = 0;
     (function poll() {
       tries++;
       post('/functions/v1/interview-status', { session_id: sessionId }, token).then(function (r) {
-        if (r.status === 401) { token = null; return signInForm('Your session expired. Sign in again to see your report; it has also been emailed to you.'); }
+        if (r.status === 401) { token = null; saveSession(); return signInForm('Your session expired. Sign in again to see your report; it has also been emailed to you.'); }
         return r.json().then(function (j) {
           if (j.status === 'ready') return window.MadaReport.render(j.report, app);
-          if (j.status === 'in_review') return say('Your report is being checked by a Mada coach. We will email it to ' + email + ' as soon as it is ready.');
+          if (j.status === 'in_review') return say('Your report needs a little more time. We will email it to ' + email + ' as soon as it is ready.');
           if (j.status === 'failed') return say('We could not score this call. It may have been too short, or there was a technical problem. Please email us and we will sort it out.');
           if (j.status === 'expired') return say('This call did not start in time. You can start again.');
           if (tries > 60) return say('Your report is taking longer than usual. We will email it to ' + email + ' when it is ready.');
@@ -253,5 +348,7 @@
   }
 
   if (!ready()) { say('AI case practice is opening soon.'); return; }
-  signInForm();
+  var saved = loadSaved();
+  if (saved) { token = saved.token; email = saved.email; gate(); }
+  else signInForm(paidReturn ? 'Payment received. Sign in with the same email to continue to your interview.' : undefined);
 })();
