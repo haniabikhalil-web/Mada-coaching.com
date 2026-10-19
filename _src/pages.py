@@ -494,6 +494,59 @@ def ai_case_practice():
          body, ctx)
 
 
+# ---------------------------------------------------------------- Mada AI interview report (signed-in)
+def ai_report():
+    ctx = Ctx('ai/report')
+    u = ctx.url
+    cfg_url = C.SUPABASE_URL if C.SUPABASE_PUBLISHABLE_KEY else ''
+    cfg_key = C.SUPABASE_PUBLISHABLE_KEY or ''
+    body = f'''
+<header class="subhero"><div class="wrap">
+  <p class="eyebrow">Mada AI &middot; Interview report</p>
+  <h1>Your interview report.</h1>
+  <p class="lede">Evidence-based feedback on your practice interview.</p>
+</div></header>
+<section>
+  <div class="wrap narrow">
+    <div id="report-app" data-api="{cfg_url}" data-key="{cfg_key}" aria-live="polite">
+      <noscript><p>This page needs JavaScript to show your report.</p></noscript>
+      <p class="muted" id="report-status">Loading&hellip;</p>
+    </div>
+    <p class="muted" style="margin-top:32px">Questions about your report? <a href="mailto:{C.EMAIL}">{C.EMAIL}</a> or <a href="{u('services')}">book a coach</a>.</p>
+  </div>
+</section>
+'''
+    page('ai/report', 'Your interview report',
+         'Your Mada AI interview report: scores, evidence from your interview and one thing to practise next.',
+         body, ctx, noindex=True, extra_js=('js/report-view.js', 'js/report.js'))
+
+
+def ai_start():
+    ctx = Ctx('ai/case-practice/start')
+    u = ctx.url
+    cfg_url = C.SUPABASE_URL if C.SUPABASE_PUBLISHABLE_KEY else ''
+    cfg_key = C.SUPABASE_PUBLISHABLE_KEY or ''
+    body = f'''
+<header class="subhero"><div class="wrap">
+  <p class="eyebrow">Mada AI &middot; AI case practice</p>
+  <h1>Your interview with Victoria.</h1>
+  <p class="lede">A spoken case interview, then a structured report on how you did.</p>
+</div></header>
+<section>
+  <div class="wrap narrow">
+    <div id="call-app" data-api="{cfg_url}" data-key="{cfg_key}" aria-live="polite">
+      <noscript><p>This page needs JavaScript and a microphone.</p></noscript>
+      <p class="muted">Loading&hellip;</p>
+    </div>
+    <p class="muted" style="margin-top:32px">Problems with your call? <a href="mailto:{C.EMAIL}">{C.EMAIL}</a>. The report is a Mada developmental assessment, not official employer scoring. See our <a href="{u('privacy')}">privacy policy</a>.</p>
+  </div>
+</section>
+'''
+    page('ai/case-practice/start', 'Start AI case practice',
+         'Start a spoken case interview with Victoria and get a structured report.',
+         body, ctx, noindex=True, extra_js=('js/vendor/elevenlabs-client.js', 'js/report-view.js', 'js/call.js'))
+
+
 # ---------------------------------------------------------------- coaches
 def coaches():
     ctx = Ctx('coaches')
@@ -830,6 +883,7 @@ def legal_pages():
         ('Who we share it with', '<p>We share personal information only with the coach matched to you and the service providers we need to operate: scheduling, payment, email, file storage, analytics and AI providers, and professional advisers where required. Every Mada coach is bound to keep what you share confidential. We do not sell your personal information, and we do not share your CV, materials or session content with employers, recruiters or any third party without your explicit instruction.</p>'),
         ('Confidentiality of your job search', '<p>What you tell us about your current employer, your search, your compensation or your offers stays between you, your coach and Mada. We will never contact an employer about you, disclose that you are looking, or use your name or materials in marketing without your written permission.</p>'),
         ('International transfers', '<p>We work with candidates, coaches and providers in several countries, so your information may be processed outside your country of residence. Where that happens we rely on the safeguards offered by those providers, including standard contractual clauses where applicable.</p>'),
+        ('Mada AI voice interviews', f'<p>When you use AI case practice, you speak with an AI interviewer (Victoria). We collect your email address, a recording of your voice during the call that is turned into a transcript, and the scores and report generated from it. You accept a recording and scoring notice before every call.</p><ul><li><strong>Why</strong>: to run the interview, assess it and send you your report. We rely on your consent and on providing the service you chose.</li><li><strong>Automated scoring</strong>: an AI scores the transcript against Mada&rsquo;s rubric. The report is developmental feedback, not official employer scoring, and it is not used to make decisions about you with legal or similar effect. A Mada coach checks a small number of reports. Ask us at <a href="mailto:{E}">{E}</a> for a human review of yours.</li><li><strong>Who processes it</strong>: ElevenLabs runs the voice call, Anthropic scores the transcript, Supabase stores the data (in Frankfurt, Germany) and our email provider sends your report link. We store the transcript, not the audio; our voice provider may hold the conversation for a limited period under its own settings and terms.</li><li><strong>How long</strong>: we delete the transcript 90 days after your call. We keep your scores and report so you can come back to them until you ask us to delete them.</li><li><strong>Who sees it</strong>: you, and Mada staff where needed to run, check and improve the service. We never share it with employers or recruiters.</li></ul>'),
         ('How long we keep it', '<p>We keep booking and payment records for as long as required for tax and accounting purposes. We keep coaching materials and session notes for up to 24 months after your last session so we can pick up where we left off, unless you ask us to delete them sooner.</p>'),
         ('Your rights', f'<p>You can ask us for a copy of the personal information we hold about you, ask us to correct it, ask us to delete it, object to how we use it, or ask us to restrict its use. Write to <a href="mailto:{E}">{E}</a> and we will respond within 30 days. If you are not satisfied with our response, you may complain to the data protection authority where you live.</p>'),
         ('Cookies and analytics', f'<p>This site sets no cookies of its own, but we use Google Analytics to measure how the site is used. It sets cookies in your browser and sends Google information about your visit, including your approximate location based on your IP address. We rely on our legitimate interest in understanding and improving the site, we have not enabled Google&rsquo;s advertising features, and we do not use this data to identify you individually. Our <a href="../cookies/">Cookie Policy</a> sets out exactly what is set and how to opt out.</p>'),
@@ -911,9 +965,9 @@ def not_found():
 
 def build_all():
     not_found()
-    home(); how_it_works(); services(); ai(); ai_case_practice(); coaches(); about(); cv_review(); resources(); book(); legal_pages(); thank_you()
+    home(); how_it_works(); services(); ai(); ai_case_practice(); ai_start(); ai_report(); coaches(); about(); cv_review(); resources(); book(); legal_pages(); thank_you()
     root_files()
-    return ['', 'how-it-works', 'services', 'ai', 'ai/case-practice', 'coaches', 'about', 'cv-review', 'resources', 'book',
+    return ['', 'how-it-works', 'services', 'ai', 'ai/case-practice', 'ai/case-practice/start', 'ai/report', 'coaches', 'about', 'cv-review', 'resources', 'book',
             'privacy', 'terms', 'refunds', 'cookies', 'thank-you', '404']
 
 
