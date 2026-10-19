@@ -455,3 +455,44 @@ a:hover .arrow{transform:translateX(3px)}
 .rp-consent{border:1.5px solid var(--line);border-radius:var(--radius-sm);padding:16px 18px;background:var(--mist)}.rp-consent ul{margin:10px 0 14px;padding-left:20px}.rp-consent li{margin:6px 0}
 .rp-form .rp-check{flex-direction:row;align-items:flex-start;gap:10px;font-weight:500}.rp-form .rp-check input{margin-top:4px;padding:0}
 .rp-notice{margin:0;padding:12px 14px;border-radius:var(--radius-sm);background:#fff4e5;color:#7a4a00}
+
+/* AI call: pickers, orb, live transcript */
+.rp-form.rp-wide{max-width:720px}
+.pk-title{margin:0 0 10px;font-size:15px;color:var(--navy)}
+.pk-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px}
+.pk-card{position:relative;display:flex;gap:12px;align-items:flex-start;text-align:left;font:inherit;color:var(--ink);padding:14px 16px;border:1.5px solid var(--line);border-radius:var(--radius-sm);background:#fff;cursor:pointer;transition:border-color .15s,box-shadow .15s}
+.pk-card:hover:not(:disabled){border-color:var(--cobalt)}
+.pk-card.is-on{border-color:var(--cobalt);box-shadow:0 0 0 3px var(--cobalt-tint)}
+.pk-card.is-soon{cursor:not-allowed;background:var(--mist);color:var(--stone)}
+.pk-text{display:flex;flex-direction:column;gap:2px;min-width:0}.pk-text strong{color:inherit}
+.pk-desc{font-size:14px;color:var(--stone);line-height:1.4}
+.pk-avatar{flex:none;width:40px;height:40px;border-radius:50%;display:grid;place-items:center;font-weight:700;color:#fff;background:linear-gradient(135deg,var(--cobalt),var(--dawn))}
+.is-soon .pk-avatar{background:#C3CAE0}
+.pk-badge{align-self:flex-start;margin-top:6px;font-size:11px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--stone);background:#fff;border-radius:99px;padding:2px 8px}
+.pk-badge-on{color:#fff;background:var(--cobalt)}
+
+.call-stage{display:flex;flex-direction:column;align-items:center;gap:6px;padding:32px 20px 24px;border-radius:var(--radius);background:radial-gradient(120% 90% at 50% 0%,var(--navy-2),var(--navy));color:#fff;text-align:center}
+.call-name{margin:6px 0 0;font-family:var(--display);font-size:24px;color:#fff}
+.call-status{margin:0;color:var(--on-navy)}
+.call-clock{margin:0;font-variant-numeric:tabular-nums;color:var(--on-navy-eyebrow);font-size:14px}
+.orb-wrap{--lvl:1;position:relative;width:168px;height:168px;display:grid;place-items:center;margin:4px 0}
+.orb{width:112px;height:112px;border-radius:50%;background:radial-gradient(circle at 32% 28%,#fff 0,#9DB0FF 28%,var(--cobalt) 62%,#1a2f9e 100%);box-shadow:0 0 40px rgba(43,75,238,.55);transform:scale(var(--lvl));transition:transform .08s linear,background .3s}
+.orb-ring{position:absolute;inset:0;border-radius:50%;border:2px solid rgba(157,176,255,.35);transform:scale(var(--lvl));transition:transform .12s linear}
+.orb.is-speaking{background:radial-gradient(circle at 32% 28%,#fff 0,#FFC4A8 26%,var(--dawn) 62%,#c2491a 100%);box-shadow:0 0 48px rgba(255,122,69,.55)}
+.orb.is-connecting,.orb.is-thinking{animation:orbpulse 1.6s ease-in-out infinite}
+.orb.is-listening{animation:orbbreath 3.2s ease-in-out infinite}
+@keyframes orbpulse{0%,100%{opacity:.6}50%{opacity:1}}
+@keyframes orbbreath{0%,100%{filter:brightness(1)}50%{filter:brightness(1.15)}}
+.call-transcript{width:100%;max-width:560px;height:210px;overflow-y:auto;margin:14px 0 4px;padding:14px 16px;border-radius:var(--radius-sm);background:rgba(255,255,255,.06);border:1px solid var(--navy-line);text-align:left}
+.call-tr-empty{margin:0;color:var(--on-navy);font-size:14px}
+.call-line{margin:0 0 10px;display:flex;flex-direction:column;gap:1px;font-size:15px;line-height:1.45}
+.call-who{font-size:11px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--on-navy-eyebrow)}
+.call-line.is-you .call-who{color:var(--dawn)}
+.call-text{color:#fff}
+.call-bar{display:flex;gap:10px;margin-top:8px}
+.call-btn{font:inherit;font-weight:600;padding:12px 22px;border-radius:99px;border:1.5px solid var(--navy-line);background:transparent;color:#fff;cursor:pointer}
+.call-btn:hover:not(:disabled){border-color:#fff}.call-btn:disabled{opacity:.45;cursor:default}
+.call-btn.is-on{background:#fff;color:var(--navy)}
+.call-btn-end{background:#D93A3A;border-color:#D93A3A}.call-btn-end:hover:not(:disabled){background:#bf2e2e;border-color:#bf2e2e}
+.call-wait{padding-bottom:36px}
+@media (prefers-reduced-motion:reduce){.orb,.orb-ring{transition:none;animation:none!important}}
