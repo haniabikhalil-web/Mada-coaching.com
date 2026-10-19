@@ -483,7 +483,7 @@ def ai_case_practice():
       <li><strong>Choose Victoria and enter your email.</strong> Your report is tied to it.</li>
       <li><strong>Agree to the recording notice.</strong> Your voice is recorded and transcribed so the interview can be assessed. We will tell you how long it is kept before you start.</li>
       <li><strong>Have the interview.</strong> Up to 25 minutes, by voice, with a quiet space and a microphone.</li>
-      <li><strong>Get your report.</strong> Scores for each skill, backed by quotes from your own interview. A Mada coach reviews reports before they are released, so expect it by email rather than instantly.</li>
+      <li><strong>Get your report.</strong> Scores for each skill, backed by quotes from your own interview. It appears at the end of the call and is emailed to you. In rare cases, such as a poor connection, a Mada coach checks it first, so it may arrive a little later.</li>
     </ol>
     <p class="muted" style="margin-top:24px">The report is a Mada developmental assessment, not official employer scoring. For personal feedback from someone who has interviewed candidates at consulting firms, <a href="{u('services')}">book a coach</a>.</p>
   </div>
