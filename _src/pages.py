@@ -534,7 +534,7 @@ def ai_start():
 </div></header>
 <section>
   <div class="wrap narrow">
-    <div id="call-app" data-api="{cfg_url}" data-key="{cfg_key}" aria-live="polite">
+    <div id="call-app" data-api="{cfg_url}" data-key="{cfg_key}" data-price="{C.AI_PRACTICE_PRICE_USD}" aria-live="polite">
       <noscript><p>This page needs JavaScript and a microphone.</p></noscript>
       <p class="muted">Loading&hellip;</p>
     </div>

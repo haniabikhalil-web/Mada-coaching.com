@@ -1,11 +1,13 @@
 // Mada AI case practice: sign in, accept the recording notice, talk to Victoria, get the report.
 //
 //   1. Email code sign-in (Supabase Auth). A new email creates an account.
-//   2. Pick the case type and accept the notice. The CONSENT_VERSION below must match the server's
+//   2. Pay once (Stripe Checkout, a hosted page) if there is no unused call. The credit is granted only by Stripe's
+//      verified webhook, never by this page.
+//   3. Pick the case type and accept the notice. The CONSENT_VERSION below must match the server's
 //      (mada-ai supabase/functions/_shared/interview/policy.ts); the server refuses any other.
-//   3. interview-start returns a short-lived voice token. The browser connects to ElevenLabs with it.
+//   4. interview-start returns a short-lived voice token. The browser connects to ElevenLabs with it.
 //      No API key is ever in this file or this page.
-//   4. After the call, poll interview-status until the report is ready, then draw it.
+//   5. After the call, poll interview-status until the report is ready, then draw it.
 //
 // Every string from the server is written with textContent, never innerHTML.
 // The access token lives in memory only and is gone when the tab closes.
@@ -14,6 +16,8 @@
   if (!app) return;
   var API = app.getAttribute('data-api');
   var KEY = app.getAttribute('data-key');
+  var PRICE = app.getAttribute('data-price') || '50';
+  var paidReturn = /[?&]paid=1/.test(location.search);
   var CONSENT_VERSION = '2026-10-v1';
   var RETENTION_DAYS = 90;
   var token = null;
@@ -73,12 +77,57 @@
       btn.disabled = true;
       post('/auth/v1/verify', { type: 'email', email: email, token: input.value.trim() }).then(function (r) {
         return r.ok ? r.json() : Promise.reject();
-      }).then(function (j) { token = j.access_token; setup(); }, function () { signInForm('That code did not work. Request a new one.'); });
+      }).then(function (j) { token = j.access_token; gate(); }, function () { signInForm('That code did not work. Request a new one.'); });
     });
     app.appendChild(form);
   }
 
-  // ---------------------------------------------------------------- 2. set up
+  // ---------------------------------------------------------------- 2. pay
+  function balance() {
+    return post('/functions/v1/interview-checkout', { action: 'balance' }, token).then(function (r) {
+      if (r.status === 401) { token = null; return -1; }
+      return r.ok ? r.json().then(function (j) { return j.credits; }) : 0;
+    });
+  }
+
+  // After Stripe sends the candidate back, the credit arrives a few seconds later via the webhook.
+  function gate(tries) {
+    tries = tries || 0;
+    if (!tries) say('Checking your account\u2026');
+    balance().then(function (n) {
+      if (n < 0) return signInForm('Your session expired. Sign in again.');
+      if (n > 0) return setup(paidReturn ? 'Payment received. You are ready to start.' : undefined);
+      if (paidReturn && tries < 10) { say('Confirming your payment\u2026'); return setTimeout(function () { gate(tries + 1); }, 3000); }
+      payScreen(paidReturn ? 'We have not received your payment yet. If you were charged, email us and we will sort it out.' : undefined);
+    }, function () { payScreen('Could not reach the service. Please try again.'); });
+  }
+
+  function payScreen(msg) {
+    clear();
+    var card = el('div', 'rp-form card');
+    card.appendChild(el('h3', null, 'One call with Victoria: $' + PRICE));
+    if (msg) card.appendChild(el('p', 'rp-notice', msg));
+    var ul = el('ul');
+    ['One spoken case interview, about 25 minutes.', 'A structured report at the end of the call, also emailed to you.', 'Secure payment by card on Stripe\u2019s page. We never see your card details.'].forEach(function (t) { ul.appendChild(el('li', null, t)); });
+    card.appendChild(ul);
+    var btn = el('button', 'btn btn-primary', 'Pay $' + PRICE + ' and continue'); btn.type = 'button';
+    btn.addEventListener('click', function () {
+      btn.disabled = true;
+      post('/functions/v1/interview-checkout', { action: 'checkout' }, token).then(function (r) {
+        if (r.status === 401) { token = null; return signInForm('Your session expired. Sign in again.'); }
+        return r.json().then(function (j) {
+          if (r.ok && j.url && j.url.indexOf('https://') === 0) { location.href = j.url; return; }
+          if (j && j.error && j.error.code === 'already_has_credit') return gate();
+          btn.disabled = false;
+          payScreen('We could not open the payment page. You have not been charged. Please try again shortly.');
+        });
+      }, function () { btn.disabled = false; payScreen('Could not reach the service. Please try again.'); });
+    });
+    card.appendChild(btn);
+    app.appendChild(card);
+  }
+
+  // ---------------------------------------------------------------- 3. set up
   function setup(msg) {
     clear();
     var form = el('form', 'rp-form card');
@@ -119,7 +168,7 @@
     app.appendChild(form);
   }
 
-  // ---------------------------------------------------------------- 3. the call
+  // ---------------------------------------------------------------- 4. the call
   function start(caseType) {
     say('Starting your call…');
     post('/functions/v1/interview-start', { interviewer: 'victoria', case_type: caseType, consent: true, consent_version: CONSENT_VERSION }, token).then(function (r) {
@@ -127,6 +176,7 @@
       return r.json().then(function (j) {
         if (!r.ok) {
           var code = j && j.error && j.error.code;
+          if (code === 'payment_required') return payScreen('You need to buy a call first.');
           if (code === 'call_in_progress') return setup('You already have a call in progress. Finish it, or wait a few minutes and try again.');
           if (code === 'voice_unavailable') return setup('We could not start the call. Nothing was used. Please try again shortly.');
           return setup('We could not start the call. Please try again shortly.');
@@ -177,7 +227,7 @@
     });
   }
 
-  // ---------------------------------------------------------------- 4. the report
+  // ---------------------------------------------------------------- 5. the report
   function waitForReport(sessionId) {
     clear();
     var card = el('div', 'rp-form card');
