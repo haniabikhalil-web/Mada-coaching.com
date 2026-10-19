@@ -2,7 +2,7 @@
 
 DOMAIN = 'mada-coaching.com'
 EMAIL = 'hello@mada-coaching.com'
-VERSION = '10'   # bump to force browsers to reload CSS/JS after changes
+VERSION = '13'   # bump to force browsers to reload CSS/JS after changes
 
 GA_ID = 'G-0JW66CX0T1'   # Google Analytics 4 measurement ID
 
@@ -24,3 +24,15 @@ BOOKING = {
     'membership': 'https://tidycal.com/mada-coaching/mentorship',
     'full-journey': 'https://tidycal.com/mada-coaching/full-journey',
 }
+
+# AI case practice (ai/case-practice/). While AI_PRACTICE_LIVE is False the interviewer page is
+# informational and Victoria's button opens a waitlist email. Flip to True only after the voice
+# session, payment and report flow are built and tested end to end.
+AI_PRACTICE_LIVE = False
+AI_PRACTICE_PRICE_USD = 50   # per session; shown only when live. Revisit once real call costs are known.
+
+# Mada AI interview reports (ai/report/). Both values are public by design (the publishable key is
+# meant for browsers). Leave the key as None until the Phase A functions are deployed: the report
+# page then shows "not available yet" and makes no network calls. Never put a secret key here.
+SUPABASE_URL = 'https://gjijobwtergfgeaaildq.supabase.co'
+SUPABASE_PUBLISHABLE_KEY = 'sb_publishable_bQyU2LHpTxWVnqBN1eMoNA_LBozNVx6'

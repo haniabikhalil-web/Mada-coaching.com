@@ -214,7 +214,7 @@ def footer(ctx):
 </footer>'''
 
 
-def page(path, title, description, body, ctx=None, og_title=None, noindex=False):
+def page(path, title, description, body, ctx=None, og_title=None, noindex=False, extra_js=()):
     ctx = ctx or Ctx(path)
     canonical = f'https://{C.DOMAIN}/' + (f'{path}/' if path else '')
     full_title = title if path == '' else f'{title} | Mada Coaching'
@@ -262,7 +262,7 @@ def page(path, title, description, body, ctx=None, og_title=None, noindex=False)
 </main>
 {footer(ctx)}
 <script src="{ctx.asset('js/site.js')}?v={C.VERSION}" defer></script>
-</body>
+{''.join(f'<script src="{ctx.asset(j)}?v={C.VERSION}" defer></script>' + chr(10) for j in extra_js)}</body>
 </html>
 '''
     out_dir = os.path.join(ROOT, path) if path else ROOT
