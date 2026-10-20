@@ -433,14 +433,18 @@ def ai():
 
 # ---------------------------------------------------------------- AI case practice: choose your interviewer
 INTERVIEWERS = [
-    {'name': 'Tatiana', 'kind': 'Case interview', 'icon': 'chart', 'available': True,
-     'desc': 'A spoken, candidate-led case interview. Tatiana presents a business case, you structure and solve it out loud, and she responds the way an interviewer would.',
-     'facts': ['Up to 25 minutes, by voice', 'Case: The Private Jet Dilemma (investment decision)',
-               'Written report: five case skills, six case milestones, your strengths and one thing to practise next']},
-    {'name': 'Alex', 'kind': 'Fit interview', 'icon': 'mic', 'available': False,
-     'desc': 'Behavioural and fit questions, with feedback on your stories and how you tell them.', 'facts': []},
-    {'name': 'More interviewers', 'kind': 'More cases', 'icon': 'route', 'available': False,
-     'desc': 'Further cases and interviewer styles are on the way.', 'facts': []},
+    {'name': 'Tatiana', 'title': 'Partner', 'img': 'tatiana',
+     'desc': 'Executive-level mock interviewer. Calm, direct and demanding, with sharp follow-ups that push clear top-down thinking and confident recommendations.'},
+    {'name': 'Alex', 'title': 'Senior Manager', 'img': 'alex',
+     'desc': 'Analytical drill specialist. Fast-paced and numbers-first, he pushes quantitative accuracy, exhibit reading and data-backed insights.'},
+    {'name': 'Faisal', 'title': 'Principal', 'img': 'faisal',
+     'desc': 'Challenge-focused interviewer. Tests how well you structure ambiguity, defend your logic and synthesize clearly under pressure.'},
+    {'name': 'Layal', 'title': 'Senior Manager', 'img': 'layal',
+     'desc': 'Strategic thought partner. Curious and probing, she keeps asking &lsquo;so what?&rsquo; to sharpen implications, trade-offs and recommendations.'},
+    {'name': 'Joe', 'title': 'Junior Manager', 'img': 'joe',
+     'desc': 'Approachable practice interviewer. Relaxed and conversational, ideal for building confidence, sharpening structure and improving core case habits.'},
+    {'name': 'Mona', 'title': 'Principal', 'img': 'mona',
+     'desc': 'Precision-focused evaluator. Expects crisp communication, disciplined problem solving and strong case execution with minimal hand-holding.'},
 ]
 
 
@@ -450,19 +454,16 @@ def ai_case_practice():
     live = C.AI_PRACTICE_LIVE
     cards = ''
     for i in INTERVIEWERS:
-        facts = ''.join(f'<li>{f}</li>' for f in i['facts'])
-        facts = f'<ul>{facts}</ul>' if facts else ''
-        if i['available']:
-            price = f'<p class="muted" style="margin-top:12px"><strong>${C.AI_PRACTICE_PRICE_USD}</strong> per session.</p>' if live else ''
-            btn = (f'<a class="btn btn-primary" href="{u("ai/case-practice/start")}" style="margin-top:16px">Start with Tatiana <span class="arrow" aria-hidden="true">&rarr;</span></a>'
-                   if live else
-                   f'<a class="btn btn-primary" href="{waitlist_href("AI case practice with Tatiana")}" style="margin-top:16px">Join the waitlist</a>')
-            badge = '<span class="badge">Available</span>' if live else '<span class="badge soon">Opening soon</span>'
+        img = f'<img class="persona-img" src="{ctx.asset("img/interviewers/" + i["img"] + ".jpg")}" alt="{i["name"]}, {i["title"]}" width="560" height="469" loading="lazy">'
+        if live and i['name'] == 'Tatiana':
+            badge = '<span class="badge">Available</span>'
+            btn = f'<a class="btn btn-primary" href="{u("ai/case-practice/start")}" style="margin-top:16px">Start with Tatiana <span class="arrow" aria-hidden="true">&rarr;</span></a>'
         else:
-            price, btn, badge = '', f'<a class="btn btn-ghost btn-sm" href="{waitlist_href(i["name"])}" style="margin-top:16px">Join waitlist</a>', '<span class="badge soon">Coming soon</span>'
-        cards += f'''<div class="card tool reveal">{icon(i['icon'])}{badge}
-<span class="tag" style="margin-top:12px">{i['kind']}</span>
-<h3>{i['name']}</h3><p>{i['desc']}</p>{facts}{price}{btn}</div>'''
+            badge = '<span class="badge soon">Coming soon</span>'
+            btn = f'<a class="btn btn-ghost btn-sm" href="{waitlist_href("AI case practice with " + i["name"])}" style="margin-top:16px">Join waitlist</a>'
+        cards += f'''<div class="card tool persona reveal">{img}{badge}
+<span class="tag" style="margin-top:12px">{i['title']}</span>
+<h3>{i['name']}</h3><p>{i['desc']}</p>{btn}</div>'''
     body = f'''
 <header class="subhero"><div class="wrap">
   <p class="eyebrow">Mada AI &middot; AI case practice</p>
@@ -483,7 +484,7 @@ def ai_case_practice():
       <li><strong>Choose Tatiana and enter your email.</strong> Your report is tied to it.</li>
       <li><strong>Agree to the recording notice.</strong> Your voice is recorded and transcribed so the interview can be assessed. We will tell you how long it is kept before you start.</li>
       <li><strong>Have the interview.</strong> Up to 25 minutes, by voice, with a quiet space and a microphone.</li>
-      <li><strong>Get your report.</strong> Scores for each skill, backed by quotes from your own interview. It appears at the end of the call and is emailed to you. In rare cases, such as a poor connection, a Mada coach checks it first, so it may arrive a little later.</li>
+      <li><strong>Get your report.</strong> Scores for each skill, backed by quotes from your own interview. It appears at the end of the call and is emailed to you.</li>
     </ol>
     <p class="muted" style="margin-top:24px">The report is a Mada developmental assessment, not official employer scoring. For personal feedback from someone who has interviewed candidates at consulting firms, <a href="{u('services')}">book a coach</a>.</p>
   </div>
