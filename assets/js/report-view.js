@@ -49,10 +49,10 @@
       card.appendChild(head);
       card.appendChild(scoreBar(c.score));
       card.appendChild(el('p', null, c.rationale));
-      if (c.evidence) {
-        var q = el('blockquote', 'rp-quote', '“' + c.evidence.quote + '”');
-        card.appendChild(q);
-      }
+      var quotes = [];
+      if (c.evidence) quotes.push(c.evidence);
+      (c.more_evidence || []).forEach(function (m) { quotes.push(m); });
+      quotes.forEach(function (e) { card.appendChild(el('blockquote', 'rp-quote', '\u201c' + e.quote + '\u201d')); });
       root.appendChild(card);
     });
 
