@@ -193,6 +193,21 @@ COACHES = [
      'edu': ['MBA, INSEAD', 'Bachelor&rsquo;s in Civil Engineering, minor in Environmental Science, Lebanese American University'],
      'count': '20+',
      'linkedin': 'https://www.linkedin.com/in/mark-nasr-56b84112a/'},
+    {'name': 'Giordana La Faja', 'photo': 'giordana.jpg', 'role': 'Associate Manager',
+     'prev': 'Oliver Wyman &middot; Bain &amp; Company',
+     'edu': ['Master in Management (MiM), Major in Strategy, IE Business School and London Business School', 'BSc (Hons) Tourism and Hospitality Management, University of Surrey'],
+     'count': '20+',
+     'linkedin': 'https://www.linkedin.com/in/giordanalafaja/'},
+    {'name': 'Enrico Sposato', 'photo': 'enrico.jpg', 'role': 'Project Manager',
+     'prev': 'Oliver Wyman &middot; PwC',
+     'edu': ['MBA, Universidad de los Andes', 'MSc Governments and International Organizations Management, Bocconi University', 'Bachelor&rsquo;s in Business and Managerial Economics, Bocconi University'],
+     'count': '30+',
+     'linkedin': 'https://www.linkedin.com/in/enricosposato/'},
+    {'name': 'Natalie Tleel', 'photo': 'natalie.jpg', 'role': 'Consultant',
+     'prev': 'Boston Consulting Group',
+     'edu': ['MBA, INSEAD', 'BEng Chemical Engineering, minors in Business and Sustainable Energy, University of Toronto'],
+     'count': '30+',
+     'linkedin': 'https://www.linkedin.com/in/natalietleel/'},
 ]
 
 # Schools used by the coaches-page filter (short names)
@@ -215,6 +230,9 @@ SCHOOLS = {
     'Jimmy Saliba': ['American University of Beirut'],
     'Talita Barbosa': ['INSEAD', 'Nova School of Business and Economics'],
     'Mark Nasr': ['INSEAD', 'Lebanese American University'],
+    'Giordana La Faja': ['IE Business School', 'London Business School', 'University of Surrey'],
+    'Enrico Sposato': ['Bocconi University', 'Universidad de los Andes'],
+    'Natalie Tleel': ['INSEAD', 'University of Toronto'],
 }
 for _c in COACHES:
     _c['companies'] = [x.strip() for x in _c['prev'].split('&middot;')]
