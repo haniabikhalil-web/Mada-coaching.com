@@ -529,3 +529,8 @@ a:hover .arrow{transform:translateX(3px)}
 .pk-person.is-on{box-shadow:0 0 0 3px var(--cobalt-tint)}
 .pk-person.is-soon .pk-avatar img{filter:grayscale(.15);opacity:.92}
 .pk-grid:has(.pk-person){grid-template-columns:repeat(auto-fit,minmax(240px,1fr))}
+
+.card.persona{padding-top:0;overflow:hidden}
+.card.persona .persona-img{width:calc(100% + 2*var(--pad,28px));max-width:none;margin:0 calc(-1*var(--pad,28px)) 14px;aspect-ratio:560/469;object-fit:cover;display:block}
+.card.persona .badge{position:absolute;top:14px;right:14px}
+.card.persona{position:relative}
