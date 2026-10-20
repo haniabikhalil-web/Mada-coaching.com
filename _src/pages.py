@@ -481,10 +481,11 @@ def ai_case_practice():
   <div class="wrap narrow">
     <div class="section-head reveal"><p class="eyebrow">Good to know</p><h2>How it works.</h2></div>
     <ol class="steps-list">
-      <li><strong>Choose Tatiana and enter your email.</strong> Your report is tied to it.</li>
-      <li><strong>Agree to the recording notice.</strong> Your voice is recorded and transcribed so the interview can be assessed. We will tell you how long it is kept before you start.</li>
-      <li><strong>Have the interview.</strong> Up to 25 minutes, by voice, with a quiet space and a microphone.</li>
-      <li><strong>Get your report.</strong> Scores for each skill, backed by quotes from your own interview. It appears at the end of the call and is emailed to you.</li>
+      <li><strong>Sign in with your email.</strong> We send you a one-time code. Your report is tied to this email.</li>
+      <li><strong>Pay once.</strong> A secure card payment on Stripe&rsquo;s page covers one interview and its report.</li>
+      <li><strong>Choose your interviewer, case type and difficulty.</strong> Agree to the recording notice: your voice is recorded and transcribed so the interview can be assessed, and we tell you how long it is kept before you start.</li>
+      <li><strong>Have your case.</strong> Up to 25 minutes, by voice, with a quiet space and a microphone.</li>
+      <li><strong>Get your report.</strong> Scores for each skill, backed by quotes from your own interview. It appears on screen at the end of the call and is emailed to you.</li>
     </ol>
     <p class="muted" style="margin-top:24px">The report is a Mada developmental assessment, not official employer scoring. For personal feedback from someone who has interviewed candidates at consulting firms, <a href="{u('services')}">book a coach</a>.</p>
   </div>
