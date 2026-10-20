@@ -28,7 +28,7 @@
   var KEEP_MS = 50 * 60 * 1000; // the access token lasts an hour; never keep it longer than 50 minutes
   function loadSaved() { try { var j = JSON.parse(localStorage.getItem(STORE) || 'null'); return j && j.token && j.email && j.until > Date.now() ? j : null; } catch (e) { return null; } }
   function saveSession() { try { if (token) localStorage.setItem(STORE, JSON.stringify({ token: token, email: email, until: Date.now() + KEEP_MS })); else localStorage.removeItem(STORE); } catch (e) {} }
-  var token = null; saveSession();
+  var token = null;
   var email = '';
   var conv = null;
   var timer = null;
