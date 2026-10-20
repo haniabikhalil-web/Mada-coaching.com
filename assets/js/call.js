@@ -141,7 +141,7 @@
   // Only Tatiana and the investment case are open today. The other cards show what is coming and cannot be picked;
   // the server accepts nothing else either (interview-start validates interviewer and case type).
   var INTERVIEWERS = [
-    { id: 'victoria', name: 'Tatiana', title: 'Structured case interviewer', desc: 'Warm and probing. Pushes on your reasoning.', img: 'tatiana', open: true },
+    { id: 'victoria', name: 'Tatiana', title: 'Senior case interviewer', desc: 'Calm, direct and demanding. Skeptical of weak reasoning.', img: 'tatiana', open: true },
     { id: 'soon-alex', name: 'Alex', title: 'Numbers specialist', desc: 'Fast-paced and data-first.', img: 'alex', open: false },
     { id: 'soon-faisal', name: 'Faisal', title: 'Partner-style challenger', desc: 'Direct. Tests your synthesis.', img: 'faisal', open: false },
     { id: 'soon-layal', name: 'Layal', title: 'Strategy coach', desc: 'Curious. Keeps asking \u201cso what?\u201d', img: 'layal', open: false },
