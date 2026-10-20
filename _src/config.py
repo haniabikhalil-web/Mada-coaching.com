@@ -2,7 +2,7 @@
 
 DOMAIN = 'mada-coaching.com'
 EMAIL = 'hello@mada-coaching.com'
-VERSION = '17'   # bump to force browsers to reload CSS/JS after changes
+VERSION = '18'   # bump to force browsers to reload CSS/JS after changes
 
 GA_ID = 'G-0JW66CX0T1'   # Google Analytics 4 measurement ID
 
@@ -26,7 +26,7 @@ BOOKING = {
 }
 
 # AI case practice (ai/case-practice/). While AI_PRACTICE_LIVE is False the interviewer page is
-# informational and Victoria's button opens a waitlist email. Flip to True only after the voice
+# informational and Tatiana's button opens a waitlist email. Flip to True only after the voice
 # session, payment and report flow are built and tested end to end.
 AI_PRACTICE_LIVE = False
 AI_PRACTICE_PRICE_USD = 50   # per session; shown only when live. Revisit once real call costs are known.

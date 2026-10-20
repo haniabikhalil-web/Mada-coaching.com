@@ -433,8 +433,8 @@ def ai():
 
 # ---------------------------------------------------------------- AI case practice: choose your interviewer
 INTERVIEWERS = [
-    {'name': 'Victoria', 'kind': 'Case interview', 'icon': 'chart', 'available': True,
-     'desc': 'A spoken, candidate-led case interview. Victoria presents a business case, you structure and solve it out loud, and she responds the way an interviewer would.',
+    {'name': 'Tatiana', 'kind': 'Case interview', 'icon': 'chart', 'available': True,
+     'desc': 'A spoken, candidate-led case interview. Tatiana presents a business case, you structure and solve it out loud, and she responds the way an interviewer would.',
      'facts': ['Up to 25 minutes, by voice', 'Case: The Private Jet Dilemma (investment decision)',
                'Written report: five case skills, six case milestones, your strengths and one thing to practise next']},
     {'name': 'Alex', 'kind': 'Fit interview', 'icon': 'mic', 'available': False,
@@ -454,9 +454,9 @@ def ai_case_practice():
         facts = f'<ul>{facts}</ul>' if facts else ''
         if i['available']:
             price = f'<p class="muted" style="margin-top:12px"><strong>${C.AI_PRACTICE_PRICE_USD}</strong> per session.</p>' if live else ''
-            btn = (f'<a class="btn btn-primary" href="{u("ai/case-practice/start")}" style="margin-top:16px">Start with Victoria <span class="arrow" aria-hidden="true">&rarr;</span></a>'
+            btn = (f'<a class="btn btn-primary" href="{u("ai/case-practice/start")}" style="margin-top:16px">Start with Tatiana <span class="arrow" aria-hidden="true">&rarr;</span></a>'
                    if live else
-                   f'<a class="btn btn-primary" href="{waitlist_href("AI case practice with Victoria")}" style="margin-top:16px">Join the waitlist</a>')
+                   f'<a class="btn btn-primary" href="{waitlist_href("AI case practice with Tatiana")}" style="margin-top:16px">Join the waitlist</a>')
             badge = '<span class="badge">Available</span>' if live else '<span class="badge soon">Opening soon</span>'
         else:
             price, btn, badge = '', f'<a class="btn btn-ghost btn-sm" href="{waitlist_href(i["name"])}" style="margin-top:16px">Join waitlist</a>', '<span class="badge soon">Coming soon</span>'
@@ -480,7 +480,7 @@ def ai_case_practice():
   <div class="wrap narrow">
     <div class="section-head reveal"><p class="eyebrow">Good to know</p><h2>How it works.</h2></div>
     <ol class="steps-list">
-      <li><strong>Choose Victoria and enter your email.</strong> Your report is tied to it.</li>
+      <li><strong>Choose Tatiana and enter your email.</strong> Your report is tied to it.</li>
       <li><strong>Agree to the recording notice.</strong> Your voice is recorded and transcribed so the interview can be assessed. We will tell you how long it is kept before you start.</li>
       <li><strong>Have the interview.</strong> Up to 25 minutes, by voice, with a quiet space and a microphone.</li>
       <li><strong>Get your report.</strong> Scores for each skill, backed by quotes from your own interview. It appears at the end of the call and is emailed to you. In rare cases, such as a poor connection, a Mada coach checks it first, so it may arrive a little later.</li>
@@ -490,7 +490,7 @@ def ai_case_practice():
 </section>
 '''
     page('ai/case-practice', 'AI Case Practice',
-         'Choose your AI interviewer. Practise a spoken consulting case interview with Victoria and get a structured, evidence-based report.',
+         'Choose your AI interviewer. Practise a spoken consulting case interview with Tatiana and get a structured, evidence-based report.',
          body, ctx)
 
 
@@ -543,7 +543,7 @@ def ai_start():
 </section>
 '''
     page('ai/case-practice/start', 'Start AI case practice',
-         'Start a spoken case interview with Victoria and get a structured report.',
+         'Start a spoken case interview with Tatiana and get a structured report.',
          body, ctx, noindex=True, extra_js=('js/vendor/elevenlabs-client.js', 'js/report-view.js', 'js/call.js'))
 
 
@@ -883,7 +883,7 @@ def legal_pages():
         ('Who we share it with', '<p>We share personal information only with the coach matched to you and the service providers we need to operate: scheduling, payment, email, file storage, analytics and AI providers, and professional advisers where required. Every Mada coach is bound to keep what you share confidential. We do not sell your personal information, and we do not share your CV, materials or session content with employers, recruiters or any third party without your explicit instruction.</p>'),
         ('Confidentiality of your job search', '<p>What you tell us about your current employer, your search, your compensation or your offers stays between you, your coach and Mada. We will never contact an employer about you, disclose that you are looking, or use your name or materials in marketing without your written permission.</p>'),
         ('International transfers', '<p>We work with candidates, coaches and providers in several countries, so your information may be processed outside your country of residence. Where that happens we rely on the safeguards offered by those providers, including standard contractual clauses where applicable.</p>'),
-        ('Mada AI voice interviews', f'<p>When you use AI case practice, you speak with an AI interviewer (Victoria). We collect your email address, a recording of your voice during the call that is turned into a transcript, and the scores and report generated from it. You accept a recording and scoring notice before every call.</p><ul><li><strong>Why</strong>: to run the interview, assess it and send you your report. We rely on your consent and on providing the service you chose.</li><li><strong>Automated scoring</strong>: an AI scores the transcript against Mada&rsquo;s rubric. The report is developmental feedback, not official employer scoring, and it is not used to make decisions about you with legal or similar effect. A Mada coach checks a small number of reports. Ask us at <a href="mailto:{E}">{E}</a> for a human review of yours.</li><li><strong>Who processes it</strong>: ElevenLabs runs the voice call, Anthropic scores the transcript, Supabase stores the data (in Frankfurt, Germany) and our email provider sends your report link. We store the transcript, not the audio; our voice provider may hold the conversation for a limited period under its own settings and terms.</li><li><strong>How long</strong>: we delete the transcript 90 days after your call. We keep your scores and report so you can come back to them until you ask us to delete them.</li><li><strong>Who sees it</strong>: you, and Mada staff where needed to run, check and improve the service. We never share it with employers or recruiters.</li></ul>'),
+        ('Mada AI voice interviews', f'<p>When you use AI case practice, you speak with an AI interviewer (Tatiana). We collect your email address, a recording of your voice during the call that is turned into a transcript, and the scores and report generated from it. You accept a recording and scoring notice before every call.</p><ul><li><strong>Why</strong>: to run the interview, assess it and send you your report. We rely on your consent and on providing the service you chose.</li><li><strong>Automated scoring</strong>: an AI scores the transcript against Mada&rsquo;s rubric. The report is developmental feedback, not official employer scoring, and it is not used to make decisions about you with legal or similar effect. A Mada coach checks a small number of reports. Ask us at <a href="mailto:{E}">{E}</a> for a human review of yours.</li><li><strong>Who processes it</strong>: ElevenLabs runs the voice call, Anthropic scores the transcript, Supabase stores the data (in Frankfurt, Germany) and our email provider sends your report link. We store the transcript, not the audio; our voice provider may hold the conversation for a limited period under its own settings and terms.</li><li><strong>How long</strong>: we delete the transcript 90 days after your call. We keep your scores and report so you can come back to them until you ask us to delete them.</li><li><strong>Who sees it</strong>: you, and Mada staff where needed to run, check and improve the service. We never share it with employers or recruiters.</li></ul>'),
         ('How long we keep it', '<p>We keep booking and payment records for as long as required for tax and accounting purposes. We keep coaching materials and session notes for up to 24 months after your last session so we can pick up where we left off, unless you ask us to delete them sooner.</p>'),
         ('Your rights', f'<p>You can ask us for a copy of the personal information we hold about you, ask us to correct it, ask us to delete it, object to how we use it, or ask us to restrict its use. Write to <a href="mailto:{E}">{E}</a> and we will respond within 30 days. If you are not satisfied with our response, you may complain to the data protection authority where you live.</p>'),
         ('Cookies and analytics', f'<p>This site sets no cookies of its own, but we use Google Analytics to measure how the site is used. It sets cookies in your browser and sends Google information about your visit, including your approximate location based on your IP address. We rely on our legitimate interest in understanding and improving the site, we have not enabled Google&rsquo;s advertising features, and we do not use this data to identify you individually. Our <a href="../cookies/">Cookie Policy</a> sets out exactly what is set and how to opt out.</p>'),

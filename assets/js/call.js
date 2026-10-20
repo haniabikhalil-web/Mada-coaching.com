@@ -1,4 +1,4 @@
-// Mada AI case practice: sign in, accept the recording notice, talk to Victoria, get the report.
+// Mada AI case practice: sign in, accept the recording notice, talk to Tatiana, get the report.
 //
 //   1. Email code sign-in (Supabase Auth). A new email creates an account.
 //   2. Pay once (Stripe Checkout, a hosted page) if there is no unused call. The credit is granted only by Stripe's
@@ -138,12 +138,15 @@
 
 
   // ---------------------------------------------------------------- 3. set up
-  // Only Victoria and the investment case are open today. The other cards show what is coming and cannot be picked;
+  // Only Tatiana and the investment case are open today. The other cards show what is coming and cannot be picked;
   // the server accepts nothing else either (interview-start validates interviewer and case type).
   var INTERVIEWERS = [
-    { id: 'victoria', name: 'Victoria', desc: 'Structured, warm, probing. Pushes on your reasoning.', open: true },
-    { id: 'soon-a', name: 'Interviewer 2', desc: 'Fast-paced, numbers-first interviewer.', open: false },
-    { id: 'soon-b', name: 'Interviewer 3', desc: 'Partner-style interviewer who challenges your synthesis.', open: false }
+    { id: 'victoria', name: 'Tatiana', title: 'Senior case interviewer', desc: 'Calm, direct and demanding. Skeptical of weak reasoning.', img: 'tatiana', open: true },
+    { id: 'soon-alex', name: 'Alex', title: 'Numbers specialist', desc: 'Fast-paced and data-first.', img: 'alex', open: false },
+    { id: 'soon-faisal', name: 'Faisal', title: 'Partner-style challenger', desc: 'Direct. Tests your synthesis.', img: 'faisal', open: false },
+    { id: 'soon-layal', name: 'Layal', title: 'Strategy coach', desc: 'Curious. Keeps asking \u201cso what?\u201d', img: 'layal', open: false },
+    { id: 'soon-joe', name: 'Joe', title: 'Friendly generalist', desc: 'Relaxed and conversational.', img: 'joe', open: false },
+    { id: 'soon-mona', name: 'Mona', title: 'Exacting interviewer', desc: 'Precise, with little hand-holding.', img: 'mona', open: false }
   ];
   var CASE_TYPES = [
     { id: 'investment', name: 'Investment decision', desc: 'Should the client invest? Market, economics, risks.', open: true },
@@ -166,9 +169,14 @@
       var b = el('button', 'pk-card' + (it.open ? '' : ' is-soon') + (it.id === chosen ? ' is-on' : ''));
       b.type = 'button';
       if (!it.open) { b.disabled = true; b.setAttribute('aria-disabled', 'true'); }
-      if (avatar) b.appendChild(el('span', 'pk-avatar', it.open ? it.name.charAt(0) : '?'));
+      if (avatar) {
+        var av = el('span', 'pk-avatar');
+        var im = el('img'); im.src = '/assets/img/interviewers/' + it.img + '.svg'; im.alt = ''; im.width = 56; im.height = 56; im.loading = 'lazy';
+        av.appendChild(im); b.appendChild(av);
+      }
       var txt = el('span', 'pk-text');
       txt.appendChild(el('strong', null, it.name));
+      if (it.title) txt.appendChild(el('span', 'pk-role', it.title));
       txt.appendChild(el('span', 'pk-desc', it.desc));
       if (!it.open) txt.appendChild(el('span', 'pk-badge', 'Coming soon'));
       else if (it.id === chosen) txt.appendChild(el('span', 'pk-badge pk-badge-on', 'Selected'));
@@ -201,7 +209,7 @@
     box.appendChild(el('strong', null, 'Before you start'));
     var ul = el('ul');
     [
-      'Your voice is recorded and turned into a transcript while you speak with Victoria, an AI interviewer.',
+      'Your voice is recorded and turned into a transcript while you speak with Tatiana, an AI interviewer.',
       'An AI scores the transcript against Mada’s rubric. The report is a Mada developmental assessment, not official employer scoring.',
       'The transcript is kept for ' + RETENTION_DAYS + ' days and then deleted. Your scores and report are kept so you can come back to them.',
       'Voice and transcript are processed by our providers ElevenLabs (the voice) and Anthropic (the scoring).',
@@ -250,7 +258,7 @@
     var orb = el('div', 'orb is-connecting');
     orbWrap.appendChild(el('div', 'orb-ring'));
     orbWrap.appendChild(orb);
-    var name = el('p', 'call-name', 'Victoria');
+    var name = el('p', 'call-name', 'Tatiana');
     var stat = el('p', 'call-status', 'Connecting… allow the microphone when your browser asks.');
     var clock = el('p', 'call-clock', '0:00');
     var tr = el('div', 'call-transcript');
@@ -279,14 +287,14 @@
     function setMode(m) {
       mode = m;
       orb.className = 'orb is-' + (m === 'speaking' ? 'speaking' : 'listening');
-      stat.textContent = m === 'speaking' ? 'Victoria is speaking' : 'Listening… your turn';
+      stat.textContent = m === 'speaking' ? 'Tatiana is speaking' : 'Listening… your turn';
     }
     function addLine(source, text) {
       if (!text) return;
       var empty = tr.querySelector('.call-tr-empty');
       if (empty) tr.removeChild(empty);
-      var line = el('p', 'call-line ' + (source === 'user' ? 'is-you' : 'is-victoria'));
-      line.appendChild(el('span', 'call-who', source === 'user' ? 'You' : 'Victoria'));
+      var line = el('p', 'call-line ' + (source === 'user' ? 'is-you' : 'is-tatiana'));
+      line.appendChild(el('span', 'call-who', source === 'user' ? 'You' : 'Tatiana'));
       line.appendChild(el('span', 'call-text', text));
       tr.appendChild(line);
       tr.scrollTop = tr.scrollHeight;
@@ -342,7 +350,7 @@
     orbWrap.appendChild(el('div', 'orb is-thinking'));
     card.appendChild(orbWrap);
     card.appendChild(el('h3', 'call-name', 'Preparing your report'));
-    var stat = el('p', 'call-status', 'Victoria’s notes are being scored. This usually takes about a minute. Keep this page open.');
+    var stat = el('p', 'call-status', 'Tatiana’s notes are being scored. This usually takes about a minute. Keep this page open.');
     card.appendChild(stat);
     app.appendChild(card);
     var tries = 0;
