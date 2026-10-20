@@ -141,12 +141,12 @@
   // Only Tatiana and the investment case are open today. The other cards show what is coming and cannot be picked;
   // the server accepts nothing else either (interview-start validates interviewer and case type).
   var INTERVIEWERS = [
-    { id: 'victoria', name: 'Tatiana', title: 'Senior case interviewer', desc: 'Calm, direct and demanding. Skeptical of weak reasoning.', img: 'tatiana', open: true },
-    { id: 'soon-alex', name: 'Alex', title: 'Numbers specialist', desc: 'Fast-paced and data-first.', img: 'alex', open: false },
-    { id: 'soon-faisal', name: 'Faisal', title: 'Partner-style challenger', desc: 'Direct. Tests your synthesis.', img: 'faisal', open: false },
-    { id: 'soon-layal', name: 'Layal', title: 'Strategy coach', desc: 'Curious. Keeps asking \u201cso what?\u201d', img: 'layal', open: false },
-    { id: 'soon-joe', name: 'Joe', title: 'Friendly generalist', desc: 'Relaxed and conversational.', img: 'joe', open: false },
-    { id: 'soon-mona', name: 'Mona', title: 'Exacting interviewer', desc: 'Precise, with little hand-holding.', img: 'mona', open: false }
+    { id: 'victoria', name: 'Tatiana', title: 'Partner', desc: 'Executive-level mock interviewer. Calm, direct and demanding, with sharp follow-ups that push clear top-down thinking and confident recommendations.', img: 'tatiana', open: true },
+    { id: 'soon-alex', name: 'Alex', title: 'Senior Manager', desc: 'Analytical drill specialist. Fast-paced and numbers-first, he pushes quantitative accuracy, exhibit reading and data-backed insights.', img: 'alex', open: false },
+    { id: 'soon-faisal', name: 'Faisal', title: 'Principal', desc: 'Challenge-focused interviewer. Tests how well you structure ambiguity, defend your logic and synthesize clearly under pressure.', img: 'faisal', open: false },
+    { id: 'soon-layal', name: 'Layal', title: 'Senior Manager', desc: 'Strategic thought partner. Curious and probing, she keeps asking \u2018so what?\u2019 to sharpen implications, trade-offs and recommendations.', img: 'layal', open: false },
+    { id: 'soon-joe', name: 'Joe', title: 'Junior Manager', desc: 'Approachable practice interviewer. Relaxed and conversational, ideal for building confidence, sharpening structure and improving core case habits.', img: 'joe', open: false },
+    { id: 'soon-mona', name: 'Mona', title: 'Principal', desc: 'Precision-focused evaluator. Expects crisp communication, disciplined problem solving and strong case execution with minimal hand-holding.', img: 'mona', open: false }
   ];
   var CASE_TYPES = [
     { id: 'investment', name: 'Investment decision', desc: 'Should the client invest? Market, economics, risks.', open: true },
@@ -166,12 +166,12 @@
     wrap.appendChild(el('h4', 'pk-title', title));
     var grid = el('div', 'pk-grid');
     items.forEach(function (it) {
-      var b = el('button', 'pk-card' + (it.open ? '' : ' is-soon') + (it.id === chosen ? ' is-on' : ''));
+      var b = el('button', 'pk-card' + (avatar ? ' pk-person' : '') + (it.open ? '' : ' is-soon') + (it.id === chosen ? ' is-on' : ''));
       b.type = 'button';
       if (!it.open) { b.disabled = true; b.setAttribute('aria-disabled', 'true'); }
       if (avatar) {
         var av = el('span', 'pk-avatar');
-        var im = el('img'); im.src = '/assets/img/interviewers/' + it.img + '.svg'; im.alt = ''; im.width = 56; im.height = 56; im.loading = 'lazy';
+        var im = el('img'); im.src = '/assets/img/interviewers/' + it.img + '.jpg'; im.alt = it.name + ', ' + it.title; im.width = 560; im.height = 469; im.loading = 'lazy';
         av.appendChild(im); b.appendChild(av);
       }
       var txt = el('span', 'pk-text');
