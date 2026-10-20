@@ -518,3 +518,14 @@ a:hover .arrow{transform:translateX(3px)}
 .pk-person .pk-role{background:var(--cobalt-tint);padding:2px 10px;border-radius:99px;font-size:12px;letter-spacing:.02em}
 .pk-person.is-soon .pk-role{background:#fff}
 .pk-person.is-on .pk-avatar{box-shadow:0 0 0 3px #fff,0 0 0 5px var(--cobalt)}
+
+/* real portraits: image header across the card */
+.pk-person{padding:0;gap:0;overflow:hidden;align-items:stretch;text-align:left}
+.pk-person .pk-avatar{width:100%;height:auto;border-radius:0;box-shadow:none;aspect-ratio:560/469;background:var(--navy)}
+.pk-person .pk-avatar img{object-fit:cover}
+.pk-person .pk-text{align-items:flex-start;padding:14px 16px 16px;gap:6px}
+.pk-person .pk-desc{font-size:13.5px}
+.pk-person.is-on .pk-avatar{box-shadow:none}
+.pk-person.is-on{box-shadow:0 0 0 3px var(--cobalt-tint)}
+.pk-person.is-soon .pk-avatar img{filter:grayscale(.15);opacity:.92}
+.pk-grid:has(.pk-person){grid-template-columns:repeat(auto-fit,minmax(240px,1fr))}
