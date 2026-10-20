@@ -208,6 +208,11 @@ COACHES = [
      'edu': ['MBA, INSEAD', 'BEng Chemical Engineering, minors in Business and Sustainable Energy, University of Toronto'],
      'count': '30+',
      'linkedin': 'https://www.linkedin.com/in/natalietleel/'},
+    {'name': 'Misha Faraz', 'photo': 'misha.jpg', 'role': 'Consultant',
+     'prev': 'McKinsey &middot; Strategy&amp;',
+     'edu': ['MBA, The Wharton School', 'BSc Economics and Management, King&rsquo;s College London'],
+     'count': '40+',
+     'linkedin': 'https://www.linkedin.com/in/misha-faraz/'},
 ]
 
 # Schools used by the coaches-page filter (short names)
@@ -233,6 +238,7 @@ SCHOOLS = {
     'Giordana La Faja': ['IE Business School', 'London Business School', 'University of Surrey'],
     'Enrico Sposato': ['Bocconi University', 'Universidad de los Andes'],
     'Natalie Tleel': ['INSEAD', 'University of Toronto'],
+    'Misha Faraz': ['Wharton', "King's College London"],
 }
 for _c in COACHES:
     _c['companies'] = [x.strip() for x in _c['prev'].split('&middot;')]
