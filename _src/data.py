@@ -203,6 +203,11 @@ COACHES = [
      'edu': ['MBA, Universidad de los Andes', 'MSc Governments and International Organizations Management, Bocconi University', 'Bachelor&rsquo;s in Business and Managerial Economics, Bocconi University'],
      'count': '30+',
      'linkedin': 'https://www.linkedin.com/in/enricosposato/'},
+    {'name': 'Natalie Tleel', 'photo': 'natalie.jpg', 'role': 'Consultant',
+     'prev': 'Boston Consulting Group',
+     'edu': ['MBA, INSEAD', 'BEng Chemical Engineering, minors in Business and Sustainable Energy, University of Toronto'],
+     'count': '30+',
+     'linkedin': 'https://www.linkedin.com/in/natalietleel/'},
 ]
 
 # Schools used by the coaches-page filter (short names)
@@ -227,6 +232,7 @@ SCHOOLS = {
     'Mark Nasr': ['INSEAD', 'Lebanese American University'],
     'Giordana La Faja': ['IE Business School', 'London Business School', 'University of Surrey'],
     'Enrico Sposato': ['Bocconi University', 'Universidad de los Andes'],
+    'Natalie Tleel': ['INSEAD', 'University of Toronto'],
 }
 for _c in COACHES:
     _c['companies'] = [x.strip() for x in _c['prev'].split('&middot;')]
