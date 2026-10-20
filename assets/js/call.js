@@ -150,10 +150,10 @@
   ];
   var CASE_TYPES = [
     { id: 'investment', name: 'Investment decision', desc: 'Should the client invest? Market, economics, risks.', open: true },
-    { id: 'soon-ms', name: 'Market sizing', desc: 'Estimate a market from first principles.', open: false },
-    { id: 'soon-gs', name: 'Growth strategy', desc: 'Where should the client grow next?', open: false },
+    { id: 'market-sizing', name: 'Market sizing', desc: 'Estimate a market from first principles.', open: true },
+    { id: 'growth', name: 'Growth strategy', desc: 'Where should the client grow next?', open: true },
+    { id: 'profitability', name: 'Profitability', desc: 'Is it worth it? Costs, revenue and the decision.', open: true },
     { id: 'soon-1', name: 'Market entry', desc: 'Case type', open: false },
-    { id: 'soon-2', name: 'Profitability', desc: 'Case type', open: false },
     { id: 'soon-3', name: 'M&A', desc: 'Case type', open: false }
   ];
 
