@@ -474,6 +474,7 @@ def ai_case_practice():
 <section class="bg-mist">
   <div class="wrap">
     <div class="grid g3">{cards}</div>
+    <p class="muted" style="margin-top:24px">Already practised? <a href="{u('ai/reports')}">See all your reports</a>.</p>
   </div>
 </section>
 
@@ -520,7 +521,34 @@ def ai_report():
 '''
     page('ai/report', 'Your interview report',
          'Your Mada AI interview report: scores, evidence from your interview and one thing to practise next.',
-         body, ctx, noindex=True, extra_js=('js/report-view.js', 'js/report.js'))
+         body, ctx, noindex=True, extra_js=('js/ai-session.js', 'js/report-view.js', 'js/report.js'))
+
+
+# ---------------------------------------------------------------- Mada AI "My reports" (signed-in list of all released reports)
+def ai_reports():
+    ctx = Ctx('ai/reports')
+    u = ctx.url
+    cfg_url = C.SUPABASE_URL if C.SUPABASE_PUBLISHABLE_KEY else ''
+    cfg_key = C.SUPABASE_PUBLISHABLE_KEY or ''
+    body = f'''
+<header class="subhero"><div class="wrap">
+  <p class="eyebrow">Mada AI &middot; My reports</p>
+  <h1>Your reports, in one place.</h1>
+  <p class="lede">Every practice interview you have taken, newest first. Open any one to read it again.</p>
+</div></header>
+<section>
+  <div class="wrap narrow">
+    <div id="reports-app" data-api="{cfg_url}" data-key="{cfg_key}" data-start="{u('ai/case-practice')}" aria-live="polite">
+      <noscript><p>This page needs JavaScript to show your reports.</p></noscript>
+      <p class="muted">Loading&hellip;</p>
+    </div>
+    <p class="muted" style="margin-top:32px">Questions about a report? <a href="mailto:{C.EMAIL}">{C.EMAIL}</a> or <a href="{u('services')}">book a coach</a>.</p>
+  </div>
+</section>
+'''
+    page('ai/reports', 'My reports',
+         'All your Mada AI interview reports in one place.',
+         body, ctx, noindex=True, extra_js=('js/ai-session.js', 'js/my-reports.js'))
 
 
 def ai_start():
@@ -540,7 +568,7 @@ def ai_start():
       <noscript><p>This page needs JavaScript and a microphone.</p></noscript>
       <p class="muted">Loading&hellip;</p>
     </div>
-    <p class="muted" style="margin-top:32px">Problems with your call? <a href="mailto:{C.EMAIL}">{C.EMAIL}</a>. The report is a Mada developmental assessment, not official employer scoring. See our <a href="{u('privacy')}">privacy policy</a>.</p>
+    <p class="muted" style="margin-top:32px">Your earlier reports: <a href="{u('ai/reports')}">My reports</a>. Problems with your call? <a href="mailto:{C.EMAIL}">{C.EMAIL}</a>. The report is a Mada developmental assessment, not official employer scoring. See our <a href="{u('privacy')}">privacy policy</a>.</p>
   </div>
 </section>
 '''
@@ -967,9 +995,9 @@ def not_found():
 
 def build_all():
     not_found()
-    home(); how_it_works(); services(); ai(); ai_case_practice(); ai_start(); ai_report(); coaches(); about(); cv_review(); resources(); book(); legal_pages(); thank_you()
+    home(); how_it_works(); services(); ai(); ai_case_practice(); ai_start(); ai_report(); ai_reports(); coaches(); about(); cv_review(); resources(); book(); legal_pages(); thank_you()
     root_files()
-    return ['', 'how-it-works', 'services', 'ai', 'ai/case-practice', 'ai/case-practice/start', 'ai/report', 'coaches', 'about', 'cv-review', 'resources', 'book',
+    return ['', 'how-it-works', 'services', 'ai', 'ai/case-practice', 'ai/case-practice/start', 'ai/report', 'ai/reports', 'coaches', 'about', 'cv-review', 'resources', 'book',
             'privacy', 'terms', 'refunds', 'cookies', 'thank-you', '404']
 
 

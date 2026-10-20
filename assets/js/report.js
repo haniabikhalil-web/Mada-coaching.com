@@ -9,6 +9,7 @@
   var statusEl = document.getElementById('report-status');
   var API = app.getAttribute('data-api');
   var KEY = app.getAttribute('data-key');
+  var S = window.MadaSession;
   var token = null;
 
   function el(tag, cls, text) {
@@ -65,7 +66,7 @@
       btn.disabled = true;
       post('/auth/v1/verify', { type: 'email', email: email, token: input.value.trim() }).then(function (r) {
         return r.ok ? r.json() : Promise.reject();
-      }).then(function (j) { token = j.access_token; load(); }, function () { signInForm('That code did not work. Request a new one.'); });
+      }).then(function (j) { token = j.access_token; if (S) S.save(token, email); load(); }, function () { signInForm('That code did not work. Request a new one.'); });
     });
     app.appendChild(form);
   }
@@ -74,22 +75,22 @@
     say('Loading your report…');
     var id = new URLSearchParams(location.search).get('id');
     post('/functions/v1/interview-report', id ? { id: id } : {}, token).then(function (r) {
-      if (r.status === 401) { token = null; return signInForm('Your session expired. Sign in again.'); }
+      if (r.status === 401) { token = null; if (S) S.clear(); return signInForm('Your session expired. Sign in again.'); }
       if (!r.ok) return say(r.status === 404 ? 'We could not find that report.' : 'Something went wrong. Please try again shortly.');
       return r.json().then(function (j) {
         if (!j.reports.length) return say('You have no reports yet. Reports appear here after your call; a few are checked by a Mada coach first.');
-        if (id || j.reports.length === 1) return render(j.reports[0].report);
-        clear();
-        app.appendChild(el('h2', null, 'Your reports'));
-        j.reports.forEach(function (x) {
-          var a = el('a', 'btn btn-ghost', x.report.title + ' · ' + new Date(x.released_at).toLocaleDateString());
-          a.href = '?id=' + encodeURIComponent(x.id);
-          app.appendChild(a);
-        });
+        if (!id) { location.replace('../reports/'); return; }
+        render(j.reports[0].report);
+        var back = el('p', null);
+        var a = el('a', 'btn btn-ghost', 'All my reports'); a.href = '../reports/';
+        back.appendChild(a);
+        app.appendChild(back);
       });
     }, function () { say('Could not reach the report service. Please try again shortly.'); });
   }
 
   if (statusEl && !ready()) { say('Interview reports are not available yet. We will email you when yours is ready.'); return; }
-  if (ready()) signInForm();
+  var saved = S && S.load();
+  if (ready() && saved) { token = saved.token; load(); }
+  else if (ready()) signInForm();
 })();

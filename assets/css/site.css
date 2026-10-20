@@ -534,3 +534,13 @@ a:hover .arrow{transform:translateX(3px)}
 .card.persona .persona-img{width:calc(100% + 2*var(--pad,28px));max-width:none;margin:0 calc(-1*var(--pad,28px)) 14px;aspect-ratio:560/469;object-fit:cover;display:block}
 .card.persona .badge{position:absolute;top:14px;right:14px}
 .card.persona{position:relative}
+/* My reports list */
+.rp-list{display:grid;gap:16px;margin:16px 0 24px}
+.rp-item{display:block;text-decoration:none;color:inherit;transition:transform .15s ease,box-shadow .15s ease}
+.rp-item:hover,.rp-item:focus-visible{transform:translateY(-2px)}
+.rp-item-head{display:flex;justify-content:space-between;gap:16px;align-items:flex-start}
+.rp-item h3{margin:6px 0 0}
+.rp-item-score{font-family:var(--display);font-size:clamp(26px,5vw,36px);color:var(--navy);white-space:nowrap;line-height:1.1}
+.rp-chips{display:flex;flex-wrap:wrap;gap:8px;margin:14px 0 4px}
+.rp-chip{font-size:13px;font-weight:600;color:var(--stone);background:var(--mist);border-radius:999px;padding:5px 12px}
+.rp-item-open{display:inline-block;margin-top:10px;font-weight:700;color:var(--cobalt)}
