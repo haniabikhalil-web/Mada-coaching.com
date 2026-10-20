@@ -243,6 +243,8 @@ SCHOOLS = {
 for _c in COACHES:
     _c['companies'] = [x.strip() for x in _c['prev'].split('&middot;')]
     _c['schools'] = SCHOOLS[_c['name']]
+# Most sessions first (stable: ties keep the order above)
+COACHES.sort(key=lambda c: -int(c['count'].rstrip('+')))
 
 # ---------------------------------------------------------------- proof
 TESTIMONIALS = [
