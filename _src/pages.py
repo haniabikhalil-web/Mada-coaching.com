@@ -414,14 +414,14 @@ def ai():
         cls = 'card price-card reveal' + (' price-rec' if rec else '')
         flag = '<span class="badge rise">Recommended</span>' if rec else ''
         return f'''<div class="{cls}">{flag}<span class="badge soon">Coming soon</span>
-<h3>{name}</h3><p class="price"><b>{price}</b> <span>{per}</span></p><p class="muted">{blurb}</p><ul>{lis}</ul>
+<h3>{name}</h3><p class="muted">{blurb}</p><ul>{lis}</ul>
 <a class="btn {'btn-primary' if rec else 'btn-ghost'}" href="{wl(name)}" style="margin-top:16px">{cta}</a></div>'''
     plans = (
-        plan('AI Practice', '$30', '/ interview', '', 'Targeted practice without a subscription.',
+        plan('AI Practice', '', '', '', 'Pay per interview, no subscription. For targeted practice.',
              ['One AI case or fit interview', 'Realistic, interactive interview experience', 'Standard performance feedback', 'Key strengths and improvement areas'], 'Join the waitlist')
-        + plan('AI Unlimited', '$100', '/ month', '', 'For candidates preparing intensively.',
+        + plan('AI Unlimited', '', '', '', 'A monthly plan for candidates preparing intensively.',
              ['Case and fit interview preparation', 'Multiple AI interviewer personalities', 'Full mock interviews', 'Market sizing and math drills', 'Standard feedback after each session', 'Basic performance history', 'Unlimited practice, subject to a fair-use policy'], 'Join the waitlist', rec=True)
-        + plan('AI Pro', '$150', '/ month, proposed', '', 'Advanced, personalized preparation.',
+        + plan('AI Pro', '', '', '', 'A monthly plan for advanced, personalized preparation.',
              ['Everything in AI Unlimited', 'Advanced feedback reports', 'Detailed performance analytics', 'Progress tracking', 'Personalized development plans', 'Recommended exercises based on weaknesses', 'Candidate benchmarking, once there is enough data', 'Interview readiness assessments'], 'Join the waitlist')
     )
     qa = [
@@ -430,7 +430,7 @@ def ai():
         ('What is the difference between case and fit interviews?', 'A case interview tests how you structure and solve a business problem, with numbers. A fit interview tests your motivation, your stories and how you work with others. Case practice opens first; fit practice follows.'),
         ('What feedback will I receive?', 'A structured report: a score for each skill, backed by quotes from your own interview, with strengths and the specific things to improve. It is a Mada developmental assessment, not official employer scoring.'),
         ('Can I practice multiple times?', 'Yes. Each interview is a separate session with its own report, and we will vary the case so you do not repeat one.'),
-        ('What is included in each pricing plan?', 'The plans above show what we intend to offer. Prices and inclusions are not final until each plan opens, and we will email the waitlist first.'),
+        ('What is included in each pricing plan?', 'The plans above show what we intend to offer. Pricing and inclusions are confirmed when each plan opens, and we will email the waitlist first.'),
         ('How does Mada AI complement human coaching?', 'Use Mada AI to practise as often as you like. Use a Mada coach for personal feedback, strategy and high-stakes decisions from someone who has interviewed candidates at consulting firms.'),
     ]
     body = f'''
@@ -501,7 +501,7 @@ def ai():
 <section class="bg-mist" id="plans">
   <div class="wrap">
     <div class="section-head reveal"><p class="eyebrow">Plans</p><h2>Three simple plans.</h2>
-      <p class="lede">Planned pricing, not yet open. Prices and inclusions may change before launch. Join the waitlist and we will email you first.</p></div>
+      <p class="lede">None of these plans has launched. Join the waitlist and we will email you first, with pricing, when each one opens.</p></div>
     <div class="grid g3">{plans}</div>
   </div>
 </section>
