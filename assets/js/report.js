@@ -76,6 +76,7 @@
     var id = new URLSearchParams(location.search).get('id');
     post('/functions/v1/interview-report', id ? { id: id } : {}, token).then(function (r) {
       if (r.status === 401) { token = null; if (S) S.clear(); return signInForm('Your session expired. Sign in again.'); }
+      if (r.status === 404 && id) return coachView(id);
       if (!r.ok) return say(r.status === 404 ? 'We could not find that report.' : 'Something went wrong. Please try again shortly.');
       return r.json().then(function (j) {
         // Not this account's report: a Mada coach may still open it (interview-admin allows coaches only).
