@@ -140,9 +140,14 @@
   // ---------------------------------------------------------------- 3. set up
   // Only Tatiana and the investment case are open today. The other cards show what is coming and cannot be picked;
   // the server accepts nothing else either (interview-start validates interviewer and case type).
+  // Alex is not public. A tester opens the start page with ?interviewer=alex; the server still refuses him until his agent is set up.
+  var TESTER_ALEX = false;
+  try { TESTER_ALEX = new URLSearchParams(location.search).get('interviewer') === 'alex'; } catch (e) { TESTER_ALEX = false; }
+  var interviewer = 'victoria';
+  function who() { return interviewer === 'alex' ? 'Alex' : 'Tatiana'; }
   var INTERVIEWERS = [
     { id: 'victoria', name: 'Tatiana', title: 'Partner', desc: 'Executive-level mock interviewer. Calm, direct and demanding, with sharp follow-ups that push clear top-down thinking and confident recommendations.', img: 'tatiana', open: true },
-    { id: 'soon-alex', name: 'Alex', title: 'Senior Manager', desc: 'Analytical drill specialist. Fast-paced and numbers-first, he pushes quantitative accuracy, exhibit reading and data-backed insights.', img: 'alex', open: false },
+    { id: TESTER_ALEX ? 'alex' : 'soon-alex', name: 'Alex', title: 'Senior Manager', desc: 'Analytical drill specialist. Fast-paced and numbers-first, he pushes quantitative accuracy, exhibit reading and data-backed insights.', img: 'alex', open: TESTER_ALEX },
     { id: 'soon-faisal', name: 'Faisal', title: 'Principal', desc: 'Challenge-focused interviewer. Tests how well you structure ambiguity, defend your logic and synthesize clearly under pressure.', img: 'faisal', open: false },
     { id: 'soon-layal', name: 'Layal', title: 'Senior Manager', desc: 'Strategic thought partner. Curious and probing, she keeps asking \u2018so what?\u2019 to sharpen implications, trade-offs and recommendations.', img: 'layal', open: false },
     { id: 'soon-joe', name: 'Joe', title: 'Junior Manager', desc: 'Approachable practice interviewer. Relaxed and conversational, ideal for building confidence, sharpening structure and improving core case habits.', img: 'joe', open: false },
@@ -154,6 +159,7 @@
     { id: 'growth', name: 'Growth strategy', desc: 'Where should the client grow next?', open: true },
     { id: 'profitability', name: 'Profitability', desc: 'Is it worth it? Costs, revenue and the decision.', open: true },
     { id: 'market-entry', name: 'Market entry', desc: 'Should the client enter a new market? Price, cost position, risks.', open: true },
+    { id: 'pricing', name: 'Pricing', desc: 'What should it cost? Price, volume and profit.', open: true },
     { id: 'soon-3', name: 'M&A', desc: 'Case type', open: false }
   ];
 
@@ -199,7 +205,7 @@
     var slotI = el('div'), slotC = el('div'), slotD = el('div');
     function draw() {
       slotI.textContent = ''; slotC.textContent = ''; slotD.textContent = '';
-      slotI.appendChild(picker('1. Choose your interviewer', INTERVIEWERS, chosenI, function (id) { chosenI = id; draw(); }, true));
+      slotI.appendChild(picker('1. Choose your interviewer', INTERVIEWERS, chosenI, function (id) { chosenI = id; interviewer = id === 'alex' ? 'alex' : 'victoria'; draw(); }, true));
       slotC.appendChild(picker('2. Choose a case type', CASE_TYPES, chosenC, function (id) { chosenC = id; draw(); }, false));
       slotD.appendChild(picker('3. Choose a difficulty', DIFFICULTIES, chosenD, function (id) { chosenD = id; draw(); }, false));
     }
@@ -211,7 +217,7 @@
     box.appendChild(el('strong', null, 'Before you start'));
     var ul = el('ul');
     [
-      'Your voice is recorded and turned into a transcript while you speak with Tatiana, an AI interviewer.',
+      'Your voice is recorded and turned into a transcript while you speak with ' + who() + ', an AI interviewer.',
       'An AI scores the transcript against Mada’s rubric. The report is a Mada developmental assessment, not official employer scoring.',
       'The transcript is kept for ' + RETENTION_DAYS + ' days and then deleted. Your scores and report are kept so you can come back to them.',
       'Voice and transcript are processed by our providers ElevenLabs (the voice) and Anthropic (the scoring).',
@@ -238,7 +244,7 @@
   // ---------------------------------------------------------------- 4. the call
   function start(caseType) {
     say('Starting your call…');
-    post('/functions/v1/interview-start', { interviewer: 'victoria', case_type: caseType, consent: true, consent_version: CONSENT_VERSION }, token).then(function (r) {
+    post('/functions/v1/interview-start', { interviewer: interviewer, case_type: caseType, consent: true, consent_version: CONSENT_VERSION }, token).then(function (r) {
       if (r.status === 401) { token = null; saveSession(); return signInForm('Your session expired. Sign in again.'); }
       return r.json().then(function (j) {
         if (!r.ok) {
@@ -260,7 +266,7 @@
     var orb = el('div', 'orb is-connecting');
     orbWrap.appendChild(el('div', 'orb-ring'));
     orbWrap.appendChild(orb);
-    var name = el('p', 'call-name', 'Tatiana');
+    var name = el('p', 'call-name', who());
     var stat = el('p', 'call-status', 'Connecting… allow the microphone when your browser asks.');
     var clock = el('p', 'call-clock', '0:00');
     var tr = el('div', 'call-transcript');
@@ -289,14 +295,14 @@
     function setMode(m) {
       mode = m;
       orb.className = 'orb is-' + (m === 'speaking' ? 'speaking' : 'listening');
-      stat.textContent = m === 'speaking' ? 'Tatiana is speaking' : 'Listening… your turn';
+      stat.textContent = m === 'speaking' ? who() + ' is speaking' : 'Listening… your turn';
     }
     function addLine(source, text) {
       if (!text) return;
       var empty = tr.querySelector('.call-tr-empty');
       if (empty) tr.removeChild(empty);
       var line = el('p', 'call-line ' + (source === 'user' ? 'is-you' : 'is-tatiana'));
-      line.appendChild(el('span', 'call-who', source === 'user' ? 'You' : 'Tatiana'));
+      line.appendChild(el('span', 'call-who', source === 'user' ? 'You' : who()));
       line.appendChild(el('span', 'call-text', text));
       tr.appendChild(line);
       tr.scrollTop = tr.scrollHeight;
@@ -352,7 +358,7 @@
     orbWrap.appendChild(el('div', 'orb is-thinking'));
     card.appendChild(orbWrap);
     card.appendChild(el('h3', 'call-name', 'Preparing your report'));
-    var stat = el('p', 'call-status', 'Tatiana’s notes are being scored. This usually takes about a minute. Keep this page open.');
+    var stat = el('p', 'call-status', who() + '’s notes are being scored. This usually takes about a minute. Keep this page open.');
     card.appendChild(stat);
     app.appendChild(card);
     var tries = 0;
