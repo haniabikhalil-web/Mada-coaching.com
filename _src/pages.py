@@ -388,6 +388,9 @@ def services():
 
 
 # ---------------------------------------------------------------- Mada AI
+AI_STAGE_LABEL = {'soon': 'Opening soon', 'next': 'Up next', 'later': 'Later'}
+
+
 def ai_tool_button(ctx, t):
     """Tools with their own page link to it; the rest join the waitlist."""
     if t.get('page'):
@@ -398,18 +401,32 @@ def ai_tool_button(ctx, t):
 def ai():
     ctx = Ctx('ai')
     u = ctx.url
-    tools = ''.join(f'''<div class="card tool reveal">{icon(t['icon'])}<span class="badge soon">{'Opening soon' if t.get('page') else 'Coming soon'}</span>
+    tools = ''.join(f'''<div class="card tool reveal">{icon(t['icon'])}<span class="badge soon">{AI_STAGE_LABEL[t.get('stage', 'later')]}</span>
 <h3>{t['name']}</h3><p>{t['desc']}</p>
 {ai_tool_button(ctx, t)}</div>''' for t in AI_TOOLS)
     body = f'''
 <header class="subhero"><div class="wrap">
-  <p class="eyebrow">Mada AI &middot; Coming soon</p>
+  <p class="eyebrow">Mada AI &middot; Opening soon</p>
   <h1>Practice more. Prepare anytime.</h1>
   <p class="lede">Mada AI gives you always-on tools to sharpen your consulting applications and interview skills at your own pace.</p>
   <p class="lede" style="margin-top:12px">Review your CV, practice cases, sharpen your case maths, prepare fit answers and improve through repetition&mdash;whenever you need it.</p>
   <p class="lede" style="margin-top:12px">For personalized guidance and high-stakes decisions, work with a <a href="{u('services')}">Mada expert</a>.</p>
   <div class="btn-row"><a class="btn btn-primary" href="#tools">Explore Mada AI <span class="arrow" aria-hidden="true">&darr;</span></a></div>
 </div></header>
+
+<section id="roadmap">
+  <div class="wrap">
+    <div class="section-head reveal"><p class="eyebrow">What is coming next</p><h2>Built in stages, starting with case practice.</h2><p class="lede">We are opening Mada AI one tool at a time, so each one is tested before it reaches you. Dates are not fixed: join the waitlist and we will email you as each one opens.</p></div>
+    <div class="grid g3">
+      <div class="card reveal"><span class="badge soon">Opening soon</span><h3>AI case practice</h3>
+        <p>Spoken case interviews with Tatiana, our partner-style interviewer. A library of cases across investment, market sizing, growth, profitability, market entry and pricing, with a structured report after every call.</p></div>
+      <div class="card reveal"><span class="badge soon">Up next</span><h3>More interviewers, fit practice and drills</h3>
+        <p>Further interviewer styles, from analytical and numbers-first to more conversational, then behavioral and fit interview practice and timed case maths drills.</p></div>
+      <div class="card reveal"><span class="badge soon">Later</span><h3>A personal preparation plan</h3>
+        <p>Progress across sessions, your recurring weak spots and a practice plan that adapts as you improve, plus support for CVs, cover letters and networking messages.</p></div>
+    </div>
+  </div>
+</section>
 
 <section class="bg-mist" id="tools">
   <div class="wrap">

@@ -87,18 +87,18 @@ FULL_JOURNEY = {
 
 # ---------------------------------------------------------------- AI
 AI_TOOLS = [
-    {'name': 'AI CV Review', 'icon': 'doc',
+    {'name': 'AI CV Review', 'icon': 'doc', 'stage': 'later',
      'desc': 'Upload your consulting CV and receive structured feedback and recommendations.'},
-    {'name': 'AI Case Practice', 'icon': 'chart',
-     'desc': 'Practice consulting cases on demand and receive feedback on your approach, structure and performance.',
+    {'name': 'AI Case Practice', 'icon': 'chart', 'stage': 'soon',
+     'desc': 'Practice spoken consulting cases with an AI interviewer, on your own schedule, and receive a structured report on your structure, numbers, business judgment and communication, backed by quotes from your own interview.',
      'page': 'ai/case-practice', 'cta': 'Try AI case practice'},
-    {'name': 'AI Case Prep Program', 'icon': 'route',
+    {'name': 'AI Case Prep Program', 'icon': 'route', 'stage': 'later',
      'desc': 'A personalized case interview preparation journey. Start with an assessment, identify your weaknesses and follow a tailored practice plan that adapts as you improve.'},
-    {'name': 'AI Case Maths Practice', 'icon': 'bolt',
+    {'name': 'AI Case Maths Practice', 'icon': 'bolt', 'stage': 'next',
      'desc': 'Drill the arithmetic that case interviews turn on: percentages and growth, breakeven, market sizing, CAGR, weighted averages and unit economics. Timed questions, worked solutions and the traps to avoid.'},
-    {'name': 'AI Fit Interview Practice', 'icon': 'mic',
+    {'name': 'AI Fit Interview Practice', 'icon': 'mic', 'stage': 'next',
      'desc': 'Practice behavioral and fit questions, refine your stories and improve your answers through repetition.'},
-    {'name': 'AI Application Support', 'icon': 'send',
+    {'name': 'AI Application Support', 'icon': 'send', 'stage': 'later',
      'desc': 'Get support improving cover letters, networking messages and other recruiting materials.'},
 ]
 
