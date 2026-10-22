@@ -78,6 +78,8 @@
       if (r.status === 401) { token = null; if (S) S.clear(); return signInForm('Your session expired. Sign in again.'); }
       if (!r.ok) return say(r.status === 404 ? 'We could not find that report.' : 'Something went wrong. Please try again shortly.');
       return r.json().then(function (j) {
+        // Not this account's report: a Mada coach may still open it (interview-admin allows coaches only).
+        if (id && !j.reports.length) return coachView(id);
         if (!j.reports.length) return say('You have no reports yet. Reports appear here after your call; a few are checked by a Mada coach first.');
         if (!id) { location.replace('../reports/'); return; }
         render(j.reports[0].report);
@@ -85,6 +87,20 @@
         var a = el('a', 'btn btn-ghost', 'All my reports'); a.href = '../reports/';
         back.appendChild(a);
         app.appendChild(back);
+      });
+    }, function () { say('Could not reach the report service. Please try again shortly.'); });
+  }
+
+  // Coach view: a signed-in coach opens any candidate's report by id, whatever its status. Anyone else
+  // gets the same "not found" a missing report gets.
+  function coachView(id) {
+    return post('/functions/v1/interview-admin', { action: 'get', id: id }, token).then(function (r) {
+      if (!r.ok) return say('We could not find that report.');
+      return r.json().then(function (row) {
+        if (!row || !row.public_report) return say('We could not find that report.');
+        render(row.public_report);
+        var note = el('p', 'muted', 'Coach view. Status: ' + (row.status || 'unknown') + (row.hold_reason ? ' (' + row.hold_reason + ')' : '') + '. This is not the signed-in account\u2019s own report.');
+        app.insertBefore(note, app.firstChild);
       });
     }, function () { say('Could not reach the report service. Please try again shortly.'); });
   }
