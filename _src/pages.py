@@ -401,50 +401,135 @@ def ai_tool_button(ctx, t):
 def ai():
     ctx = Ctx('ai')
     u = ctx.url
-    tools = ''.join(f'''<div class="card tool reveal">{icon(t['icon'])}<span class="badge soon">{AI_STAGE_LABEL[t.get('stage', 'later')]}</span>
-<h3>{t['name']}</h3><p>{t['desc']}</p>
-{ai_tool_button(ctx, t)}</div>''' for t in AI_TOOLS)
+    wl = lambda what: waitlist_href(what)
+    # Whole page is "coming soon": every button joins a waitlist; nothing here sells or starts a call.
+    persona_cards = ''
+    for i in INTERVIEWERS_SIX:
+        img = f'<img class="persona-img" src="{ctx.asset("img/interviewers/" + i["img"] + ".jpg")}" alt="{i["name"]}, {i["title"]}" width="560" height="469" loading="lazy">'
+        persona_cards += f'''<div class="card tool persona reveal">{img}<span class="badge soon">Opening soon</span>
+<span class="tag" style="margin-top:12px">{i['title']}</span>
+<h3>{i['name']}</h3><p><strong>{i['traits']}</strong></p><p>{i['desc']}</p></div>'''
+    def plan(name, price, per, tag, blurb, items, cta, rec=False):
+        lis = ''.join(f'<li>{x}</li>' for x in items)
+        cls = 'card price-card reveal' + (' price-rec' if rec else '')
+        flag = '<span class="badge rise">Recommended</span>' if rec else ''
+        return f'''<div class="{cls}">{flag}<span class="badge soon">Coming soon</span>
+<h3>{name}</h3><p class="price"><b>{price}</b> <span>{per}</span></p><p class="muted">{blurb}</p><ul>{lis}</ul>
+<a class="btn {'btn-primary' if rec else 'btn-ghost'}" href="{wl(name)}" style="margin-top:16px">{cta}</a></div>'''
+    plans = (
+        plan('AI Practice', '$30', '/ interview', '', 'Targeted practice without a subscription.',
+             ['One AI case or fit interview', 'Realistic, interactive interview experience', 'Standard performance feedback', 'Key strengths and improvement areas'], 'Join the waitlist')
+        + plan('AI Unlimited', '$100', '/ month', '', 'For candidates preparing intensively.',
+             ['Case and fit interview preparation', 'Multiple AI interviewer personalities', 'Full mock interviews', 'Market sizing and math drills', 'Standard feedback after each session', 'Basic performance history', 'Unlimited practice, subject to a fair-use policy'], 'Join the waitlist', rec=True)
+        + plan('AI Pro', '$150', '/ month, proposed', '', 'Advanced, personalized preparation.',
+             ['Everything in AI Unlimited', 'Advanced feedback reports', 'Detailed performance analytics', 'Progress tracking', 'Personalized development plans', 'Recommended exercises based on weaknesses', 'Candidate benchmarking, once there is enough data', 'Interview readiness assessments'], 'Join the waitlist')
+    )
+    qa = [
+        ('How realistic are Mada AI interviews?', 'You speak out loud with an AI interviewer who states the case, answers your questions with the case facts, pushes on your logic and asks you to summarise, much like a first-round interview. It is practice, not a replica of any firm&rsquo;s process.'),
+        ('Can I choose my AI interviewer?', 'That is the plan: six interviewers with different seniority and style. Tatiana, the partner-style interviewer, opens first and the others follow one at a time.'),
+        ('What is the difference between case and fit interviews?', 'A case interview tests how you structure and solve a business problem, with numbers. A fit interview tests your motivation, your stories and how you work with others. Case practice opens first; fit practice follows.'),
+        ('What feedback will I receive?', 'A structured report: a score for each skill, backed by quotes from your own interview, with strengths and the specific things to improve. It is a Mada developmental assessment, not official employer scoring.'),
+        ('Can I practice multiple times?', 'Yes. Each interview is a separate session with its own report, and we will vary the case so you do not repeat one.'),
+        ('What is included in each pricing plan?', 'The plans above show what we intend to offer. Prices and inclusions are not final until each plan opens, and we will email the waitlist first.'),
+        ('How does Mada AI complement human coaching?', 'Use Mada AI to practise as often as you like. Use a Mada coach for personal feedback, strategy and high-stakes decisions from someone who has interviewed candidates at consulting firms.'),
+    ]
     body = f'''
 <header class="subhero"><div class="wrap">
   <p class="eyebrow">Mada AI &middot; Opening soon</p>
-  <h1>Practice more. Prepare anytime.</h1>
-  <p class="lede">Mada AI gives you always-on tools to sharpen your consulting applications and interview skills at your own pace.</p>
-  <p class="lede" style="margin-top:12px">Review your CV, practice cases, sharpen your case maths, prepare fit answers and improve through repetition&mdash;whenever you need it.</p>
-  <p class="lede" style="margin-top:12px">For personalized guidance and high-stakes decisions, work with a <a href="{u('services')}">Mada expert</a>.</p>
-  <div class="btn-row"><a class="btn btn-primary" href="#tools">Explore Mada AI <span class="arrow" aria-hidden="true">&darr;</span></a></div>
+  <h1>Your AI Consulting Interview Coach. Available 24/7.</h1>
+  <p class="lede">Practice realistic case and fit interviews with AI interviewers, receive personalized feedback, and build the confidence to succeed in consulting interviews.</p>
+  <div class="btn-row"><a class="btn btn-primary" href="{wl('Mada AI')}">Join the waitlist</a><a class="btn btn-light" href="#plans">Explore plans <span class="arrow" aria-hidden="true">&darr;</span></a></div>
 </div></header>
 
-<section id="roadmap">
+<section>
   <div class="wrap">
-    <div class="section-head reveal"><p class="eyebrow">What is coming next</p><h2>Built in stages, starting with case practice.</h2><p class="lede">We are opening Mada AI one tool at a time, so each one is tested before it reaches you. Dates are not fixed: join the waitlist and we will email you as each one opens.</p></div>
     <div class="grid g3">
-      <div class="card reveal"><span class="badge soon">Opening soon</span><h3>AI case practice</h3>
-        <p>Spoken case interviews with Tatiana, our partner-style interviewer. A library of cases across investment, market sizing, growth, profitability, market entry and pricing, with a structured report after every call.</p></div>
-      <div class="card reveal"><span class="badge soon">Up next</span><h3>More interviewers, fit practice and drills</h3>
-        <p>Further interviewer styles, from analytical and numbers-first to more conversational, then behavioral and fit interview practice and timed case maths drills.</p></div>
-      <div class="card reveal"><span class="badge soon">Later</span><h3>A personal preparation plan</h3>
-        <p>Progress across sessions, your recurring weak spots and a practice plan that adapts as you improve, plus support for CVs, cover letters and networking messages.</p></div>
+      <div class="card reveal"><h3>Practice anytime</h3><p>On your own schedule, out loud, whenever you have 25 quiet minutes.</p></div>
+      <div class="card reveal"><h3>Different interviewers</h3><p>Prepare for different styles and levels of seniority, from partner to junior manager.</p></div>
+      <div class="card reveal"><h3>See where you stand</h3><p>Understand your strengths, work on your weaknesses and build on your progress.</p></div>
     </div>
   </div>
 </section>
 
-<section class="bg-mist" id="tools">
+<section class="bg-mist" id="tracks">
   <div class="wrap">
-    <div class="section-head reveal"><p class="eyebrow">Self-serve tools</p><h2>Six tools, in development.</h2><p class="lede">Join the waitlist for any of them and we&rsquo;ll email you when it opens.</p></div>
-    <div class="grid g2">{tools}</div>
+    <div class="section-head reveal"><p class="eyebrow">Preparation tracks</p><h2>Two tracks, one platform.</h2></div>
+    <div class="grid g2">
+      <div class="card reveal"><span class="badge soon">Opening soon</span><h3>Case interview preparation</h3>
+        <ul><li>Full consulting case interviews</li><li>Market sizing exercises</li><li>Mental math and quantitative drills</li><li>Business judgment and problem solving</li><li>Different industries and difficulty levels</li><li>Different AI interviewer personalities</li></ul></div>
+      <div class="card reveal"><span class="badge soon">Coming later</span><h3>Fit &amp; behavioral interview preparation</h3>
+        <ul><li>Tell me about yourself</li><li>Why consulting? Why this firm?</li><li>Leadership and teamwork stories</li><li>Conflict resolution and resilience</li><li>Motivation and personal impact</li><li>Behavioral follow-up questions</li></ul></div>
+    </div>
+    <div class="card reveal" style="margin-top:20px"><span class="badge soon">Coming later</span><h3>Full mock interviews</h3>
+      <p>Case and fit in one session, with integrated performance feedback.</p></div>
+  </div>
+</section>
+
+<section id="interviewers">
+  <div class="wrap">
+    <div class="section-head reveal"><p class="eyebrow">Your interviewers</p><h2>Meet your six AI interviewers.</h2>
+      <p class="lede">Real interviews differ by interviewer and by seniority. Prepare for each style, from a demanding partner to an encouraging junior manager. We are opening them one at a time, starting with Tatiana.</p></div>
+    <div class="grid g3">{persona_cards}</div>
+  </div>
+</section>
+
+<section class="bg-mist" id="how">
+  <div class="wrap">
+    <div class="section-head reveal"><p class="eyebrow">How it works</p><h2>Four simple steps.</h2></div>
+    <div class="grid g4">
+      <div class="card reveal"><p class="tag">Step 1</p><h3>Choose your plan</h3><p>A single interview or a preparation package.</p></div>
+      <div class="card reveal"><p class="tag">Step 2</p><h3>Choose your practice</h3><p>Case, fit or a full mock interview, from what is available.</p></div>
+      <div class="card reveal"><p class="tag">Step 3</p><h3>Practice with your AI interviewer</h3><p>A realistic, interactive consulting interview.</p></div>
+      <div class="card reveal"><p class="tag">Step 4</p><h3>Receive feedback and improve</h3><p>See how you did, what to work on, and keep practicing.</p></div>
+    </div>
+  </div>
+</section>
+
+<section id="progress">
+  <div class="wrap">
+    <div class="section-head reveal"><p class="eyebrow">Feedback &amp; progress</p><h2>More than practice. Real progress.</h2>
+      <p class="lede">Mada AI is designed to show you how you perform and what to improve. Here is what each report will cover, and what we plan to add.</p></div>
+    <div class="grid g2">
+      <div class="card reveal"><span class="badge soon">Opening soon</span><h3>In every report</h3>
+        <ul><li>Structured interview feedback</li><li>Problem-solving and quantitative assessment</li><li>Business judgment and communication scores</li><li>Strengths and development areas, with quotes from your own interview</li><li>A list of your past reports</li></ul></div>
+      <div class="card reveal"><span class="badge soon">Planned</span><h3>Planned for premium</h3>
+        <ul><li>Advanced performance analytics</li><li>Progress tracking over time</li><li>Candidate benchmarking</li><li>Personalized development plans</li><li>Interview readiness assessments</li></ul></div>
+    </div>
+  </div>
+</section>
+
+<section class="bg-mist" id="plans">
+  <div class="wrap">
+    <div class="section-head reveal"><p class="eyebrow">Plans</p><h2>Three simple plans.</h2>
+      <p class="lede">Planned pricing, not yet open. Prices and inclusions may change before launch. Join the waitlist and we will email you first.</p></div>
+    <div class="grid g3">{plans}</div>
   </div>
 </section>
 
 <section class="bg-navy">
   <div class="wrap narrow center" style="text-align:center">
-    <h2>Need a human perspective?</h2>
-    <p class="lede center" style="margin-top:16px">Some decisions need more than an algorithm. Work 1:1 with an experienced consultant or interviewer for personalized feedback, nuanced career advice and high-stakes preparation.</p>
-    <div class="btn-row" style="justify-content:center;margin-top:28px"><a class="btn btn-light" href="{u('services')}">Explore expert coaching</a></div>
+    <h2>AI practice. Human expertise. Better together.</h2>
+    <p class="lede center" style="margin-top:16px">Practice independently with Mada AI, then work with experienced Mada coaches to tackle your biggest challenges. Combine the flexibility of AI with the insight of consultants who know what top firms look for.</p>
+    <div class="btn-row" style="justify-content:center;margin-top:28px"><a class="btn btn-light" href="{u('services')}">Explore human coaching</a></div>
+  </div>
+</section>
+
+<section id="faq">
+  <div class="wrap narrow">
+    <div class="section-head reveal"><p class="eyebrow">FAQ</p><h2>Common questions.</h2></div>
+    {faq(qa)}
+  </div>
+</section>
+
+<section class="bg-mist">
+  <div class="wrap narrow center" style="text-align:center">
+    <h2>Ready to ace your next consulting interview?</h2>
+    <div class="btn-row" style="justify-content:center;margin-top:28px"><a class="btn btn-primary" href="{wl('Mada AI')}">Join the waitlist</a></div>
   </div>
 </section>
 '''
     page('ai', 'Mada AI',
-         'Self-serve AI tools for CV feedback, case practice, a personalized case prep program, case maths drills, fit interview practice and application support: practice more, prepare anytime. Coming soon: join the waitlist.',
+         'Your AI consulting interview coach, available 24/7. Practice case and fit interviews with six AI interviewers and get structured feedback. Opening soon: join the waitlist.',
          body, ctx)
 
 
@@ -462,6 +547,14 @@ INTERVIEWERS = [
      'desc': 'Approachable practice interviewer. Relaxed and conversational, ideal for building confidence, sharpening structure and improving core case habits.'},
     {'name': 'Mona', 'title': 'Principal', 'img': 'mona',
      'desc': 'Precision-focused evaluator. Expects crisp communication, disciplined problem solving and strong case execution with minimal hand-holding.'},
+]
+
+
+INTERVIEWERS_SIX = [
+    dict(i, traits=t) for i, t in zip(
+        [x for n in ('Tatiana', 'Faisal', 'Mona', 'Alex', 'Layal', 'Joe') for x in INTERVIEWERS if x['name'] == n],
+        ['Senior, demanding, strategic', 'Direct, challenging, synthesis-focused', 'Precise, analytical, detail-oriented',
+         'Quantitative, fast-paced, data-driven', 'Curious, strategic, focused on business implications', 'Approachable, conversational, encouraging'])
 ]
 
 
