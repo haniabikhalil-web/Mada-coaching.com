@@ -154,6 +154,7 @@
     { id: 'soon-mona', name: 'Mona', title: 'Principal', desc: 'Precision-focused evaluator. Expects crisp communication, disciplined problem solving and strong case execution with minimal hand-holding.', img: 'mona', open: false }
   ];
   var CASE_TYPES = [
+    { id: 'random', name: 'Random', desc: 'Surprise me: a random case type, like the real thing.', open: true },
     { id: 'investment', name: 'Investment decision', desc: 'Should the client invest? Market, economics, risks.', open: true },
     { id: 'market-sizing', name: 'Market sizing', desc: 'Estimate a market from first principles.', open: true },
     { id: 'growth', name: 'Growth strategy', desc: 'Where should the client grow next?', open: true },
@@ -168,6 +169,13 @@
     { id: 'soon-e', name: 'Easier', desc: 'More guidance and a slower pace.', open: false },
     { id: 'soon-h', name: 'Harder', desc: 'Less guidance, tougher follow-ups.', open: false }
   ];
+
+  // "Random" is chosen here, in the browser, from the case types that are open today; the server still picks
+  // which case of that type, and prefers one this candidate has not had.
+  function randomCaseType() {
+    var open = CASE_TYPES.filter(function (c) { return c.open && c.id !== 'random'; });
+    return open[Math.floor(Math.random() * open.length)].id;
+  }
 
   function picker(title, items, chosen, onPick, avatar) {
     var wrap = el('div', 'pk');
@@ -198,7 +206,7 @@
 
   function setup(msg) {
     clear();
-    var chosenI = 'victoria', chosenC = 'investment', chosenD = 'standard';
+    var chosenI = 'victoria', chosenC = 'random', chosenD = 'standard';
     var form = el('form', 'rp-form rp-wide card');
     form.appendChild(el('h3', null, 'Set up your AI interview'));
     if (msg) form.appendChild(el('p', 'rp-notice', msg));
@@ -236,7 +244,7 @@
       e.preventDefault();
       if (!cb.checked) return;
       btn.disabled = true;
-      start(chosenC);
+      start(chosenC === 'random' ? randomCaseType() : chosenC);
     });
     app.appendChild(form);
   }
