@@ -583,6 +583,27 @@ def ai_report():
          body, ctx, noindex=True, extra_js=('js/ai-session.js', 'js/report-view.js', 'js/report.js'))
 
 
+def ai_maths():
+    ctx = Ctx('ai/maths')
+    u = ctx.url
+    body = f'''
+<header class="subhero"><div class="wrap">
+  <p class="eyebrow">Mada AI &middot; Maths drills</p>
+  <h1>Case maths, at your pace.</h1>
+  <p class="lede">Timed questions on the maths that case interviews turn on: growth, margins, breakeven, payback, compound growth, market sizing, mix and unit economics. Pick a difficulty and see a worked solution after every question.</p>
+</div></header>
+<section>
+  <div class="wrap">
+    <div id="maths-app"><noscript><p>This page needs JavaScript.</p></noscript></div>
+    <p class="muted" style="margin-top:32px;text-align:center">Want to talk it through with a person? <a href="{u('services')}">Work with a Mada coach</a>.</p>
+  </div>
+</section>
+'''
+    page('ai/maths', 'Maths drills',
+         'Practise consulting case maths with timed questions at three difficulty levels and worked solutions.',
+         body, ctx, noindex=True, extra_js=('js/maths-engine.js', 'js/maths.js'))
+
+
 # ---------------------------------------------------------------- Mada AI "My reports" (signed-in list of all released reports)
 def ai_reports():
     ctx = Ctx('ai/reports')
@@ -1054,7 +1075,7 @@ def not_found():
 
 def build_all():
     not_found()
-    home(); how_it_works(); services(); ai(); ai_case_practice(); ai_start(); ai_report(); ai_reports(); coaches(); about(); cv_review(); resources(); book(); legal_pages(); thank_you()
+    home(); how_it_works(); services(); ai(); ai_case_practice(); ai_start(); ai_report(); ai_reports(); ai_maths(); coaches(); about(); cv_review(); resources(); book(); legal_pages(); thank_you()
     root_files()
     return ['', 'how-it-works', 'services', 'ai', 'ai/case-practice', 'ai/case-practice/start', 'ai/report', 'ai/reports', 'coaches', 'about', 'cv-review', 'resources', 'book',
             'privacy', 'terms', 'refunds', 'cookies', 'thank-you', '404']

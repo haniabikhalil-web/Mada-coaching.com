@@ -564,3 +564,28 @@ a:hover .arrow{transform:translateX(3px)}
 @media (max-width:980px){.mini-grid{grid-template-columns:repeat(3,1fr)}}
 @media (max-width:560px){.mini-grid{grid-template-columns:repeat(2,1fr)}}
 .price-card .badge.rise{position:absolute;top:24px;right:24px;margin:0}
+
+/* Mada AI maths drills */
+.mx-card{max-width:760px;margin:0 auto}
+.mx-card h4{margin:20px 0 8px}
+.mx-h{margin-top:28px}
+.mx-levels{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:12px}
+.mx-level{text-align:left;border:1px solid var(--line);background:#fff;border-radius:var(--radius);padding:16px;cursor:pointer;font:inherit;color:var(--ink);display:flex;flex-direction:column;gap:6px}
+.mx-level span{color:var(--stone);font-size:14px}
+.mx-level.on{border:2px solid var(--cobalt);padding:15px}
+.mx-chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+.mx-chip{border:1px solid var(--line);background:#fff;border-radius:999px;padding:8px 14px;cursor:pointer;font:inherit;font-size:15px;color:var(--ink)}
+.mx-chip.on{background:var(--navy);border-color:var(--navy);color:#fff}
+.mx-top{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.mx-clock{margin-left:auto;font-family:var(--display);font-weight:700;font-variant-numeric:tabular-nums}
+.mx-prompt{font-size:20px;line-height:1.5;margin:18px 0;color:var(--ink)}
+.mx-form{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.mx-form input{font:inherit;font-size:20px;padding:12px 14px;border:1px solid #C3CAE0;border-radius:10px;width:160px}
+.mx-unit{color:var(--stone);min-width:40px}
+.mx-feedback{min-height:24px;margin-top:10px;color:var(--stone)}
+.mx-verdict{font-family:var(--display);font-size:24px;font-weight:700;margin:8px 0}
+.mx-verdict.good{color:#157347}.mx-verdict.bad{color:#B42318}
+.mx-steps{padding-left:20px}
+.mx-score{font-family:var(--display);font-size:34px;font-weight:700;margin:8px 0}
+.mx-history{padding-left:20px;margin:12px 0}
+@media (max-width:680px){.mx-levels{grid-template-columns:1fr}.mx-prompt{font-size:18px}}
