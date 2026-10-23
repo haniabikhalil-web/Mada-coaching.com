@@ -553,3 +553,14 @@ a:hover .arrow{transform:translateX(3px)}
 .price-card .price span{color:var(--stone);font-size:15px}
 .price-card ul{flex:1;padding-left:20px}
 .price-rec{border:2px solid var(--cobalt)}
+
+/* Mada AI page: compact interviewers */
+.mini-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:20px}
+.mini-persona{text-align:center}
+.mini-persona img{width:104px;height:104px;border-radius:50%;object-fit:cover;object-position:center 20%;margin:0 auto 10px;display:block}
+.mini-persona h3{font-size:19px;margin:0}
+.mini-persona .tag{display:block;margin:2px 0 6px}
+.mini-persona p{color:var(--stone);font-size:14px;line-height:1.4;margin:0}
+@media (max-width:980px){.mini-grid{grid-template-columns:repeat(3,1fr)}}
+@media (max-width:560px){.mini-grid{grid-template-columns:repeat(2,1fr)}}
+.price-card .badge.rise{position:absolute;top:24px;right:24px;margin:0}
