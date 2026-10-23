@@ -119,3 +119,11 @@ test('a session has the right size, level and topics, and no topic twice in a ro
   assert.deepStrictEqual(M.session({ level: 3, count: 8, seed: 9 }), M.session({ level: 3, count: 8, seed: 9 }));
   assert.ok(M.session({ level: 1, count: 4, topics: ['nonsense'], seed: 1 }).length === 4, 'falls back to all topics');
 });
+
+test('random difficulty mixes the three levels, and every question is still valid', () => {
+  const s = M.session({ level: 'random', count: 60, seed: 5 });
+  assert.strictEqual(s.length, 60);
+  assert.deepStrictEqual([...new Set(s.map((q) => q.level))].sort(), [1, 2, 3]);
+  assert.ok(s.every((q) => Number.isFinite(q.answer)));
+  assert.strictEqual(M.DIFFICULTIES.random, 'Random mix');
+});

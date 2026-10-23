@@ -289,7 +289,7 @@
   } };
 
   // ---------------------------------------------------------------- building questions
-  var DIFFICULTIES = { 1: 'Easy', 2: 'Medium', 3: 'Hard' };
+  var DIFFICULTIES = { 1: 'Easy', 2: 'Medium', 3: 'Hard', random: 'Random mix' };
   var TOPIC_IDS = Object.keys(TOPICS);
 
   // One question for a topic and level from a seed. Throws on a bad topic or level.
@@ -309,7 +309,7 @@
 
   // A session: n questions, spread across the chosen topics, no topic twice in a row where possible.
   function session(opts) {
-    var level = opts.level || 1, n = opts.count || 10, topics = (opts.topics && opts.topics.length ? opts.topics : TOPIC_IDS).filter(function (x) { return TOPICS[x]; });
+    var level = opts.level === 'random' ? 'random' : (opts.level || 1), n = opts.count || 10, topics = (opts.topics && opts.topics.length ? opts.topics : TOPIC_IDS).filter(function (x) { return TOPICS[x]; });
     if (!topics.length) topics = TOPIC_IDS;
     var base = (opts.seed === undefined ? Math.floor(Math.random() * 1e9) : opts.seed) >>> 0, r = rng(base), out = [], last = null;
     for (var i = 0; i < n; i++) {
@@ -317,7 +317,7 @@
       if (!pool.length) pool = topics;
       var tp = pick(r, pool);
       last = tp;
-      out.push(make(tp, level, (base + i * 7919 + 13) >>> 0));
+      out.push(make(tp, level === 'random' ? pick(r, [1, 2, 3]) : level, (base + i * 7919 + 13) >>> 0));
     }
     return out;
   }

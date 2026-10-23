@@ -7,7 +7,7 @@
   if (!app || !M) return;
 
   var HISTORY_KEY = 'mada_maths_history';
-  var state = { level: 1, topics: M.TOPIC_IDS.slice(), count: 10 };
+  var state = { level: 'random', topics: M.TOPIC_IDS.slice(), count: 10 };
 
   function el(tag, cls, text) {
     var n = document.createElement(tag);
@@ -21,14 +21,14 @@
   function fmtTime(sec) { sec = Math.round(sec); return Math.floor(sec / 60) + ':' + ('0' + (sec % 60)).slice(-2); }
 
   // ---------------------------------------------------------------- setup
-  var BLURB = { 1: 'Round numbers and one step. Warm up and build speed.', 2: 'Two steps and messier numbers. Case-interview level.', 3: 'Multi-step and unfamiliar setups. Final-round pace.' };
+  var BLURB = { random: 'A mix of all three levels, question by question.', 1: 'Round numbers and one step. Warm up and build speed.', 2: 'Two steps and messier numbers. Case-interview level.', 3: 'Multi-step and unfamiliar setups. Final-round pace.' };
 
   function setup() {
     clear();
     var card = el('div', 'card mx-card');
     card.appendChild(el('h3', null, 'Choose your difficulty'));
     var levels = el('div', 'mx-levels'); levels.setAttribute('role', 'radiogroup'); levels.setAttribute('aria-label', 'Difficulty');
-    [1, 2, 3].forEach(function (l) {
+    ['random', 1, 2, 3].forEach(function (l) {
       var b = el('button', 'mx-level' + (state.level === l ? ' on' : ''));
       b.type = 'button'; b.setAttribute('role', 'radio'); b.setAttribute('aria-checked', state.level === l ? 'true' : 'false');
       b.appendChild(el('b', null, M.DIFFICULTIES[l])); b.appendChild(el('span', null, BLURB[l]));
@@ -39,6 +39,11 @@
 
     card.appendChild(el('h3', 'mx-h', 'Choose your topics'));
     var chips = el('div', 'mx-chips');
+    var allOn = state.topics.length === M.TOPIC_IDS.length;
+    var rnd = el('button', 'mx-chip' + (allOn ? ' on' : ''), 'Random mix');
+    rnd.type = 'button'; rnd.setAttribute('aria-pressed', allOn ? 'true' : 'false');
+    rnd.addEventListener('click', function () { state.topics = M.TOPIC_IDS.slice(); setup(); });
+    chips.appendChild(rnd);
     M.TOPIC_IDS.forEach(function (id) {
       var on = state.topics.indexOf(id) !== -1;
       var c = el('button', 'mx-chip' + (on ? ' on' : ''), M.TOPICS[id].label);
@@ -63,7 +68,7 @@
     card.appendChild(counts);
 
     var go = el('button', 'btn btn-primary', 'Start drill'); go.type = 'button'; go.style.marginTop = '24px';
-    go.addEventListener('click', function () { run(M.session({ level: state.level, count: state.count, topics: state.topics })); });
+    go.addEventListener('click', function () { run(M.session({ level: state.level, count: state.count, topics: state.topics }), state.level); });
     card.appendChild(go);
     app.appendChild(card);
 
@@ -81,7 +86,7 @@
   }
 
   // ---------------------------------------------------------------- a run of questions
-  function run(questions) {
+  function run(questions, levelChoice) {
     var results = [], idx = 0, started = 0, timer = null;
 
     function stop() { if (timer) { clearInterval(timer); timer = null; } }
@@ -133,7 +138,7 @@
         c2.appendChild(el('p', 'muted', 'Tip: ' + q.tip));
         var last = idx === questions.length - 1;
         var next = el('button', 'btn btn-primary', last ? 'See results' : 'Next question'); next.type = 'button';
-        next.addEventListener('click', function () { idx++; if (idx < questions.length) show(); else summary(results); });
+        next.addEventListener('click', function () { idx++; if (idx < questions.length) show(); else summary(results, levelChoice); });
         c2.appendChild(next);
         app.appendChild(c2);
         next.focus();
@@ -151,14 +156,14 @@
   }
 
   // ---------------------------------------------------------------- summary
-  function summary(results) {
+  function summary(results, levelChoice) {
     clear();
     var correct = results.filter(function (r) { return r.ok; }).length;
     var avg = results.reduce(function (a, r) { return a + r.sec; }, 0) / results.length;
     var card = el('div', 'card mx-card');
     card.appendChild(el('h3', null, 'Drill complete'));
     card.appendChild(el('p', 'mx-score', correct + ' of ' + results.length + ' correct'));
-    card.appendChild(el('p', 'muted', 'Average ' + fmtTime(avg) + ' per question. Difficulty: ' + M.DIFFICULTIES[results[0].q.level] + '.'));
+    card.appendChild(el('p', 'muted', 'Average ' + fmtTime(avg) + ' per question. Difficulty: ' + M.DIFFICULTIES[levelChoice] + '.'));
 
     var by = {};
     results.forEach(function (r) { var t = by[r.q.topic] = by[r.q.topic] || { label: r.q.topicLabel, ok: 0, n: 0 }; t.n++; if (r.ok) t.ok++; });
@@ -174,7 +179,7 @@
     card.appendChild(again);
     app.appendChild(card);
 
-    saveHistory({ at: Date.now(), level: results[0].q.level, correct: correct, total: results.length, avgSec: avg });
+    saveHistory({ at: Date.now(), level: levelChoice, correct: correct, total: results.length, avgSec: avg });
   }
 
   setup();
