@@ -74,6 +74,55 @@ const CHOICES = {
   'hypo/lifevspayback': (i) => i.L > i.I / i.s ? 'Yes: it pays back within its life' : 'No: it does not pay back in time',
   'hypo/sharemarket': (i) => (i.s1 + i.g) * (1 - i.k / 100) > i.s1 ? 'Up' : 'Down',
 };
+Object.assign(FORMULAS, {
+  'growth/pctof': (i) => i.B * i.p / 100,
+  'growth/decline': (i) => (i.b - i.n) / i.b * 100,
+  'growth/runrate': (i) => { const f = 1 + i.g / 100; return i.q * (1 + f + f * f + f * f * f); },
+  'growth/ppvspct': (i) => (i.m2 - i.m1) / i.m1 * 100,
+  'growth/pctofpct': (i) => i.p1 * i.p2 / 100,
+  'growth/asymmetry': (i) => i.a / (100 + i.a) * 100,
+  'margin/markupprice': (i) => i.C * (1 + i.k / 100),
+  'margin/pricemargin': (i) => i.C / (1 - i.m / 100),
+  'margin/grossprofit': (i) => i.R * (1 - i.c / 100),
+  'margin/opleverage': (i) => ((i.R * (1 + i.g / 100) * (1 - i.v / 100) - i.F) / (i.R * (1 - i.v / 100) - i.F) - 1) * 100,
+  'breakeven/cmratio': (i) => (i.p - i.v) / i.p * 100,
+  'breakeven/bundle': (i) => i.F / (i.a + i.b),
+  'breakeven/breakevenshare': (i) => i.b / i.M * 100,
+  'payback/annualised': (i) => i.I / (i.mo * 12),
+  'payback/subsidy': (i) => i.I * (1 - i.sub / 100) / i.s,
+  'payback/optioncompare': (i) => i.pb - i.pa,
+  'cagr/doubletime': (i) => 72 / i.n,
+  'cagr/linear': (i) => i.A + i.X * i.n,
+  'cagr/future4': (i) => i.v0 * Math.pow(1 + i.rate / 100, 4),
+  'cagr/yearsto': (i) => Math.log(i.tgt / i.v0) / Math.log(1 + i.rate / 100),
+  'market/percapita': (i) => i.T / i.P,
+  'market/unitsprice': (i) => i.U * i.p,
+  'market/segments': (i) => i.x * i.a + i.y * i.b,
+  'market/hours': (i) => i.U * i.h * 300 * i.p,
+  'market/dailytoyear': (i) => i.d * 365,
+  'market/funnel': (i) => i.A * 1000 * (i.a / 100) * (i.t / 100) * (i.rep / 100),
+  'market/sharetarget': (i) => i.T / i.M * 100,
+  'mix/avg3': (i) => (i.ps[0] * i.us[0] + i.ps[1] * i.us[1] + i.ps[2] * i.us[2]) / (i.us[0] + i.us[1] + i.us[2]),
+  'mix/contrib': (i) => i.w * i.g1 / 100,
+  'mix/avgmixshift': (i) => (i.s2 - i.s1) / 100 * (i.pp - i.ps),
+  'unit/orderprofit': (i) => i.ov * (1 - i.c / 100) - i.f,
+  'unit/arpu': (i) => i.R / i.U / 12,
+  'unit/remaining': (i) => i.n * Math.pow(1 - i.c / 100, i.m),
+  'unit/cacbudget': (i) => i.B * 1e6 / (i.N * 1e3),
+  'hypo/lineargap': (i) => 100 * Math.pow(1 + i.rt / 100, i.n) - (100 + i.rt * i.n),
+});
+Object.assign(CHOICES, {
+  'hypo/ppvspctchoice': (i) => { const d = i.m2 - i.m1, rel = Math.round(d / i.m1 * 1000) / 10; return d + ' points, which is ' + rel + '% higher'; },
+  'hypo/biggerbase': (i) => i.Ba * i.pa > i.Bb * i.pb ? 'Option A' : 'Option B',
+  'hypo/hurdle': (i) => i.rt > i.h ? 'Yes: the return beats the cost of capital' : 'No: the return is below the cost of capital',
+  'hypo/recoverychoice': () => 'No, it falls short',
+  'hypo/avgofavg': (i) => (i.tA * i.nA + i.tB * i.nB) / (i.nA + i.nB) > (i.tA + i.tB) / 2 ? 'No, it is higher than the simple average' : 'No, it is lower than the simple average',
+  'hypo/gonogo': (i) => i.Y * i.sh / 100 > i.b ? 'Go: expected sales exceed breakeven' : 'No-go: expected sales fall short of breakeven',
+  'hypo/discountstack': (i) => 'No, it is less than ' + (i.d1 + i.d2) + '% off',
+  'hypo/growthvsmargin': (i) => 1000 * (1 + (i.g || 0) / 100) * i.m / 100 > 1000 * (i.m + i.pp) / 100 ? 'Grow revenue ' + i.g + '%' : 'Lift margin ' + i.pp + (i.pp > 1 ? ' points' : ' point'),
+  'hypo/cannibal': (i) => i.nu * i.mn - i.ne * i.c / 100 * i.me > 0 ? 'Launch: profit rises' : 'Do not launch: profit falls',
+  'hypo/makeorbuy': (i) => i.F + i.v * i.V < i.p * i.V ? 'Make it in-house' : 'Buy it in',
+});
 // Variants whose published answer is deliberately rounded (to 1 decimal, or to a whole number).
 const ROUNDED = (a) => Math.abs(a - Math.round(a * 10) / 10) < 1e-9 || Math.abs(a - Math.round(a)) < 1e-9 || Math.abs(a - Math.round(a * 100) / 100) < 1e-9;
 
@@ -183,8 +232,8 @@ test('choice questions: check marks only the right option, and options are shuff
   assert.ok(q);
 });
 
-test('the bank is bigger: at least 50 distinct numeric and decision variants', () => {
+test('the bank is bigger: at least 100 distinct numeric and decision variants', () => {
   const seen = new Set();
   for (const id of M.TOPIC_IDS) for (const lvl of [1, 2, 3]) for (let s = 0; s < 80; s++) seen.add(id + '/' + M.make(id, lvl, s).variant);
-  assert.ok(seen.size >= 50, 'only ' + seen.size + ' variants');
+  assert.ok(seen.size >= 100, 'only ' + seen.size + ' variants');
 });
