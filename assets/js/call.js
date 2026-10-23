@@ -143,15 +143,13 @@
   // Alex is not public. A tester opens the start page with ?interviewer=alex; the server still refuses him until his agent is set up.
   var TESTER_ALEX = false;
   try { TESTER_ALEX = new URLSearchParams(location.search).get('interviewer') === 'alex'; } catch (e) { TESTER_ALEX = false; }
-  // Faisal is the same: a tester opens ?interviewer=faisal. The public card stays "coming soon".
-  var TESTER_FAISAL = false;
-  try { TESTER_FAISAL = new URLSearchParams(location.search).get('interviewer') === 'faisal'; } catch (e) { TESTER_FAISAL = false; }
+  // Faisal is open on the same start page as Tatiana.
   var interviewer = 'victoria';
   function who() { return interviewer === 'alex' ? 'Alex' : interviewer === 'faisal' ? 'Faisal' : 'Tatiana'; }
   var INTERVIEWERS = [
     { id: 'victoria', name: 'Tatiana', title: 'Partner', desc: 'Executive-level mock interviewer. Calm, direct and demanding, with sharp follow-ups that push clear top-down thinking and confident recommendations.', img: 'tatiana', open: true },
     { id: TESTER_ALEX ? 'alex' : 'soon-alex', name: 'Alex', title: 'Senior Manager', desc: 'Analytical drill specialist. Fast-paced and numbers-first, he pushes quantitative accuracy, exhibit reading and data-backed insights.', img: 'alex', open: TESTER_ALEX },
-    { id: TESTER_FAISAL ? 'faisal' : 'soon-faisal', name: 'Faisal', title: 'Principal', desc: 'Challenge-focused interviewer. Tests how well you structure ambiguity, defend your logic and synthesize clearly under pressure.', img: 'faisal', open: TESTER_FAISAL },
+    { id: 'faisal', name: 'Faisal', title: 'Principal', desc: 'Challenge-focused interviewer. Tests how well you structure ambiguity, defend your logic and synthesize clearly under pressure.', img: 'faisal', open: true },
     { id: 'soon-layal', name: 'Layal', title: 'Senior Manager', desc: 'Strategic thought partner. Curious and probing, she keeps asking \u2018so what?\u2019 to sharpen implications, trade-offs and recommendations.', img: 'layal', open: false },
     { id: 'soon-joe', name: 'Joe', title: 'Junior Manager', desc: 'Approachable practice interviewer. Relaxed and conversational, ideal for building confidence, sharpening structure and improving core case habits.', img: 'joe', open: false },
     { id: 'soon-mona', name: 'Mona', title: 'Principal', desc: 'Precision-focused evaluator. Expects crisp communication, disciplined problem solving and strong case execution with minimal hand-holding.', img: 'mona', open: false }
