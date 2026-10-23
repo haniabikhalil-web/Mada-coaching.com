@@ -103,13 +103,27 @@
       card.appendChild(top);
       card.appendChild(el('p', 'mx-prompt', q.prompt));
 
-      var form = el('form', 'mx-form');
-      var input = el('input'); input.type = 'text'; input.inputMode = 'decimal'; input.autocomplete = 'off'; input.required = true;
-      input.setAttribute('aria-label', 'Your answer in ' + q.unit); input.placeholder = 'Your answer';
-      var unit = el('span', 'mx-unit', q.unit);
-      var submit = el('button', 'btn btn-primary', 'Check'); submit.type = 'submit';
+      var isChoice = q.kind === 'choice';
+      var input = null, submit = null;
       var skip = el('button', 'btn btn-ghost', 'Skip'); skip.type = 'button';
-      form.appendChild(input); form.appendChild(unit); form.appendChild(submit); form.appendChild(skip);
+      var form;
+      if (isChoice) {
+        // Decision questions: pick one option. No typing, so no invalid input.
+        form = el('div', 'mx-choices'); form.setAttribute('role', 'group'); form.setAttribute('aria-label', 'Choose one answer');
+        q.options.forEach(function (text, i) {
+          var o = el('button', 'mx-option', text); o.type = 'button';
+          o.addEventListener('click', function () { finish(M.check(q, i)); });
+          form.appendChild(o);
+        });
+        form.appendChild(skip);
+      } else {
+        form = el('form', 'mx-form');
+        input = el('input'); input.type = 'text'; input.inputMode = 'decimal'; input.autocomplete = 'off'; input.required = true;
+        input.setAttribute('aria-label', 'Your answer in ' + q.unit); input.placeholder = 'Your answer';
+        var unit = el('span', 'mx-unit', q.unit);
+        submit = el('button', 'btn btn-primary', 'Check'); submit.type = 'submit';
+        form.appendChild(input); form.appendChild(unit); form.appendChild(submit); form.appendChild(skip);
+      }
       card.appendChild(form);
       var fb = el('div', 'mx-feedback'); fb.setAttribute('aria-live', 'polite');
       card.appendChild(fb);
@@ -117,13 +131,12 @@
 
       started = Date.now();
       timer = setInterval(function () { clock.textContent = fmtTime((Date.now() - started) / 1000); }, 500);
-      input.focus();
+      if (input) input.focus();
 
       function finish(res) {
         stop();
         var sec = (Date.now() - started) / 1000;
         results.push({ q: q, ok: res.ok, skipped: !!res.skipped, sec: sec });
-        input.disabled = true; submit.disabled = true; skip.disabled = true;
         clear(); // rebuild the card with the feedback
         var c2 = el('div', 'card mx-card');
         c2.appendChild(el('span', 'badge', 'Question ' + (idx + 1) + ' of ' + questions.length));
@@ -131,7 +144,8 @@
         var verdict = el('p', 'mx-verdict ' + (res.ok ? 'good' : 'bad'), res.skipped ? 'Skipped.' : res.ok ? 'Correct.' : 'Not quite.');
         verdict.setAttribute('role', 'status');
         c2.appendChild(verdict);
-        c2.appendChild(el('p', null, 'Answer: ' + q.answer + ' ' + q.unit + (res.value !== undefined && !res.ok ? ' (you said ' + res.value + ')' : '') + '. Time: ' + fmtTime(sec) + '.'));
+        var shown = q.kind === 'choice' ? q.options[q.answer] : q.answer + ' ' + q.unit;
+        c2.appendChild(el('p', null, 'Answer: ' + shown + (res.value !== undefined && !res.ok ? ' (you said ' + res.value + ')' : '') + '. Time: ' + fmtTime(sec) + '.'));
         var ol = el('ol', 'mx-steps');
         q.steps.forEach(function (s) { ol.appendChild(el('li', null, s)); });
         c2.appendChild(el('h4', 'mx-h', 'Worked solution')); c2.appendChild(ol);
@@ -144,7 +158,7 @@
         next.focus();
       }
 
-      form.addEventListener('submit', function (e) {
+      if (!isChoice) form.addEventListener('submit', function (e) {
         e.preventDefault();
         var res = M.check(q, input.value);
         if (res.invalid) { fb.textContent = 'Type a number, for example 25, 25% or 1.2k.'; input.focus(); return; }

@@ -589,3 +589,7 @@ a:hover .arrow{transform:translateX(3px)}
 .mx-score{font-family:var(--display);font-size:34px;font-weight:700;margin:8px 0}
 .mx-history{padding-left:20px;margin:12px 0}
 @media (max-width:680px){.mx-levels{grid-template-columns:1fr}.mx-prompt{font-size:18px}}
+.mx-choices{display:flex;flex-direction:column;gap:10px;align-items:stretch}
+.mx-option{text-align:left;font:inherit;font-size:17px;padding:14px 16px;border:1px solid #C3CAE0;border-radius:10px;background:#fff;color:var(--ink);cursor:pointer}
+.mx-option:hover,.mx-option:focus-visible{border-color:var(--cobalt);outline:none}
+.mx-choices .btn{align-self:flex-start}

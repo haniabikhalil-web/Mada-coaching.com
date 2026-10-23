@@ -288,6 +288,190 @@
     ],
   } };
 
+  // ---------------------------------------------------------------- more numeric questions
+  function add(topic, level, fn) { TOPICS[topic].levels[level].push(fn); }
+  function pct(x) { return round(x, 1); }
+
+  add('growth', 1, function (r) {
+    var T = pick(r, [200, 400, 500, 800]), p = pick(r, [10, 20, 25, 40]), part = T * p / 100, c = pick(r, COMPANIES);
+    return { variant: 'share', inputs: { T: T, part: part }, prompt: 'Total sales at ' + c + ' are ' + m$(T) + ', of which ' + m$(part) + ' comes from one product. What share of sales is that product?', answer: p, unit: '%', tol: 0.01,
+      steps: ['Share = part / total = ' + part + ' / ' + T + ' = ' + p + '%.'], tip: 'Share is part divided by total. Put the smaller number on top.' };
+  });
+  add('growth', 1, function (r) {
+    var P = pick(r, [80, 200, 400, 600]), d = pick(r, [10, 20, 25, 50]), ans = round(P * (1 - d / 100), 2);
+    return { variant: 'discount', inputs: { P: P, d: d }, prompt: 'A $' + P + ' product is on sale for ' + d + '% off. What is the sale price?', answer: ans, unit: '$', tol: 0.01,
+      steps: [d + '% of ' + P + ' = ' + round(P * d / 100, 2) + '.', 'Sale price = ' + P + ' - ' + round(P * d / 100, 2) + ' = ' + ans + '.'], tip: 'Take the discount off, or multiply by (1 - discount) in one step.' };
+  });
+  add('growth', 2, function (r) {
+    var M = pick(r, [2, 4, 5, 10]), s1 = pick(r, [10, 15, 20]), s2 = s1 + pick(r, [5, 10]), ans = round(M * 1000 * (s2 - s1) / 100, 1);
+    return { variant: 'sharegain', inputs: { M: M, s1: s1, s2: s2 }, prompt: 'A market is worth $' + M + 'B. Your share rises from ' + s1 + '% to ' + s2 + '%. How much extra revenue is that?', answer: ans, unit: '$M', tol: 0.02,
+      steps: ['Share gain = ' + (s2 - s1) + ' points.', 'Extra revenue = ' + (s2 - s1) + '% x $' + M + 'B = ' + m$(ans) + '.'], tip: 'Convert billions to millions first: $1B = $1,000M.' };
+  });
+  add('growth', 2, function (r) {
+    var d1 = pick(r, [20, 25, 30]), d2 = pick(r, [10, 20]), tot = round((1 - (1 - d1 / 100) * (1 - d2 / 100)) * 100, 1);
+    return { variant: 'doublediscount', inputs: { d1: d1, d2: d2 }, prompt: 'A shop takes ' + d1 + '% off, then an extra ' + d2 + '% off the reduced price. What is the total discount on the original price?', answer: tot, unit: '%', tol: 0.02,
+      steps: ['Price factor = ' + (1 - d1 / 100) + ' x ' + (1 - d2 / 100) + ' = ' + round((1 - d1 / 100) * (1 - d2 / 100), 3) + '.', 'Total discount = 1 - that = ' + tot + '%.'], tip: 'Two discounts never add up to the sum of the two. Multiply the price factors.' };
+  });
+
+  add('margin', 1, function (r) {
+    var R = pick(r, [100, 200, 400, 500]), m = pick(r, [10, 20, 25, 40]), C = round(R * (1 - m / 100), 1);
+    return { variant: 'cost', inputs: { R: R, m: m }, prompt: 'A business has revenue of ' + m$(R) + ' and a profit margin of ' + m + '%. What are its total costs?', answer: C, unit: '$M', tol: 0.01,
+      steps: ['Profit = ' + m + '% x ' + R + ' = ' + round(R * m / 100, 1) + '.', 'Costs = ' + R + ' - ' + round(R * m / 100, 1) + ' = ' + C + '.'], tip: 'Costs = revenue x (1 - margin).' };
+  });
+  add('margin', 2, function (r) {
+    var R = pick(r, [200, 400, 500]), m = pick(r, [10, 20, 25]), X = pick(r, [5, 10]), C = R * (1 - m / 100), nm = round((R - C - X) / R * 100, 1);
+    return { variant: 'fixedcost', inputs: { R: R, m: m, X: X }, prompt: 'A company has revenue of ' + m$(R) + ' and a ' + m + '% margin. A new fixed cost of ' + m$(X) + ' is added and revenue does not change. What is the new margin? (to 1 decimal)', answer: nm, unit: '%', tol: 0.03,
+      steps: ['Profit now = ' + R + ' x ' + m + '% = ' + round(R * m / 100, 1) + '.', 'Profit after the new cost = ' + round(R * m / 100 - X, 1) + '.', 'New margin = ' + round(R * m / 100 - X, 1) + ' / ' + R + ' = ' + nm + '%.'], tip: 'Subtract the new cost from profit first, then divide by revenue.' };
+  });
+  add('margin', 3, function (r) {
+    var k = pick(r, [25, 50, 100, 20, 40]), m = pct(k / (100 + k) * 100);
+    return { variant: 'markup', inputs: { k: k }, prompt: 'A retailer prices everything at cost plus a ' + k + '% markup. What profit margin on the selling price does that give? (to 1 decimal)', answer: m, unit: '%', tol: 0.03,
+      steps: ['Let cost = 100. Price = ' + (100 + k) + '.', 'Profit = ' + k + '. Margin = ' + k + ' / ' + (100 + k) + ' = ' + m + '%.'], tip: 'A markup is on cost and a margin is on price, so the margin is always the smaller number.' };
+  });
+
+  add('breakeven', 1, function (r) {
+    var u = pick(r, [1000, 2000, 5000]), F = u * pick(r, [5, 10, 20]), v = pick(r, [10, 20, 40]), price = F / u + v;
+    return { variant: 'price', inputs: { F: F, u: u, v: v }, prompt: 'Fixed costs are $' + num(F) + ' and you expect to sell ' + num(u) + ' units, each costing $' + v + ' to make. What price per unit makes you break even?', answer: price, unit: '$', tol: 0.01,
+      steps: ['Fixed cost per unit = ' + num(F) + ' / ' + num(u) + ' = $' + F / u + '.', 'Price = ' + F / u + ' + ' + v + ' = $' + price + '.'], tip: 'Spread fixed costs over the units, then add variable cost.' };
+  });
+  add('breakeven', 2, function (r) {
+    var b = pick(r, [1000, 2000, 4000]), f = pick(r, [1.25, 1.5, 2]), sold = b * f, ms = round((sold - b) / sold * 100, 1);
+    return { variant: 'safety', inputs: { b: b, sold: sold }, prompt: 'Breakeven is ' + num(b) + ' units a year and you expect to sell ' + num(sold) + '. By what percent can sales fall before you make a loss? (the margin of safety, to 1 decimal)', answer: ms, unit: '%', tol: 0.03,
+      steps: ['Cushion = ' + num(sold) + ' - ' + num(b) + ' = ' + num(sold - b) + ' units.', 'Margin of safety = ' + num(sold - b) + ' / ' + num(sold) + ' = ' + ms + '%.'], tip: 'The margin of safety is measured against expected sales, not against breakeven.' };
+  });
+  add('breakeven', 3, function (r) {
+    var v = pick(r, [50, 60, 70]), rise = pick(r, [10, 20]), p = 100, c = p - v, v2 = v * (1 + rise / 100), c2 = p - v2, up = pct((c / c2 - 1) * 100);
+    return { variant: 'costrise', inputs: { v: v, rise: rise }, prompt: 'A product sells for $100 and costs $' + v + ' to make. Variable costs rise ' + rise + '%. By what percent does breakeven volume rise? (fixed costs unchanged, to 1 decimal)', answer: up, unit: '%', tol: 0.03,
+      steps: ['Old contribution = 100 - ' + v + ' = $' + c + '.', 'New cost = $' + round(v2, 2) + ', new contribution = $' + round(c2, 2) + '.', 'Breakeven rises by ' + c + ' / ' + round(c2, 2) + ' - 1 = ' + up + '%.'], tip: 'A cost rise on a thin contribution hits breakeven harder than the cost rise itself.' };
+  });
+
+  add('payback', 1, function (r) {
+    var mo = pick(r, [20, 25, 50, 100]), n = pick(r, [6, 12, 18, 24]), I = mo * n;
+    return { variant: 'months', inputs: { I: I, mo: mo }, prompt: 'A tool costs $' + num(I) + ' and saves $' + mo + ' a month. How many months to pay back?', answer: n, unit: 'months', tol: 0.01,
+      steps: ['Payback = ' + num(I) + ' / ' + mo + ' = ' + n + ' months.'], tip: 'Keep the units consistent: monthly savings give months.' };
+  });
+  add('payback', 2, function (r) {
+    var I = pick(r, [50, 100, 200]), g = I * pick(r, [0.1, 0.2, 0.25]), roi = round(g / I * 100, 1);
+    return { variant: 'roi', inputs: { I: I, g: g }, prompt: 'An investment of ' + m$(I) + ' earns ' + m$(g) + ' of profit every year. What is the annual return on investment?', answer: roi, unit: '%', tol: 0.02,
+      steps: ['Return = annual profit / investment = ' + g + ' / ' + I + ' = ' + roi + '%.'], tip: 'ROI is the inverse of payback: a 4 year payback is a 25% return.' };
+  });
+
+  add('cagr', 2, function (r) {
+    var rate = pick(r, [10, 20, 25, 50]), v0 = pick(r, [100, 200, 400]), v = round(v0 * Math.pow(1 + rate / 100, 2), 1);
+    return { variant: 'cagr2', inputs: { v0: v0, v: v }, prompt: 'Sales grew from ' + m$(v0) + ' to ' + m$(v) + ' in two years. What was the annual growth rate (CAGR)?', answer: rate, unit: '%', tol: 0.03,
+      steps: ['Total factor = ' + v + ' / ' + v0 + ' = ' + round(v / v0, 3) + '.', 'Annual factor = square root of ' + round(v / v0, 3) + ' = ' + (1 + rate / 100) + ', so ' + rate + '% a year.'], tip: 'For two years, look for a perfect square: 1.21 = 1.1 x 1.1, 1.44 = 1.2 x 1.2, 1.56 = 1.25 x 1.25.' };
+  });
+  add('cagr', 3, function (r) {
+    var rate = pick(r, [10, 20, 25]), n = pick(r, [2, 3]), v0 = pick(r, [100, 200, 400]), v = round(v0 * Math.pow(1 + rate / 100, n), 1);
+    return { variant: 'startvalue', inputs: { v: v, rate: rate, n: n }, prompt: 'A market is ' + m$(v) + ' today after growing ' + rate + '% a year for ' + n + ' years. How big was it ' + n + ' years ago? (to 1 decimal)', answer: v0, unit: '$M', tol: 0.02,
+      steps: ['Growth factor over ' + n + ' years = ' + round(Math.pow(1 + rate / 100, n), 3) + '.', 'Start = ' + v + ' / ' + round(Math.pow(1 + rate / 100, n), 3) + ' = ' + v0 + '.'], tip: 'Divide by the growth factor to go back in time. Subtracting percentages does not work.' };
+  });
+
+  add('market', 1, function (r) {
+    var P = pick(r, [10, 20, 40]), hh = pick(r, [4, 5]), s = pick(r, [20, 25, 40, 50]), x = pick(r, [20, 40, 50, 100]), ans = round(P / hh * s / 100 * x, 1);
+    return { variant: 'households', inputs: { P: P, hh: hh, s: s, x: x }, prompt: 'A country has ' + P + ' million people in households of ' + hh + '. ' + s + '% of households buy a service at $' + x + ' a year. How large is the market?', answer: ans, unit: '$M', tol: 0.02,
+      steps: ['Households = ' + P + 'M / ' + hh + ' = ' + round(P / hh, 2) + 'M.', 'Buyers = ' + round(P / hh, 2) + 'M x ' + s + '% = ' + round(P / hh * s / 100, 2) + 'M.', 'Market = ' + round(P / hh * s / 100, 2) + 'M x $' + x + ' = ' + m$(ans) + '.'], tip: 'Households, not people, are often the right unit for a shared service.' };
+  });
+  add('market', 2, function (r) {
+    var N = pick(r, [50, 100, 200]), c = pick(r, [200, 400, 500]), t = pick(r, [5, 10, 20]), ans = round(N * c * t * 300 / 1e6, 1);
+    return { variant: 'capacity', inputs: { N: N, c: c, t: t }, prompt: 'A chain has ' + N + ' stores. Each serves ' + c + ' customers a day at an average ticket of $' + t + ', and trades 300 days a year. What is annual revenue?', answer: ans, unit: '$M', tol: 0.03,
+      steps: ['Revenue per store a day = ' + c + ' x $' + t + ' = $' + num(c * t) + '.', 'Per store a year = $' + num(c * t) + ' x 300 = $' + num(c * t * 300) + '.', 'Chain = ' + N + ' x $' + num(c * t * 300) + ' = ' + m$(ans) + '.'], tip: 'Build it bottom-up from one store, then multiply.' };
+  });
+  add('market', 3, function (r) {
+    var T = pick(r, [50, 100, 200]), p = pick(r, [20, 25, 50]), s = pick(r, [10, 20, 25]), pop = round(T / (p * s / 100), 1);
+    return { variant: 'target', inputs: { T: T, p: p, s: s }, prompt: 'You want ' + m$(T) + ' of annual revenue from a $' + p + ' product. Only ' + s + '% of people will ever buy it. How many million people must the market contain?', answer: pop, unit: 'M people', tol: 0.03,
+      steps: ['Customers needed = ' + T + 'M / $' + p + ' = ' + round(T / p, 2) + 'M.', 'Population = ' + round(T / p, 2) + 'M / ' + s + '% = ' + pop + 'M.'], tip: 'Work backwards: revenue target, then customers, then the population they come from.' };
+  });
+
+  add('mix', 2, function (r) {
+    var w = pick(r, [60, 70, 80]), g1 = pick(r, [5, 10]), g2 = pick(r, [20, 30]), bl = round((w * g1 + (100 - w) * g2) / 100, 2);
+    return { variant: 'blendedgrowth', inputs: { w: w, g1: g1, g2: g2 }, prompt: 'A core business (' + w + '% of revenue) is growing ' + g1 + '% and a new line (' + (100 - w) + '%) is growing ' + g2 + '%. How fast is the company growing overall?', answer: bl, unit: '%', tol: 0.02,
+      steps: [w + '% x ' + g1 + '% + ' + (100 - w) + '% x ' + g2 + '% = ' + bl + '%.'], tip: 'Weight each growth rate by its share of today\'s revenue.' };
+  });
+  add('mix', 3, function (r) {
+    var pc = pick(r, [10, 20, -10, -20]), vc = pick(r, [-10, -20, 10, -5]), net = pct(((1 + pc / 100) * (1 + vc / 100) - 1) * 100);
+    return { variant: 'pricevolume', inputs: { pc: pc, vc: vc }, prompt: 'A company raises its price ' + (pc > 0 ? pc + '%' : 'by ' + pc + '%') + ' and volume then changes by ' + (vc > 0 ? '+' : '') + vc + '%. What is the net change in revenue? (to 1 decimal, minus sign for a fall)', answer: net, unit: '%', tol: 0.03,
+      steps: ['Revenue factor = ' + round(1 + pc / 100, 2) + ' x ' + round(1 + vc / 100, 2) + ' = ' + round((1 + pc / 100) * (1 + vc / 100), 4) + '.', 'Net change = ' + net + '%.'], tip: 'Revenue = price x volume, so multiply the two factors.' };
+  });
+
+  add('unit', 1, function (r) {
+    var price = pick(r, [20, 50, 100]), v = pick(r, [5, 10, 40]), u = pick(r, [1000, 2000, 5000]), ans = (price - v) * u;
+    return { variant: 'contribution', inputs: { price: price, v: v, u: u }, prompt: 'A product sells for $' + price + ' with $' + v + ' of variable cost. It sells ' + num(u) + ' units a month. What is the monthly contribution?', answer: ans, unit: '$', tol: 0.01,
+      steps: ['Contribution per unit = ' + price + ' - ' + v + ' = $' + (price - v) + '.', 'Monthly = ' + (price - v) + ' x ' + num(u) + ' = $' + num(ans) + '.'], tip: 'Contribution is price minus variable cost, before fixed costs.' };
+  });
+  add('unit', 2, function (r) {
+    var p = pick(r, [10, 20, 25, 50]), c = pick(r, [2, 4, 5, 10]), ltv = round(p / (c / 100), 1);
+    return { variant: 'revltv', inputs: { p: p, c: c }, prompt: 'A subscriber pays $' + p + ' a month and ' + c + '% leave each month. What is the average lifetime revenue per subscriber?', answer: ltv, unit: '$', tol: 0.03,
+      steps: ['Average lifetime = 1 / ' + c + '% = ' + round(100 / c, 1) + ' months.', 'Lifetime revenue = $' + p + ' x ' + round(100 / c, 1) + ' = $' + ltv + '.'], tip: 'Average customer lifetime is 1 divided by the monthly churn rate.' };
+  });
+  add('unit', 3, function (r) {
+    var c = pick(r, [10, 20, 25, 50]), n = pick(r, [1000, 2000, 4000]), F = c * n * pick(r, [1, 2]), cust = F / c;
+    return { variant: 'custbreakeven', inputs: { F: F, c: c }, prompt: 'A service has $' + num(F) + ' of fixed costs a month. Each customer brings $' + c + ' a month of contribution. How many customers are needed to break even?', answer: cust, unit: 'customers', tol: 0.02,
+      steps: ['Customers = fixed costs / contribution per customer = ' + num(F) + ' / ' + c + ' = ' + num(cust) + '.'], tip: 'Same as breakeven units, with customers as the unit.' };
+  });
+
+  // ---------------------------------------------------------------- hypotheticals (decisions)
+  // Choice questions: kind 'choice', options shuffled, answer is the index of the right option.
+  function choose(r, opts, correct) {
+    var order = opts.slice(), i, j, t;
+    for (i = order.length - 1; i > 0; i--) { j = Math.floor(r() * (i + 1)); t = order[i]; order[i] = order[j]; order[j] = t; }
+    return { options: order, answer: order.indexOf(correct), unit: 'choice', tol: 0.01, kind: 'choice' };
+  }
+  TOPICS.hypo = { label: 'Hypotheticals & judgment', levels: { 1: [], 2: [], 3: [] } };
+
+  add('hypo', 1, function (r) {
+    var p = pick(r, [10, 20, 25, 50]), f = round((1 - p / 100) * (1 + p / 100), 4), q = choose(r, ['Yes, exactly back to the start', 'No, it ends lower', 'No, it ends higher'], 'No, it ends lower');
+    return Object.assign(q, { variant: 'downup', inputs: { p: p }, prompt: 'A stock falls ' + p + '% one year and rises ' + p + '% the next. Is it back where it started?',
+      steps: ['After the fall you hold ' + (100 - p) + '% of the original.', 'A ' + p + '% rise on that smaller base is less than you lost.', 'Net factor = ' + (1 - p / 100) + ' x ' + (1 + p / 100) + ' = ' + f + ', so it ends ' + round((1 - f) * 100, 2) + '% lower.'], tip: 'Equal percentage gains and losses never cancel: the loss is taken on a bigger base than the gain.' });
+  });
+  add('hypo', 1, function (r) {
+    var f = pick(r, [2, 4]), up = (f - 1) * 100, down = round((1 - 1 / f) * 100, 1), q = choose(r, ['Back to the start', 'Lower than the start', 'Higher than the start'], 'Back to the start');
+    return Object.assign(q, { variant: 'doublehalve', inputs: { f: f }, prompt: 'Sales rose ' + up + '% and then fell ' + down + '%. Where are sales compared with the start?',
+      steps: ['A ' + up + '% rise multiplies sales by ' + f + '.', 'A ' + down + '% fall multiplies by ' + round(1 - down / 100, 2) + ' = 1/' + f + '.', f + ' x 1/' + f + ' = 1, so sales are back at the start.'], tip: 'To undo a rise of x, you need a fall of x / (1 + x), not x.' });
+  });
+
+  add('hypo', 2, function (r) {
+    var p = pick(r, [10, 20, 30]), n = pick(r, [3, 5]), final = round(100 * Math.pow(1 - p * p / 10000, n), 1);
+    var q = choose(r, ['Invest: the gains and losses cancel out', 'Do not invest: it loses value every two years', 'Invest: it grows every two years'], 'Do not invest: it loses value every two years');
+    return Object.assign(q, { variant: 'cycle', inputs: { p: p, n: n }, prompt: 'A friend says a company will go up ' + p + '% in year one and down ' + p + '% in year two, and keep repeating that pattern. Should you invest?',
+      steps: ['Each two-year cycle multiplies your money by ' + (1 + p / 100) + ' x ' + (1 - p / 100) + ' = ' + round(1 - p * p / 10000, 4) + '.', 'That is below 1, so you lose a little every cycle.', 'After ' + 2 * n + ' years $100 becomes about $' + final + '.'], tip: 'Up and down by the same percentage is a slow loss. Volatility drags returns down.' });
+  });
+  add('hypo', 2, function (r) {
+    var p = pick(r, [10, 20, 30]), n = pick(r, [3, 5]), final = round(100 * Math.pow(1 - p * p / 10000, n), 1);
+    return { variant: 'cyclevalue', kind: 'number', inputs: { p: p, n: n }, prompt: 'A stock rises ' + p + '% in year one, falls ' + p + '% in year two, and repeats that pattern. You put in $100. What is it worth after ' + 2 * n + ' years? (to 1 decimal)', answer: final, unit: '$', tol: 0.02,
+      steps: ['One two-year cycle: ' + (1 + p / 100) + ' x ' + (1 - p / 100) + ' = ' + round(1 - p * p / 10000, 4) + '.', n + ' cycles: 100 x ' + round(1 - p * p / 10000, 4) + '^' + n + ' = $' + final + '.'], tip: 'Find the factor for one full cycle, then raise it to the number of cycles.' };
+  });
+  add('hypo', 2, function (r) {
+    var u = pick(r, [40, 50, 60]), d = pick(r, [30, 40, 50]), rb = pick(r, [3, 5, 8]), a = (1 + u / 100) * (1 - d / 100), b = Math.pow(1 + rb / 100, 2);
+    var best = a > b ? 'Option A' : 'Option B';
+    var q = choose(r, ['Option A', 'Option B'], best);
+    return Object.assign(q, { variant: 'twooffers', inputs: { u: u, d: d, rb: rb }, prompt: 'Option A: an investment that gains ' + u + '% in year one and loses ' + d + '% in year two. Option B: a steady ' + rb + '% a year for two years. Which leaves you with more after two years?',
+      steps: ['Option A: ' + (1 + u / 100) + ' x ' + round(1 - d / 100, 2) + ' = ' + round(a, 4) + '.', 'Option B: ' + round(1 + rb / 100, 2) + ' x ' + round(1 + rb / 100, 2) + ' = ' + round(b, 4) + '.', best + ' is higher.'], tip: 'Compare the two-year growth factors. Do not average the yearly percentages.' });
+  });
+
+  add('hypo', 3, function (r) {
+    var x = pick(r, [5, 10]), m = pick(r, [20, 30, 40]), y, ratio, tries = 0;
+    do { y = pick(r, [5, 10, 15, 20, 25, 30]); ratio = ((100 * (1 - x / 100) - 100 * (1 - m / 100)) / (100 * m / 100)) * (1 + y / 100); tries++; } while (Math.abs(ratio - 1) < 0.03 && tries < 50);
+    var yes = ratio > 1, q = choose(r, ['Yes, profit rises', 'No, profit falls'], yes ? 'Yes, profit rises' : 'No, profit falls');
+    var before = m, after = round(100 * (1 - x / 100) - 100 * (1 - m / 100), 2);
+    return Object.assign(q, { variant: 'pricecutdecision', inputs: { x: x, m: m, y: y }, prompt: 'A product sells for $100 at a ' + m + '% margin. Cutting the price ' + x + '% would raise volume ' + y + '%. Unit cost does not change. Should you cut the price?',
+      steps: ['Profit per unit now = $' + before + '. After the cut = $' + after + '.', 'Total profit factor = (' + after + ' / ' + before + ') x ' + (1 + y / 100) + ' = ' + round(ratio, 3) + '.', yes ? 'Above 1, so profit rises.' : 'Below 1, so profit falls.'], tip: 'A price cut comes straight out of margin. Volume has to rise by more than the margin shrinks.' });
+  });
+  add('hypo', 3, function (r) {
+    var pbk = pick(r, [2, 3, 4]), s = pick(r, [10, 20, 25]), I = s * pbk, L, tries = 0;
+    do { L = pick(r, [2, 3, 4, 5, 6]); tries++; } while (L === pbk && tries < 20);
+    var yes = L > pbk, q = choose(r, ['Yes: it pays back within its life', 'No: it does not pay back in time'], yes ? 'Yes: it pays back within its life' : 'No: it does not pay back in time');
+    return Object.assign(q, { variant: 'lifevspayback', inputs: { I: I, s: s, L: L }, prompt: 'A machine costs ' + m$(I) + ', saves ' + m$(s) + ' a year and will last ' + L + ' years. Should the client buy it?',
+      steps: ['Payback = ' + I + ' / ' + s + ' = ' + pbk + ' years.', 'The machine lasts ' + L + ' years, ' + (yes ? 'longer' : 'shorter') + ' than the payback.', yes ? 'It earns back its cost and more.' : 'It wears out before it earns back its cost.'], tip: 'Compare payback with the asset\'s life. Payback beyond the life is a loss.' });
+  });
+  add('hypo', 3, function (r) {
+    var s1 = pick(r, [20, 25, 30]), g, k, ratio, tries = 0;
+    do { g = pick(r, [1, 2, 3, 5]); k = pick(r, [5, 10, 15]); ratio = (s1 + g) * (1 - k / 100) / s1; tries++; } while (Math.abs(ratio - 1) < 0.01 && tries < 50);
+    var ans = ratio > 1 ? 'Up' : 'Down', q = choose(r, ['Up', 'Down', 'Unchanged'], ans);
+    return Object.assign(q, { variant: 'sharemarket', inputs: { s1: s1, g: g, k: k }, prompt: 'Your market share rises from ' + s1 + '% to ' + (s1 + g) + '%, but the whole market shrinks ' + k + '%. Is your revenue up or down?',
+      steps: ['Revenue is share x market size.', 'Share factor = ' + (s1 + g) + ' / ' + s1 + ' = ' + round((s1 + g) / s1, 3) + '. Market factor = ' + round(1 - k / 100, 2) + '.', 'Revenue factor = ' + round(ratio, 3) + ', so revenue is ' + ans.toLowerCase() + '.'], tip: 'Winning share in a shrinking market can still mean less revenue. Multiply the two effects.' });
+  });
+
   // ---------------------------------------------------------------- building questions
   var DIFFICULTIES = { 1: 'Easy', 2: 'Medium', 3: 'Hard', random: 'Random mix' };
   var TOPIC_IDS = Object.keys(TOPICS);
@@ -300,7 +484,7 @@
     if (!variants) throw new Error('unknown level ' + level);
     var r = rng(seed);
     var q = variants[Math.floor(r() * variants.length)](r);
-    q.topic = topic; q.level = level; q.seed = seed; q.topicLabel = t.label;
+    q.topic = topic; q.level = level; q.seed = seed; q.topicLabel = t.label; q.kind = q.kind || 'number';
     // JavaScript float noise (820.0000000000001) must never reach a candidate.
     var clean = function (x) { return x.replace(/\d+\.\d{6,}/g, function (m) { return String(round(parseFloat(m), 4)); }); };
     q.prompt = clean(q.prompt); q.tip = clean(q.tip); q.steps = q.steps.map(clean);
@@ -337,6 +521,7 @@
 
   // Close enough is right: case interviews reward sensible rounding, so the tolerance is relative.
   function check(q, given) {
+    if (q.kind === 'choice') return { ok: given === q.answer, value: q.options[given] };
     var v = typeof given === 'number' ? given : parseAnswer(String(given));
     if (v === null) return { ok: false, invalid: true };
     var tol = Math.max(Math.abs(q.answer) * q.tol, 0.05);
