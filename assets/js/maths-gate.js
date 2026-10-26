@@ -12,6 +12,7 @@
   var TERMS = app.getAttribute('data-terms') || '../../terms/';
   var REFUNDS = app.getAttribute('data-refunds') || '../../refunds/';
   var PRICE = app.getAttribute('data-price') || '20';
+  var ADDON_PRICE = app.getAttribute('data-addon-price') || '';
   var S = window.MadaSession;
   var token = null;
   var email = '';
@@ -125,8 +126,10 @@
     if (bar) clear(bar);
     var card = el('div', 'card mx-card');
     var lapsed = st.status === 'past_due' || st.status === 'unpaid';
+    var price = st.member && ADDON_PRICE ? ADDON_PRICE : PRICE;
     card.appendChild(el('span', 'tag', lapsed ? 'Payment needed' : 'Subscription'));
-    card.appendChild(el('h3', null, lapsed ? 'Your last payment did not go through' : 'Maths drills, $' + PRICE + ' a month'));
+    card.appendChild(el('h3', null, lapsed ? 'Your last payment did not go through' : 'Maths drills, $' + price + ' a month'));
+    if (!lapsed && st.member && ADDON_PRICE) card.appendChild(el('p', 'muted', 'Your Unlimited Interviews subscription gives you the member price of $' + ADDON_PRICE + ' a month instead of $' + PRICE + '.'));
     if (lapsed) {
       card.appendChild(el('p', null, 'Update your payment details to get your access back. Nothing else changes.'));
       var fix = el('button', 'btn btn-primary', 'Update billing'); fix.type = 'button';
@@ -140,7 +143,7 @@
        'Three difficulty levels plus a random mix, with a worked solution after every question.',
        'Practise as often as you like, whenever you like.'].forEach(function (t) { ul.appendChild(el('li', null, t)); });
       card.appendChild(ul);
-      var btn = el('button', 'btn btn-primary', 'Subscribe for $' + PRICE + '/month'); btn.type = 'button';
+      var btn = el('button', 'btn btn-primary', 'Subscribe for $' + price + '/month'); btn.type = 'button';
       var note = el('p', 'muted small');
       btn.addEventListener('click', function () {
         btn.disabled = true;

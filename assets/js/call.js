@@ -19,7 +19,9 @@
   var API = app.getAttribute('data-api');
   var KEY = app.getAttribute('data-key');
   var PRICE = app.getAttribute('data-price') || '50';
-  var paidReturn = /[?&]paid=1/.test(location.search);
+  var PASS_PRICE = app.getAttribute('data-pass-price') || '100';
+  var passReturn = /[?&]pass=1/.test(location.search);
+  var paidReturn = /[?&]paid=1/.test(location.search) || passReturn;
   var CONSENT_VERSION = '2026-10-v1';
   var RETENTION_DAYS = 90;
   // The sign-in survives the trip to Stripe and back in this browser (localStorage, www and non-www are folded into one host below), so the candidate
@@ -96,48 +98,72 @@
   }
 
   // ---------------------------------------------------------------- 2. pay
+  // Resolves to { credits, pass }, or null when the session has expired.
   function balance() {
     return post('/functions/v1/interview-checkout', { action: 'balance' }, token).then(function (r) {
-      if (r.status === 401) { token = null; saveSession(); return -1; }
-      return r.ok ? r.json().then(function (j) { return j.credits; }) : 0;
+      if (r.status === 401) { token = null; saveSession(); return null; }
+      return r.ok ? r.json().then(function (j) { return { credits: j.credits || 0, pass: !!j.pass }; }) : { credits: 0, pass: false };
     });
   }
 
-  // After Stripe sends the candidate back, the credit arrives a few seconds later via the webhook.
+  // After Stripe sends the candidate back, the credit or subscription arrives a few seconds later via the webhook.
   function gate(tries) {
     tries = tries || 0;
     if (!tries) say('Checking your account\u2026');
-    balance().then(function (n) {
-      if (n < 0) return signInForm('Your session expired. Sign in again.');
-      if (n > 0) return setup(paidReturn ? 'Payment received. You are ready to start.' : undefined);
+    balance().then(function (b) {
+      if (!b) return signInForm('Your session expired. Sign in again.');
+      if (b.pass || b.credits > 0) return setup(paidReturn ? (passReturn ? 'Subscription active. You are ready to start.' : 'Payment received. You are ready to start.') : undefined);
       if (paidReturn && tries < 10) { say('Confirming your payment\u2026'); return setTimeout(function () { gate(tries + 1); }, 3000); }
       payScreen(paidReturn ? 'We have not received your payment yet. If you were charged, email us and we will sort it out.' : undefined);
     }, function () { payScreen('Could not reach the service. Please try again.'); });
   }
 
+  // Opens a Stripe-hosted page for one of the two ways to pay.
+  function pay(path, btn, msgEl) {
+    btn.disabled = true;
+    post(path, { action: 'checkout' }, token).then(function (r) {
+      if (r.status === 401) return expire('Your session expired. Sign in again.');
+      return r.json().then(function (j) {
+        if (r.ok && j.url && j.url.indexOf('https://') === 0) { location.href = j.url; return; }
+        var code = j && j.error && j.error.code;
+        if (code === 'already_has_credit' || code === 'already_subscribed') return gate();
+        btn.disabled = false;
+        msgEl.textContent = 'We could not open the payment page. You have not been charged. Please try again shortly.';
+      });
+    }, function () { btn.disabled = false; msgEl.textContent = 'Could not reach the service. Please try again.'; });
+  }
+
   function payScreen(msg) {
     clear();
-    var card = el('div', 'rp-form card');
-    card.appendChild(el('h3', null, 'One AI case interview: $' + PRICE));
-    if (msg) card.appendChild(el('p', 'rp-notice', msg));
+    var wrapEl = el('div', 'call-pay');
+    if (msg) wrapEl.appendChild(el('p', 'rp-notice', msg));
+    var grid = el('div', 'call-pay-grid');
+    var note = el('p', 'muted small');
+
+    var single = el('div', 'rp-form card');
+    single.appendChild(el('h3', null, 'Single interview: $' + PRICE));
     var ul = el('ul');
-    ['One spoken case interview, about 25 minutes. You choose the interviewer and case after paying.', 'A structured report at the end of the call, also emailed to you.', 'Secure payment by card on Stripe\u2019s page. We never see your card details.'].forEach(function (t) { ul.appendChild(el('li', null, t)); });
-    card.appendChild(ul);
-    var btn = el('button', 'btn btn-primary', 'Pay $' + PRICE + ' and continue'); btn.type = 'button';
-    btn.addEventListener('click', function () {
-      btn.disabled = true;
-      post('/functions/v1/interview-checkout', { action: 'checkout' }, token).then(function (r) {
-        if (r.status === 401) return expire('Your session expired. Sign in again.');
-        return r.json().then(function (j) {
-          if (r.ok && j.url && j.url.indexOf('https://') === 0) { location.href = j.url; return; }
-          if (j && j.error && j.error.code === 'already_has_credit') return gate();
-          btn.disabled = false;
-          payScreen('We could not open the payment page. You have not been charged. Please try again shortly.');
-        });
-      }, function () { btn.disabled = false; payScreen('Could not reach the service. Please try again.'); });
-    });
-    card.appendChild(btn);
-    app.appendChild(card);
+    ['One spoken case interview, about 25 minutes.', 'You choose the interviewer and case after paying.', 'A structured report at the end, also emailed to you.'].forEach(function (t) { ul.appendChild(el('li', null, t)); });
+    single.appendChild(ul);
+    var b1 = el('button', 'btn btn-ghost', 'Pay $' + PRICE + ' and continue'); b1.type = 'button';
+    b1.addEventListener('click', function () { pay('/functions/v1/interview-checkout', b1, note); });
+    single.appendChild(b1);
+
+    var pass = el('div', 'rp-form card call-pay-best');
+    pass.appendChild(el('span', 'badge rise', 'Best value'));
+    pass.appendChild(el('h3', null, 'Unlimited interviews: $' + PASS_PRICE + ' a month'));
+    var ul2 = el('ul');
+    ['Practice as much as you need, subject to fair use.', 'Every interviewer and case type.', 'A report after every call. Cancel any time.'].forEach(function (t) { ul2.appendChild(el('li', null, t)); });
+    pass.appendChild(ul2);
+    var b2 = el('button', 'btn btn-primary', 'Subscribe for $' + PASS_PRICE + '/month'); b2.type = 'button';
+    b2.addEventListener('click', function () { pay('/functions/v1/pass-access', b2, note); });
+    pass.appendChild(b2);
+
+    grid.appendChild(single); grid.appendChild(pass);
+    wrapEl.appendChild(grid);
+    wrapEl.appendChild(el('p', 'muted small', 'Secure payment by card on Stripe\u2019s page. We never see your card details. The subscription renews monthly until you cancel it from My Mada.'));
+    wrapEl.appendChild(note);
+    app.appendChild(wrapEl);
   }
 
 
@@ -263,6 +289,7 @@
         if (!r.ok) {
           var code = j && j.error && j.error.code;
           if (code === 'payment_required') return payScreen('You need to buy a call first.');
+          if (code === 'fair_use') return setup('You have reached the limit of interviews for today. Come back later today and practice again.');
           if (code === 'call_in_progress') return setup('You already have a call in progress. Finish it, or wait a few minutes and try again.');
           if (code === 'voice_unavailable') return setup('We could not start the call. Nothing was used. Please try again shortly.');
           return setup('We could not start the call. Please try again shortly.');
