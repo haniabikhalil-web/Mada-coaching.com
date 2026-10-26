@@ -81,9 +81,11 @@
       MATHS_ON ? call('/functions/v1/maths-access', { action: 'status' }) : Promise.resolve({ off: true }),
       call('/functions/v1/interview-checkout', { action: 'balance' }),
       call('/functions/v1/interview-report', {}),
-      MATHS_ON ? call('/functions/v1/maths-progress', { action: 'get' }) : Promise.resolve({ off: true })
+      MATHS_ON ? call('/functions/v1/maths-progress', { action: 'get' }) : Promise.resolve({ off: true }),
+      call('/functions/v1/pass-access', { action: 'status' })
     ]).then(function (res) {
       if (res[3] && res[3].ok && res[3].data && Array.isArray(res[3].data.attempts)) serverAttempts = res[3].data.attempts;
+      var passRes = res[4];
       res = res.slice(0, 3);
       if (res.some(function (x) { return x.unauthorised; })) {
         return S.recover(API, KEY).then(function (ok) {
@@ -91,7 +93,7 @@
           S.clear(); token = null; signInForm('Your session expired. Sign in again.');
         });
       }
-      show(res[0], res[1], res[2]);
+      show(res[0], res[1], res[2], passRes);
     });
   }
 
@@ -148,22 +150,47 @@
     return c;
   }
 
-  function casesCard(bal, rep) {
+  function passCard(p) {
+    var active = p && p.ok && p.data && p.data.active;
+    var c = section('Unlimited interviews', p && p.error ? '' : active ? 'Active' : 'Not subscribed', active ? 'good' : '');
+    if (p && p.error) { c.appendChild(el('p', 'muted', 'We could not load this just now. Refresh in a minute.')); return c; }
+    if (active) {
+      var d = p.data;
+      c.appendChild(el('p', null, (d.renewsOn ? (d.cancelsAtPeriodEnd ? 'Your access ends on ' : 'Renews on ') + fmtDate(d.renewsOn) + '. ' : '') + 'Practice as much as you need, up to ' + d.dailyLimit + ' interviews a day.'));
+      var manage = el('button', 'btn btn-ghost btn-sm', 'Manage subscription'); manage.type = 'button';
+      manage.addEventListener('click', function () {
+        manage.disabled = true;
+        call('/functions/v1/pass-access', { action: 'portal' }).then(function (r) {
+          var u = r.ok && stripeUrl(r.data && r.data.url);
+          if (u) { location.href = u; return; }
+          manage.disabled = false; window.alert('Could not open the billing page. Try again shortly, or email hello@mada-coaching.com.');
+        });
+      });
+      c.appendChild(row([link('Start an interview', START, 'btn btn-primary btn-sm'), manage]));
+    } else {
+      c.appendChild(el('p', 'muted', 'One subscription for Case, Fit and Full Mock interviews, with Math Drills at the member price.'));
+      c.appendChild(row([link('See the options', START, 'btn btn-primary btn-sm')]));
+    }
+    return c;
+  }
+
+  function casesCard(bal, rep, pass) {
+    var subscribed = !!(pass && pass.ok && pass.data && pass.data.active);
     var credits = bal.ok && bal.data ? bal.data.credits : null;
     var list = rep.ok && rep.data ? (rep.data.reports || []) : null;
     var c = section('AI case interviews', credits > 0 ? 'Call ready' : '', credits > 0 ? 'good' : '');
     if (credits === null && list === null) { c.appendChild(el('p', 'muted', 'We could not load this just now. Refresh in a minute.')); return c; }
-    if (credits !== null) c.appendChild(el('p', null, credits > 0 ? 'You have ' + credits + ' practice interview' + (credits === 1 ? '' : 's') + ' ready to use.' : 'No practice interview ready. You can buy one when you want to practise.'));
+    if (credits !== null) c.appendChild(el('p', null, subscribed && !(credits > 0) ? 'Your subscription covers your interviews, so there is nothing to buy.' : credits > 0 ? 'You have ' + credits + ' practice interview' + (credits === 1 ? '' : 's') + ' ready to use.' : 'No practice interview ready. You can buy one when you want to practise.'));
     if (list !== null) {
       c.appendChild(el('p', 'muted', list.length ? list.length + (list.length === 1 ? ' report' : ' reports') + ' so far.' : 'Your reports will appear here after each call.'));
     }
-    var acts = [link(credits > 0 ? 'Start a practice interview' : 'Practise a case', START, 'btn btn-primary btn-sm')];
+    var acts = [link(credits > 0 || subscribed ? 'Start a practice interview' : 'Practise a case', START, 'btn btn-primary btn-sm')];
     if (list && list.length) acts.push(link('See my reports', REPORTS));
     c.appendChild(row(acts));
     return c;
   }
 
-  function show(maths, bal, rep) {
+  function show(maths, bal, rep, pass) {
     clear();
     var top = el('div', 'acct-top');
     top.appendChild(el('span', 'muted', 'Signed in as ' + email));
@@ -173,7 +200,8 @@
     app.appendChild(top);
     var m = mathsCard(maths);
     if (m) app.appendChild(m);
-    app.appendChild(casesCard(bal, rep));
+    app.appendChild(passCard(pass));
+    app.appendChild(casesCard(bal, rep, pass));
     var coach = section('Coaching with a Mada coach');
     coach.appendChild(el('p', 'muted', 'Work 1:1 with a consultant on your applications, cases and offers.'));
     coach.appendChild(row([link('See coaching options', BOOK)]));

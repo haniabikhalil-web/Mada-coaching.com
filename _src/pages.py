@@ -596,7 +596,7 @@ def ai_maths():
     gated = bool(C.MATHS_PAID_LIVE and C.SUPABASE_PUBLISHABLE_KEY)
     if gated:
         attrs = (f' data-gated="1" data-api="{C.SUPABASE_URL}" data-key="{C.SUPABASE_PUBLISHABLE_KEY}"'
-                 f' data-terms="{u("terms")}" data-refunds="{u("refunds")}" data-price="{C.MATHS_PRICE_USD}"')
+                 f' data-terms="{u("terms")}" data-refunds="{u("refunds")}" data-price="{C.MATHS_PRICE_USD}" data-addon-price="{C.MATHS_ADDON_PRICE_USD}"')
         lede_extra = ''
         js = ('js/ai-session.js', 'js/maths-engine.js', 'js/maths.js', 'js/maths-gate.js')
     else:
@@ -690,7 +690,7 @@ def ai_start():
 </div></header>
 <section>
   <div class="wrap">
-    <div id="call-app" data-api="{cfg_url}" data-key="{cfg_key}" data-price="{C.AI_PRACTICE_PRICE_USD}" aria-live="polite">
+    <div id="call-app" data-api="{cfg_url}" data-key="{cfg_key}" data-price="{C.AI_PRACTICE_PRICE_USD}" data-pass-price="{C.AI_PASS_PRICE_USD}" aria-live="polite">
       <noscript><p>This page needs JavaScript and a microphone.</p></noscript>
       <p class="muted">Loading&hellip;</p>
     </div>

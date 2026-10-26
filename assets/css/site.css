@@ -698,3 +698,10 @@ a:hover .arrow{transform:translateX(3px)}
 @media (max-width:900px){.ai-prods.top{grid-template-columns:1fr}.ai-prods.bottom{grid-template-columns:1fr}.ai-plans{grid-template-columns:1fr}.ai-plan.best{transform:none}}
 @media (max-width:680px){.ai-prod,.ai-plan{padding:24px}.ai-plan-price b{font-size:48px}}
 .ai-plan>.ai-pill{align-self:flex-start}.ai-list{align-content:start}
+.call-pay-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:20px;align-items:stretch}
+.call-pay-grid .card{display:flex;flex-direction:column;position:relative}
+.call-pay-grid .card ul{flex:1}
+.call-pay-best{border:2px solid var(--cobalt)}
+.call-pay-best .badge.rise{position:static;align-self:flex-start;margin-bottom:10px}.call-pay-grid .card>h3:first-child{margin-top:34px}.call-pay-best>h3{margin-top:0!important}
+.call-pay .rp-notice{margin-bottom:16px}
+@media (max-width:760px){.call-pay-grid{grid-template-columns:1fr}}
