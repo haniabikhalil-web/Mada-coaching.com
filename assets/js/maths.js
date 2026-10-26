@@ -196,5 +196,6 @@
     saveHistory({ at: Date.now(), level: levelChoice, correct: correct, total: results.length, avgSec: avg });
   }
 
-  setup();
+    // When the page is gated (sign-in and subscription), maths-gate.js starts the drills once access is confirmed.
+  if (app.getAttribute('data-gated') === '1') window.MadaMathsStart = setup; else setup();
 })();

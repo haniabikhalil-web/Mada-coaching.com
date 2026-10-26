@@ -567,6 +567,9 @@ a:hover .arrow{transform:translateX(3px)}
 
 /* Mada AI maths drills */
 .mx-card{max-width:760px;margin:0 auto}
+.mx-account{max-width:760px;margin:0 auto 16px;display:flex;flex-wrap:wrap;gap:8px 12px;align-items:center;justify-content:space-between}
+.mx-card .rp-disclaimer{margin-bottom:12px}
+.mx-card ul{margin:12px 0 20px 18px}
 .mx-card h4{margin:20px 0 8px}
 .mx-h{margin-top:28px}
 .mx-levels{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:12px}

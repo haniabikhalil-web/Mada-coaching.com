@@ -430,6 +430,19 @@ def ai():
     step_cards = ''.join(f'<div class="card reveal"><p class="tag">Step {n}</p><h3>{t}</h3><p>{d}</p></div>' for n, (t, d) in enumerate(steps, 1))
     minis = ''.join(f'''<div class="mini-persona reveal"><img src="{ctx.asset("img/interviewers/" + i["img"] + ".jpg")}" alt="{i["name"]}, {i["title"]}" width="160" height="160" loading="lazy">
 <h3>{i['name']}</h3><span class="tag">{i['title']}</span><p>{i['traits']}</p></div>''' for i in INTERVIEWERS_SIX)
+    drills_live = bool(C.MATHS_PAID_LIVE)
+    drills_badge = '<span class="badge rise">Open</span>' if drills_live else '<span class="badge soon">Coming soon</span>'
+    drills_cta = (f'<a class="btn btn-primary" href="{u("ai/maths")}" style="margin-top:16px">Start the drills</a>' if drills_live
+                  else f'<a class="btn btn-ghost" href="{wl("Maths drills")}" style="margin-top:16px">Join the waitlist</a>')
+    foundations = f'''<div class="card price-card reveal">{drills_badge}
+<h3>Maths drills</h3><p class="price"><b>${C.MATHS_PRICE_USD}</b> <span>/ month</span></p>
+<p class="muted">Sharpen the maths that case interviews turn on.</p>
+<ul><li>Timed questions on growth, margins, breakeven, payback, market sizing and unit economics</li><li>Choose your difficulty and topics</li><li>A worked solution after every question</li></ul>{drills_cta}</div>
+<div class="card price-card reveal"><span class="badge soon">Coming soon</span>
+<h3>Introduction to Case Solving</h3><p class="price"><span>Price to be announced</span></p>
+<p class="muted">An AI guide that teaches you how to think through a case.</p>
+<ul><li>How to structure a problem and form a hypothesis</li><li>How to use numbers to test your thinking</li><li>How to reach and deliver a clear recommendation</li></ul>
+<a class="btn btn-ghost" href="{wl("Introduction to Case Solving")}" style="margin-top:16px">Join the waitlist</a></div>'''
     body = f'''
 <header class="subhero"><div class="wrap">
   <p class="eyebrow">Mada AI &middot; Coming soon</p>
@@ -444,6 +457,14 @@ def ai():
       <p class="lede">Try one interview, practice as much as you need, or get advanced insights. Mada AI is not open yet: join the waitlist and we will email you first.</p></div>
     <div class="grid g3">{plans}</div>
     <p class="muted small" style="margin-top:16px">Planned prices in USD. Final pricing and inclusions are confirmed when each option opens.</p>
+  </div>
+</section>
+
+<section id="foundations">
+  <div class="wrap">
+    <div class="section-head reveal"><p class="eyebrow">Build your foundations</p><h2>Start with the basics.</h2>
+      <p class="lede">Two tools to get ready before your first full interview.</p></div>
+    <div class="grid g2">{foundations}</div>
   </div>
 </section>
 
@@ -586,22 +607,32 @@ def ai_report():
 def ai_maths():
     ctx = Ctx('ai/maths')
     u = ctx.url
+    gated = bool(C.MATHS_PAID_LIVE and C.SUPABASE_PUBLISHABLE_KEY)
+    if gated:
+        attrs = (f' data-gated="1" data-api="{C.SUPABASE_URL}" data-key="{C.SUPABASE_PUBLISHABLE_KEY}"'
+                 f' data-terms="{u("terms")}" data-refunds="{u("refunds")}" data-price="{C.MATHS_PRICE_USD}"')
+        lede_extra = f' A ${C.MATHS_PRICE_USD}/month subscription, with sign-in so your access follows you.'
+        js = ('js/ai-session.js', 'js/maths-engine.js', 'js/maths.js', 'js/maths-gate.js')
+    else:
+        attrs, lede_extra = '', ''
+        js = ('js/maths-engine.js', 'js/maths.js')
     body = f'''
 <header class="subhero"><div class="wrap">
   <p class="eyebrow">Mada AI &middot; Maths drills</p>
   <h1>Case maths, at your pace.</h1>
-  <p class="lede">Timed questions on the maths that case interviews turn on: growth, margins, breakeven, payback, compound growth, market sizing, mix and unit economics. Pick a difficulty and see a worked solution after every question.</p>
+  <p class="lede">Timed questions on the maths that case interviews turn on: growth, margins, breakeven, payback, compound growth, market sizing, mix and unit economics. Pick a difficulty and see a worked solution after every question.{lede_extra}</p>
 </div></header>
 <section>
   <div class="wrap">
-    <div id="maths-app"><noscript><p>This page needs JavaScript.</p></noscript></div>
+    <div id="maths-account"></div>
+    <div id="maths-app"{attrs}><noscript><p>This page needs JavaScript.</p></noscript></div>
     <p class="muted" style="margin-top:32px;text-align:center">Want to talk it through with a person? <a href="{u('services')}">Work with a Mada coach</a>.</p>
   </div>
 </section>
 '''
     page('ai/maths', 'Maths drills',
          'Practise consulting case maths with timed questions at three difficulty levels and worked solutions.',
-         body, ctx, noindex=True, extra_js=('js/maths-engine.js', 'js/maths.js'))
+         body, ctx, noindex=True, extra_js=js)
 
 
 # ---------------------------------------------------------------- Mada AI "My reports" (signed-in list of all released reports)
@@ -1005,7 +1036,7 @@ def legal_pages():
         ('What we provide', '<p>We provide 1:1 career and interview coaching for consulting: advice, structured preparation, feedback on your materials, mock interviews and guidance through the stages of a job search and the early years of a consulting career. Sessions are delivered remotely by video call unless we agree otherwise. Sessions may be delivered by the founder or by a coach from the Mada bench, matched to you by Mada.</p>'),
         ('Mada AI tools', '<p>Mada AI tools are self-serve products that run on Mada&rsquo;s own tools rather than in a live session. AI-generated feedback can be wrong or incomplete; use it as one input to your own judgement. Specific terms for each tool will be shown before you buy or use it.</p>'),
         ('What we do not provide', '<p>We are not a recruitment agency and we do not place candidates into jobs. We have no role in any employer&rsquo;s hiring decision, and we cannot and do not guarantee an interview, an offer, a salary level, a promotion or any other outcome. Nothing on this website or in a session should be read as a promise of employment. We do not provide legal, immigration, tax or financial advice, and any commentary on an offer is general information for your own decision-making, not professional advice in those fields.</p>'),
-        ('Booking and payment', '<p>Sessions are paid in advance unless agreed otherwise. Prices are shown in US dollars on the Services page. Where a multi-session package is purchased, sessions must be scheduled within 6 months of purchase. Memberships are billed monthly and can be cancelled before the next billing date. We may change our prices at any time, but never for a session you have already paid for.</p>'),
+        ('Booking and payment', '<p>Sessions are paid in advance unless agreed otherwise. Prices are shown in US dollars on the Services page. Where a multi-session package is purchased, sessions must be scheduled within 6 months of purchase. Memberships and the maths drills subscription are billed monthly and renew automatically; they can be cancelled before the next billing date. We may change our prices at any time, but never for a session you have already paid for.</p>'),
         ('Rescheduling, cancellation and refunds', '<p>Our <a href="{{refunds}}">Cancellation &amp; Refund Policy</a> forms part of these terms.</p>'),
         ('Your responsibilities', '<p>Coaching works when you take part. You agree to provide accurate information about your experience and situation, to arrive for sessions on time and prepared, and to do the agreed work between sessions. You are responsible for every decision you make about your career, your applications and any offer you accept or decline.</p>'),
         ('Honesty in applications', '<p>We help you present your genuine experience as clearly and compellingly as possible. We will not help you fabricate experience, qualifications, employment dates or results, and we may end an engagement without refund if asked to.</p>'),
@@ -1024,6 +1055,7 @@ def legal_pages():
         ('Cancellation and refunds', '<ul><li><strong>More than 24 hours before the session:</strong> cancel for a full refund, or keep the credit for a later date.</li><li><strong>Less than 24 hours before the session:</strong> the session is charged in full, because the slot can no longer be offered to anyone else.</li><li><strong>No-show:</strong> if you do not attend and do not tell us, the session is charged in full. If something went wrong, write to us; we will listen.</li><li><strong>If we cancel:</strong> you choose a full refund or a rescheduled session at no cost. If we ever cancel at short notice, we will also offer your next session at no charge.</li></ul>'),
         ('Packages and the Full Journey', '<p>Multi-session packages, including the 4-mock package and the Full Journey, can be refunded pro rata at any time: we refund the sessions you have not yet taken, charging the sessions you have taken at the standard single-session rate. Package sessions should be used within 6 months of purchase.</p>'),
         ('Mentorship membership', '<p>You can cancel your membership at any time before your next billing date, and you will not be charged again. Months already started are not refunded.</p>'),
+        ('Maths drills subscription', '<p>You can cancel your subscription at any time before your next billing date, and you will not be charged again. Cancel from the billing page linked on the maths drills page. Months already started are not refunded.</p>'),
         ('CV Review', '<p>Once your recorded review has been delivered, CV Review is not refundable, but if it did not deliver what we said it would, see below.</p>'),
         ('The free intro call', '<p>The introductory call is free and carries no obligation. Cancel or reschedule it whenever you need to.</p>'),
         ('If you are not satisfied', '<p>If a session did not deliver what we said it would, tell us within 7 days and we will either redo it at no cost or refund it. We would rather fix it than keep money we did not earn.</p>'),

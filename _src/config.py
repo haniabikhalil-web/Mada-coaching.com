@@ -2,7 +2,7 @@
 
 DOMAIN = 'mada-coaching.com'
 EMAIL = 'hello@mada-coaching.com'
-VERSION = '46'   # bump to force browsers to reload CSS/JS after changes
+VERSION = '47'   # bump to force browsers to reload CSS/JS after changes
 
 GA_ID = 'G-0JW66CX0T1'   # Google Analytics 4 measurement ID
 
@@ -30,6 +30,12 @@ BOOKING = {
 # session, payment and report flow are built and tested end to end.
 AI_PRACTICE_LIVE = False
 AI_PRACTICE_PRICE_USD = 50   # per session; shown only when live. Revisit once real call costs are known.
+
+# Mada AI maths drills (ai/maths/). While MATHS_PAID_LIVE is False the page is the open, free practice page (unlinked,
+# hidden from search). Flip to True only after the backend is deployed and the Stripe price, webhook events and
+# customer portal are set up and tested: then visitors sign in and subscribe for MATHS_PRICE_USD a month.
+MATHS_PAID_LIVE = False
+MATHS_PRICE_USD = 20
 
 # Mada AI interview reports (ai/report/). Both values are public by design (the publishable key is
 # meant for browsers). Leave the key as None until the Phase A functions are deployed: the report
