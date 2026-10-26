@@ -410,19 +410,31 @@ def ai():
         return f'''<div class="{cls}">{flag}<span class="badge soon">Coming soon</span>
 <h3>{name}</h3><p class="price"><b>{price}</b> <span>{per}</span></p><p class="muted">{blurb}</p><ul>{lis}</ul>
 <a class="btn {'btn-primary' if rec else 'btn-ghost'}" href="{wl(name)}" style="margin-top:16px">Join the waitlist</a></div>'''
+    drills_live = bool(C.MATHS_PAID_LIVE)
+    drills_card = (f'''<div class="card price-card reveal"><span class="badge rise">Open now</span>
+<h3>Math Drills</h3><p class="price"><b>${C.MATHS_PRICE_USD}</b> <span>/ month</span></p><p class="muted">Calculation speed, accuracy and confidence through unlimited quantitative practice.</p>
+<ul><li>Timed questions on growth, margins, breakeven, payback, market sizing and unit economics</li><li>Three difficulty levels, with a worked solution after every question</li><li>Accuracy tracking and progress over time</li></ul>
+<a class="btn btn-primary" href="{u('ai/maths')}" style="margin-top:16px">Start the drills</a></div>''' if drills_live else
+        f'''<div class="card price-card reveal"><span class="badge soon">Coming soon</span>
+<h3>Math Drills</h3><p class="price"><b>${C.MATHS_PRICE_USD}</b> <span>/ month</span></p><p class="muted">Calculation speed, accuracy and confidence through unlimited quantitative practice.</p>
+<ul><li>Timed questions with worked solutions</li><li>Accuracy tracking and progress over time</li></ul>
+<a class="btn btn-ghost" href="{wl("Math Drills")}" style="margin-top:16px">Join the waitlist</a></div>''')
     plans = (
-        plan('Single Session', '$30', '/ session', 'Try one interview. No commitment.',
-             ['One AI interview, case or fit', 'Choose your interviewer and customize it', 'Structured feedback'])
-        + plan('Practice Pass', '$100', '/ month', 'Practice as much as you need.',
-             ['Unlimited practice, subject to fair use', 'Different interviewers, case types and levels', 'Case and fit interviews, with full mocks and drills where available', 'Feedback after every session'], rec=True)
-        + plan('Mada Edge', '$150', '/ month', 'Advanced, personalized insights.',
-             ['Everything in Practice Pass', 'Advanced performance analytics', 'Progress tracking across interviews', 'Personalized improvement plans', 'Exercises recommended from your weak spots'])
+        plan('Single Interview', f'${C.AI_PRACTICE_PRICE_USD}', '/ interview', 'Try one interview. No commitment.',
+             ['One AI case or fit interview', 'Choose your interviewer and customize it', 'Structured feedback after the session', f'A Full Mock (case and fit together) is ${C.AI_FULL_MOCK_PRICE_USD}'])
+        + plan('Practice Pass', f'${C.AI_PASS_PRICE_USD}', '/ month', 'Practice as much as you need.',
+             ['Unlimited case, fit and full mock interviews, subject to fair use', 'Different interviewers, case types and levels', 'Feedback after every session', f'Add Math Drills for ${C.MATHS_ADDON_PRICE_USD} / month (${C.AI_PASS_PRICE_USD + C.MATHS_ADDON_PRICE_USD} in total)'], rec=True)
+        + drills_card
     )
-    practice = [('Case interviews', 'Realistic consulting cases across industries and difficulty levels.'),
-                ('Fit interviews', 'Behavioral questions, motivation, leadership and your own experiences.'),
-                ('Math &amp; market sizing', 'Targeted exercises to sharpen your quantitative skills.'),
-                ('Full mock interviews', 'A complete interview combining case and fit.')]
-    practice_cards = ''.join(f'<div class="card reveal"><span class="badge soon">Coming soon</span><h3>{t}</h3><p>{d}</p></div>' for t, d in practice)
+    practice = [('Case interviews', 'Solve realistic business problems, test your quantitative skills and deliver recommendations.', None),
+                ('Fit interviews', 'Practice personal stories, consulting motivation, leadership and behavioral questions.', None),
+                ('Full mock interviews', 'Complete a combined case and fit assessment, followed by consolidated feedback.', None),
+                ('Math Drills', 'Improve calculation speed, accuracy and confidence through unlimited quantitative practice.', 'ai/maths')]
+    def practice_card(t, d, page):
+        if page and C.MATHS_PAID_LIVE:
+            return f'<a class="card reveal" href="{u(page)}" style="text-decoration:none;color:inherit"><span class="badge rise">Open now</span><h3>{t}</h3><p>{d}</p><span class="pick-go">Start the drills <span class="arrow" aria-hidden="true">&rarr;</span></span></a>'
+        return f'<div class="card reveal"><span class="badge soon">Coming soon</span><h3>{t}</h3><p>{d}</p></div>'
+    practice_cards = ''.join(practice_card(*x) for x in practice)
     steps = [('Choose your practice', 'Case, fit, full mock or a targeted exercise.'),
              ('Customize your interview', 'Pick your interviewer, difficulty and case type.'),
              ('Start practicing', 'A realistic, interactive interview.'),
@@ -430,15 +442,7 @@ def ai():
     step_cards = ''.join(f'<div class="card reveal"><p class="tag">Step {n}</p><h3>{t}</h3><p>{d}</p></div>' for n, (t, d) in enumerate(steps, 1))
     minis = ''.join(f'''<div class="mini-persona reveal"><img src="{ctx.asset("img/interviewers/" + i["img"] + ".jpg")}" alt="{i["name"]}, {i["title"]}" width="160" height="160" loading="lazy">
 <h3>{i['name']}</h3><span class="tag">{i['title']}</span><p>{i['traits']}</p></div>''' for i in INTERVIEWERS_SIX)
-    drills_live = bool(C.MATHS_PAID_LIVE)
-    drills_badge = '<span class="badge rise">Open</span>' if drills_live else '<span class="badge soon">Coming soon</span>'
-    drills_cta = (f'<a class="btn btn-primary" href="{u("ai/maths")}" style="margin-top:16px">Start the drills</a>' if drills_live
-                  else f'<a class="btn btn-ghost" href="{wl("Maths drills")}" style="margin-top:16px">Join the waitlist</a>')
-    foundations = f'''<div class="card price-card reveal">{drills_badge}
-<h3>Maths drills</h3><p class="price"><b>${C.MATHS_PRICE_USD}</b> <span>/ month</span></p>
-<p class="muted">Sharpen the maths that case interviews turn on.</p>
-<ul><li>Timed questions on growth, margins, breakeven, payback, market sizing and unit economics</li><li>Choose your difficulty and topics</li><li>A worked solution after every question</li></ul>{drills_cta}</div>
-<div class="card price-card reveal"><span class="badge soon">Coming soon</span>
+    foundations = f'''<div class="card price-card reveal"><span class="badge soon">Coming soon</span>
 <h3>Introduction to Case Solving</h3>
 <p class="muted">An AI guide that teaches you how to think through a case.</p>
 <ul><li>How to structure a problem and form a hypothesis</li><li>How to use numbers to test your thinking</li><li>How to reach and deliver a clear recommendation</li></ul>
@@ -446,15 +450,15 @@ def ai():
     body = f'''
 <header class="subhero"><div class="wrap">
   <p class="eyebrow">Mada AI &middot; Coming soon</p>
-  <h1>Practice More. Interview Better.</h1>
-  <p class="lede">Realistic AI-powered consulting interviews, available 24/7. Practice at your own pace, get actionable feedback, and build confidence before the real thing.</p>
+  <h1>Practice as much as you need.</h1>
+  <p class="lede">Walk into your consulting interview prepared. Realistic AI-powered interviews, available 24/7, with structured feedback after every session.</p>
   <div class="btn-row"><a class="btn btn-primary" href="#options">See the options <span class="arrow" aria-hidden="true">&darr;</span></a><a class="btn btn-light" href="{wl('Mada AI')}">Join the waitlist</a><a class="btn btn-light" href="{u('ai/account')}">My Mada</a></div>
 </div></header>
 
 <section id="options">
   <div class="wrap">
     <div class="section-head reveal"><p class="eyebrow">Our offerings</p><h2>Choose how you practice.</h2>
-      <p class="lede">Try one interview, practice as much as you need, or get advanced insights. Mada AI is not open yet: join the waitlist and we will email you first.</p></div>
+      <p class="lede">Try one interview, practice as much as you need, or sharpen your maths. The AI interviews are not open yet: join the waitlist and we will email you first. Math Drills are open now.</p></div>
     <div class="grid g3">{plans}</div>
     <p class="muted small" style="margin-top:16px">Planned prices in USD. Final pricing and inclusions are confirmed when each option opens.</p>
   </div>
@@ -463,8 +467,8 @@ def ai():
 <section id="foundations">
   <div class="wrap">
     <div class="section-head reveal"><p class="eyebrow">Build your foundations</p><h2>Start with the basics.</h2>
-      <p class="lede">Two tools to get ready before your first full interview.</p></div>
-    <div class="grid g2">{foundations}</div>
+      <p class="lede">Get ready before your first full interview.</p></div>
+    <div class="narrow">{foundations}</div>
   </div>
 </section>
 
@@ -499,7 +503,7 @@ def ai():
 </section>
 '''
     page('ai', 'Mada AI',
-         'Practice More. Interview Better. Realistic AI consulting interviews, available 24/7, with structured feedback. Coming soon: join the waitlist.',
+         'Practice as much as you need. Walk into your consulting interview prepared. AI case, fit and full mock interviews with structured feedback (coming soon) and Math Drills (open now).',
          body, ctx)
 
 
