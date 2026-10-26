@@ -2,7 +2,7 @@
 
 DOMAIN = 'mada-coaching.com'
 EMAIL = 'hello@mada-coaching.com'
-VERSION = '65'   # bump to force browsers to reload CSS/JS after changes
+VERSION = '66'   # bump to force browsers to reload CSS/JS after changes
 
 GA_ID = 'G-0JW66CX0T1'   # Google Analytics 4 measurement ID
 
@@ -32,7 +32,7 @@ AI_PRACTICE_LIVE = False
 AI_PRACTICE_PRICE_USD = 30   # per single interview; shown on the Mada AI page. Revisit once real call costs are known.
 AI_FULL_MOCK_PRICE_USD = 50  # one Full Mock (case and fit together); included in the Practice Pass.
 AI_PASS_PRICE_USD = 100      # Practice Pass: unlimited interviews a month, subject to fair use.
-MATHS_ADDON_PRICE_USD = 10   # Math Drills as an add-on to the Practice Pass (standalone stays MATHS_PRICE_USD).
+# Math Drills are included with an active Practice Pass at no extra cost; standalone stays MATHS_PRICE_USD.
 
 # Mada AI maths drills (ai/maths/). While MATHS_PAID_LIVE is False the page is the open, free practice page (unlinked,
 # hidden from search). Flip to True only after the backend is deployed and the Stripe price, webhook events and

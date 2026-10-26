@@ -168,7 +168,7 @@
       });
       c.appendChild(row([link('Start an interview', START, 'btn btn-primary btn-sm'), manage]));
     } else {
-      c.appendChild(el('p', 'muted', 'One subscription for Case, Fit and Full Mock interviews, with Math Drills at the member price.'));
+      c.appendChild(el('p', 'muted', 'One subscription for Case, Fit and Full Mock interviews, with Math Drills included.'));
       c.appendChild(row([link('See the options', START, 'btn btn-primary btn-sm')]));
     }
     return c;
