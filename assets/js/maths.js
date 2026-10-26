@@ -18,6 +18,18 @@
   function clear() { while (app.firstChild) app.removeChild(app.firstChild); }
   function readHistory() { try { var h = JSON.parse(localStorage.getItem(HISTORY_KEY) || '[]'); return Array.isArray(h) ? h : []; } catch (e) { return []; } }
   function saveHistory(entry) { try { var h = readHistory(); h.unshift(entry); localStorage.setItem(HISTORY_KEY, JSON.stringify(h.slice(0, 20))); } catch (e) { /* storage blocked: fine */ } }
+  // Every answered question is kept (this browser, per signed-in email) so the progress report can total them by topic.
+  function who() { try { var j = window.MadaSession && window.MadaSession.load(); return j && j.email ? String(j.email).toLowerCase() : 'guest'; } catch (e) { return 'guest'; } }
+  function attemptsKey() { return 'mada_maths_attempts:' + who(); }
+  function readAttempts() { try { var a = JSON.parse(localStorage.getItem(attemptsKey()) || '[]'); return Array.isArray(a) ? a : []; } catch (e) { return []; } }
+  function saveAttempt(q, res, sec) {
+    try {
+      var a = readAttempts();
+      a.push({ t: q.topic, l: q.level, ok: res.ok ? 1 : 0, sk: res.skipped ? 1 : 0, s: Math.round(sec), at: Date.now() });
+      localStorage.setItem(attemptsKey(), JSON.stringify(a.slice(-3000)));
+    } catch (e) { /* storage blocked: the report just stays empty */ }
+  }
+  function pct(ok, n) { return n ? Math.round(100 * ok / n) : 0; }
   function fmtTime(sec) { sec = Math.round(sec); return Math.floor(sec / 60) + ':' + ('0' + (sec % 60)).slice(-2); }
 
   // ---------------------------------------------------------------- setup
@@ -72,6 +84,13 @@
     card.appendChild(go);
     app.appendChild(card);
 
+    var att = readAttempts();
+    var rep = el('div', 'card mx-card'); rep.style.marginTop = '20px';
+    rep.appendChild(el('h3', null, 'Your progress report'));
+    rep.appendChild(el('p', 'muted', att.length ? 'You have answered ' + att.length + ' question' + (att.length === 1 ? '' : 's') + '. See your totals for each question type, by difficulty, and what to practise next.' : 'Answer a few questions and your totals for each question type will appear here.'));
+    if (att.length) { var rb = el('button', 'btn btn-ghost', 'Open my report'); rb.type = 'button'; rb.addEventListener('click', function () { report(); }); rep.appendChild(rb); }
+    app.appendChild(rep);
+
     var h = readHistory();
     if (h.length) {
       var box = el('div', 'card mx-card'); box.style.marginTop = '20px';
@@ -83,6 +102,69 @@
       box.appendChild(ul);
       app.appendChild(box);
     }
+  }
+
+  // ---------------------------------------------------------------- progress report
+  function report() {
+    clear();
+    var a = readAttempts();
+    var card = el('div', 'card mx-card');
+    card.appendChild(el('h3', null, 'Your progress report'));
+    if (!a.length) {
+      card.appendChild(el('p', null, 'Nothing here yet. Answer a few questions and come back.'));
+    } else {
+      var okAll = a.filter(function (r) { return r.ok; }).length;
+      var avgAll = a.reduce(function (x, r) { return x + r.s; }, 0) / a.length;
+      var tiles = el('div', 'mx-tiles');
+      [[String(a.length), 'questions answered'], [pct(okAll, a.length) + '%', 'correct overall'], [fmtTime(avgAll), 'average per question']].forEach(function (t) {
+        var d = el('div', 'mx-tile'); d.appendChild(el('b', null, t[0])); d.appendChild(el('span', null, t[1])); tiles.appendChild(d);
+      });
+      card.appendChild(tiles);
+
+      var by = {};
+      M.TOPIC_IDS.forEach(function (id) { by[id] = { label: M.TOPICS[id].label, n: 0, ok: 0, sec: 0 }; });
+      a.forEach(function (r) { var t = by[r.t]; if (!t) return; t.n++; t.sec += r.s; if (r.ok) t.ok++; });
+
+      card.appendChild(el('h4', null, 'By question type'));
+      var tbl = el('div', 'mx-table'); tbl.setAttribute('role', 'table');
+      var head = el('div', 'mx-row mx-head'); head.setAttribute('role', 'row');
+      ['Question type', 'Answered', 'Correct', 'Accuracy', 'Avg time'].forEach(function (h) { var c = el('span', null, h); c.setAttribute('role', 'columnheader'); head.appendChild(c); });
+      tbl.appendChild(head);
+      M.TOPIC_IDS.forEach(function (id) {
+        var t = by[id];
+        var row = el('div', 'mx-row'); row.setAttribute('role', 'row');
+        var name = el('span', 'mx-name'); name.setAttribute('role', 'cell');
+        name.appendChild(el('b', null, t.label));
+        var bar = el('i', 'mx-bar'); var fill = el('i', 'mx-fill'); fill.style.width = pct(t.ok, t.n) + '%'; bar.appendChild(fill); name.appendChild(bar);
+        row.appendChild(name);
+        [String(t.n), t.n ? String(t.ok) : '-', t.n ? pct(t.ok, t.n) + '%' : 'Not tried', t.n ? fmtTime(t.sec / t.n) : '-'].forEach(function (v) { var c = el('span', null, v); c.setAttribute('role', 'cell'); row.appendChild(c); });
+        tbl.appendChild(row);
+      });
+      card.appendChild(tbl);
+
+      card.appendChild(el('h4', null, 'By difficulty'));
+      var ul = el('ul', 'mx-history');
+      [1, 2, 3].forEach(function (l) {
+        var xs = a.filter(function (r) { return String(r.l) === String(l); });
+        ul.appendChild(el('li', null, M.DIFFICULTIES[l] + ': ' + (xs.length ? xs.filter(function (r) { return r.ok; }).length + ' of ' + xs.length + ' correct (' + pct(xs.filter(function (r) { return r.ok; }).length, xs.length) + '%)' : 'not tried yet')));
+      });
+      card.appendChild(ul);
+
+      // Focus next: anything not tried first, then the lowest accuracy among types with at least 3 answers.
+      var untried = M.TOPIC_IDS.filter(function (id) { return by[id].n === 0; });
+      var shaky = M.TOPIC_IDS.filter(function (id) { return by[id].n >= 3; }).sort(function (x, y) { return pct(by[x].ok, by[x].n) - pct(by[y].ok, by[y].n); });
+      var msg = '';
+      if (untried.length) msg = 'Try ' + by[untried[0]].label + ' next. You have not practised it yet, and a well-rounded candidate covers every type.';
+      else if (shaky.length && pct(by[shaky[0]].ok, by[shaky[0]].n) < 100) msg = 'Practise ' + by[shaky[0]].label + ' next. It is your lowest at ' + pct(by[shaky[0]].ok, by[shaky[0]].n) + '% correct.';
+      else msg = 'Strong across the board. Move up a difficulty level.';
+      card.appendChild(el('h4', null, 'What to practise next'));
+      card.appendChild(el('p', null, msg));
+      card.appendChild(el('p', 'muted', 'Your totals are stored in this browser for ' + (who() === 'guest' ? 'this device' : who()) + '. Clearing your browser data clears them.'));
+    }
+    var back = el('button', 'btn btn-primary', 'Back to the drills'); back.type = 'button';
+    back.addEventListener('click', function () { setup(); });
+    card.appendChild(back);
+    app.appendChild(card);
   }
 
   // ---------------------------------------------------------------- a run of questions
@@ -137,6 +219,7 @@
         stop();
         var sec = (Date.now() - started) / 1000;
         results.push({ q: q, ok: res.ok, skipped: !!res.skipped, sec: sec });
+        saveAttempt(q, res, sec);
         clear(); // rebuild the card with the feedback
         var c2 = el('div', 'card mx-card');
         c2.appendChild(el('span', 'badge', 'Question ' + (idx + 1) + ' of ' + questions.length));
@@ -191,6 +274,9 @@
     var again = el('button', 'btn btn-primary', 'Another drill'); again.type = 'button';
     again.addEventListener('click', function () { setup(); });
     card.appendChild(again);
+    var rp = el('button', 'btn btn-ghost', 'My progress report'); rp.type = 'button'; rp.style.marginLeft = '10px';
+    rp.addEventListener('click', function () { report(); });
+    card.appendChild(rp);
     app.appendChild(card);
 
     saveHistory({ at: Date.now(), level: levelChoice, correct: correct, total: results.length, avgSec: avg });
