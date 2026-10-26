@@ -402,7 +402,7 @@ def ai():
     ctx = Ctx('ai')
     u = ctx.url
     wl = lambda what: waitlist_href(what)
-    single, mock, unlimited, addon = C.AI_PRACTICE_PRICE_USD, C.AI_FULL_MOCK_PRICE_USD, C.AI_PASS_PRICE_USD, C.MATHS_ADDON_PRICE_USD
+    single, mock, unlimited = C.AI_PRACTICE_PRICE_USD, C.AI_FULL_MOCK_PRICE_USD, C.AI_PASS_PRICE_USD
     drills_live = bool(C.MATHS_PAID_LIVE)
 
     # ---- 1. The five products: what you practise.
@@ -418,7 +418,7 @@ def ai():
         ic, t, d, page = p
         live = bool(page) and drills_live
         pill = ('<span class="ai-pill live">Open now</span>' if live else '<span class="ai-pill soon">Coming soon</span>')
-        price = (f'<p class="ai-prod-price"><b>${C.MATHS_PRICE_USD}</b> / month <span>&middot; ${addon} with Unlimited Interviews</span></p>' if page else '')
+        price = (f'<p class="ai-prod-price"><b>${C.MATHS_PRICE_USD}</b> / month <span>&middot; included with Unlimited Interviews</span></p>' if page else '')
         cta = (f'<a class="btn btn-primary btn-sm" href="{u(page)}">Start the drills <span class="arrow" aria-hidden="true">&rarr;</span></a>' if live
                else f'<a class="ai-link" href="{wl(t)}">Join the waitlist <span aria-hidden="true">&rarr;</span></a>')
         if t in ('Introduction to Case Solving', 'AI CV Review'):
@@ -597,7 +597,7 @@ def ai_maths():
     gated = bool(C.MATHS_PAID_LIVE and C.SUPABASE_PUBLISHABLE_KEY)
     if gated:
         attrs = (f' data-gated="1" data-api="{C.SUPABASE_URL}" data-key="{C.SUPABASE_PUBLISHABLE_KEY}"'
-                 f' data-terms="{u("terms")}" data-refunds="{u("refunds")}" data-price="{C.MATHS_PRICE_USD}" data-addon-price="{C.MATHS_ADDON_PRICE_USD}"')
+                 f' data-terms="{u("terms")}" data-refunds="{u("refunds")}" data-price="{C.MATHS_PRICE_USD}"')
         lede_extra = ''
         js = ('js/ai-session.js', 'js/maths-engine.js', 'js/maths.js', 'js/maths-gate.js')
     else:
