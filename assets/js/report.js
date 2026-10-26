@@ -66,7 +66,7 @@
       btn.disabled = true;
       post('/auth/v1/verify', { type: 'email', email: email, token: input.value.trim() }).then(function (r) {
         return r.ok ? r.json() : Promise.reject();
-      }).then(function (j) { token = j.access_token; if (S) S.save(token, email); load(); }, function () { signInForm('That code did not work. Request a new one.'); });
+      }).then(function (j) { token = j.access_token; if (S) S.save(token, email, j.refresh_token, j.expires_in); load(); }, function () { signInForm('That code did not work. Request a new one.'); });
     });
     app.appendChild(form);
   }
@@ -75,7 +75,7 @@
     say('Loading your report…');
     var id = new URLSearchParams(location.search).get('id');
     post('/functions/v1/interview-report', id ? { id: id } : {}, token).then(function (r) {
-      if (r.status === 401) { token = null; if (S) S.clear(); return signInForm('Your session expired. Sign in again.'); }
+      if (r.status === 401) { token = null; if (!S) return signInForm('Your session expired. Sign in again.'); return S.recover(API, KEY).then(function (ok) { if (ok) { location.reload(); return; } S.clear(); signInForm('Your session expired. Sign in again.'); }); }
       if (r.status === 404 && id) return coachView(id);
       if (!r.ok) return say(r.status === 404 ? 'We could not find that report.' : 'Something went wrong. Please try again shortly.');
       return r.json().then(function (j) {
@@ -107,7 +107,9 @@
   }
 
   if (statusEl && !ready()) { say('Interview reports are not available yet. We will email you when yours is ready.'); return; }
-  var saved = S && S.load();
-  if (ready() && saved) { token = saved.token; load(); }
-  else if (ready()) signInForm();
+  if (ready()) {
+    (S ? S.restore(API, KEY) : Promise.resolve(null)).then(function (saved) {
+      if (saved) { token = saved.token; load(); } else signInForm();
+    });
+  }
 })();

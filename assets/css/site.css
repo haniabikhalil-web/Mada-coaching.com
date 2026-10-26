@@ -567,6 +567,9 @@ a:hover .arrow{transform:translateX(3px)}
 
 /* Mada AI maths drills */
 .mx-card{max-width:760px;margin:0 auto}
+.mx-account{max-width:760px;margin:0 auto 16px;display:flex;flex-wrap:wrap;gap:8px 12px;align-items:center;justify-content:space-between}
+.mx-card .rp-disclaimer{margin-bottom:12px}
+.mx-card ul{margin:12px 0 20px 18px}
 .mx-card h4{margin:20px 0 8px}
 .mx-h{margin-top:28px}
 .mx-levels{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:12px}
@@ -588,8 +591,26 @@ a:hover .arrow{transform:translateX(3px)}
 .mx-steps{padding-left:20px}
 .mx-score{font-family:var(--display);font-size:34px;font-weight:700;margin:8px 0}
 .mx-history{padding-left:20px;margin:12px 0}
-@media (max-width:680px){.mx-levels{grid-template-columns:1fr}.mx-prompt{font-size:18px}}
+
+.mx-tiles{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin:16px 0}
+.mx-tile{border:1px solid var(--line);border-radius:var(--radius);padding:14px;display:flex;flex-direction:column;gap:4px}
+.mx-tile b{font-family:var(--display);font-size:28px;color:var(--navy)}
+.mx-tile span{color:var(--stone);font-size:14px}
+.mx-table{border:1px solid var(--line);border-radius:var(--radius);overflow:hidden}
+.mx-row{display:grid;grid-template-columns:2fr .8fr .8fr .9fr .9fr;gap:8px;padding:12px 14px;align-items:center;border-top:1px solid var(--line);font-size:15px}
+.mx-row:first-child{border-top:0}
+.mx-head{background:#F4F6FB;font-weight:700;font-size:13px;color:var(--stone)}
+.mx-name{display:flex;flex-direction:column;gap:6px}
+.mx-bar{display:block;height:6px;border-radius:99px;background:#E6EAF4;overflow:hidden}
+.mx-fill{display:block;height:100%;background:var(--cobalt)}
+@media (max-width:680px){.mx-tiles{gap:8px}.mx-tile{padding:10px}.mx-tile b{font-size:22px}.mx-tile span{font-size:12px}.mx-row{grid-template-columns:1.6fr .7fr .7fr .8fr;font-size:14px}.mx-row>span:nth-child(5){display:none}.mx-levels{grid-template-columns:1fr}.mx-prompt{font-size:18px}}
 .mx-choices{display:flex;flex-direction:column;gap:10px;align-items:stretch}
 .mx-option{text-align:left;font:inherit;font-size:17px;padding:14px 16px;border:1px solid #C3CAE0;border-radius:10px;background:#fff;color:var(--ink);cursor:pointer}
 .mx-option:hover,.mx-option:focus-visible{border-color:var(--cobalt);outline:none}
 .mx-choices .btn{align-self:flex-start}
+.acct-top{display:flex;flex-wrap:wrap;gap:8px 12px;align-items:center;justify-content:space-between;margin-bottom:16px}
+.acct-card{margin-bottom:16px}
+.acct-head{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.acct-head h3{margin:0}
+.acct-actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:14px}
+.badge.good{background:#E3F4EA;color:#157347}
