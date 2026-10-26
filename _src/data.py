@@ -196,7 +196,7 @@ COACHES = [
     {'name': 'Najib Zgheib', 'photo': 'najib.jpg', 'role': 'Manager',
      'prev': 'Strategy&amp;',
      'edu': ['MBA, The Wharton School', 'MEng Civil Engineering, American University of Beirut', 'BE Civil Engineering, Lebanese American University'],
-     'count': '20+',
+     'count': '50+',
      'linkedin': 'https://www.linkedin.com/in/najibzgheib/'},
     {'name': 'Giordana La Faja', 'photo': 'giordana.jpg', 'role': 'Associate Manager',
      'prev': 'Oliver Wyman &middot; Bain &amp; Company',
