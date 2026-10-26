@@ -34,7 +34,7 @@ AI_PRACTICE_PRICE_USD = 50   # per session; shown only when live. Revisit once r
 # Mada AI maths drills (ai/maths/). While MATHS_PAID_LIVE is False the page is the open, free practice page (unlinked,
 # hidden from search). Flip to True only after the backend is deployed and the Stripe price, webhook events and
 # customer portal are set up and tested: then visitors sign in and subscribe for MATHS_PRICE_USD a month.
-MATHS_PAID_LIVE = False
+MATHS_PAID_LIVE = True
 MATHS_PRICE_USD = 20
 
 # Mada AI interview reports (ai/report/). Both values are public by design (the publishable key is
