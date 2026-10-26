@@ -19,7 +19,9 @@
     return wrap;
   }
 
-  function render(r, mount) {
+  function render(r, mount, ins) {
+    var MI = window.MadaInsights || null;
+    var om = MI && ins ? MI.othersMap(ins) : {};
     while (mount.firstChild) mount.removeChild(mount.firstChild);
     var root = el('div', 'rp');
 
@@ -40,6 +42,9 @@
       root.appendChild(nb);
     }
 
+    var panel = MI ? MI.reportPanel(r, ins) : null;
+    if (panel) root.appendChild(panel);
+
     root.appendChild(el('h3', null, r.product === 'case' ? 'Case skills' : 'Behavioural skills'));
     r.competencies.forEach(function (c) {
       var card = el('div', 'rp-comp card');
@@ -48,11 +53,15 @@
       head.appendChild(el('span', 'rp-score', c.score === null ? 'Not scored' : c.score + ' / 5'));
       card.appendChild(head);
       card.appendChild(scoreBar(c.score));
+      var bl = MI ? MI.benchLine(c.score, om[c.id]) : null;
+      if (bl) card.appendChild(bl);
       card.appendChild(el('p', null, c.rationale));
       var quotes = [];
       if (c.evidence) quotes.push(c.evidence);
       (c.more_evidence || []).forEach(function (m) { quotes.push(m); });
       quotes.forEach(function (e) { card.appendChild(el('blockquote', 'rp-quote', '\u201c' + e.quote + '\u201d')); });
+      var ex = MI ? MI.explain(c.id) : null;
+      if (ex) card.appendChild(ex);
       root.appendChild(card);
     });
 
@@ -87,6 +96,8 @@
     next.appendChild(el('span', 'tag', 'Practise next'));
     next.appendChild(el('p', null, r.next_practice_action));
     root.appendChild(next);
+    if (MI && ins) { var nf = MI.nextFocusCard(ins); if (nf) root.appendChild(nf); }
+    if (MI) root.appendChild(MI.guide());
 
     mount.appendChild(root);
   }

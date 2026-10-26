@@ -94,6 +94,7 @@
     return a;
   }
 
+  var insightsBox = null;
   function show(list) {
     clear();
     if (!list.length) {
@@ -105,6 +106,9 @@
       app.appendChild(empty);
       return;
     }
+    insightsBox = el('div', 'rp-insights');
+    app.appendChild(insightsBox);
+    app.appendChild(el('h3', null, 'Your reports'));
     app.appendChild(el('p', 'muted', list.length + (list.length === 1 ? ' report' : ' reports') + ' for ' + (email || 'your account') + ', newest first.'));
     var wrap = el('div', 'rp-list');
     list.forEach(function (x) { wrap.appendChild(card(x)); });
@@ -116,6 +120,17 @@
     var out = el('button', 'btn btn-ghost', 'Sign out'); out.type = 'button';
     out.addEventListener('click', function () { S.clear(); token = null; signInForm(); });
     app.appendChild(out);
+    if (window.MadaInsights) app.appendChild(window.MadaInsights.guide());
+  }
+
+  // Progress, benchmarks and next focus load after the list, so the list never waits on them.
+  function loadInsights() {
+    if (!window.MadaInsights) return;
+    post('/functions/v1/interview-insights', {}, token).then(function (r) { return r.ok ? r.json() : null; }).then(function (ins) {
+      if (!ins || !ins.count || !insightsBox) return;
+      insightsBox.appendChild(el('h3', null, 'Your progress'));
+      insightsBox.appendChild(window.MadaInsights.progress(ins));
+    }, function () {});
   }
 
   function load() {
@@ -123,7 +138,7 @@
     post('/functions/v1/interview-report', {}, token).then(function (r) {
       if (r.status === 401) return S.recover(API, KEY).then(function (ok) { if (ok) { location.reload(); return; } S.clear(); token = null; signInForm('Your session expired. Sign in again.'); });
       if (!r.ok) return say('Something went wrong. Please try again shortly.');
-      return r.json().then(function (j) { show(j.reports || []); });
+      return r.json().then(function (j) { show(j.reports || []); loadInsights(); });
     }, function () { say('Could not reach the report service. Please try again shortly.'); });
   }
 
