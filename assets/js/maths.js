@@ -23,11 +23,55 @@
   function attemptsKey() { return 'mada_maths_attempts:' + who(); }
   function readAttempts() { try { var a = JSON.parse(localStorage.getItem(attemptsKey()) || '[]'); return Array.isArray(a) ? a : []; } catch (e) { return []; } }
   function saveAttempt(q, res, sec) {
+    var row = null;
     try {
       var a = readAttempts();
-      a.push({ t: q.topic, l: q.level, ok: res.ok ? 1 : 0, sk: res.skipped ? 1 : 0, s: Math.round(sec), at: Date.now() });
+      row = { t: q.topic, l: q.level, ok: res.ok ? 1 : 0, sk: res.skipped ? 1 : 0, s: Math.round(sec), at: Date.now() };
+      a.push(row);
       localStorage.setItem(attemptsKey(), JSON.stringify(a.slice(-3000)));
     } catch (e) { /* storage blocked: the report just stays empty */ }
+    if (row && canSync()) remote({ action: 'add', attempts: [row] });
+  }
+  // ---------------------------------------------------------------- account sync
+  // Signed-in drills keep every attempt on the candidate's account too, so the report follows them to any device.
+  // This browser's copy is a cache: it is merged with the account's on the way in, and anything only here is uploaded.
+  var API = app.getAttribute('data-api'), KEY = app.getAttribute('data-key'), SESS = window.MadaSession;
+  var syncing = null, synced = false;
+  function canSync() { return app.getAttribute('data-gated') === '1' && !!API && !!KEY && !!SESS && who() !== 'guest'; }
+  function remote(body) {
+    return SESS.restore(API, KEY).then(function (saved) {
+      if (!saved) return null;
+      return fetch(API.replace(/\/+$/, '') + '/functions/v1/maths-progress', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json', apikey: KEY, authorization: 'Bearer ' + saved.token },
+        body: JSON.stringify(body)
+      }).then(function (r) { return r.ok ? r.json() : null; });
+    }).catch(function () { return null; });
+  }
+  function sig(r) { return r.at + '|' + r.t; }
+  function pushAll(rows) {
+    var chain = Promise.resolve();
+    for (var i = 0; i < rows.length; i += 500) (function (chunk) { chain = chain.then(function () { return remote({ action: 'add', attempts: chunk }); }); })(rows.slice(i, i + 500));
+    return chain;
+  }
+  // Resolves true when this browser's copy changed.
+  function sync() {
+    if (!canSync()) return Promise.resolve(false);
+    if (syncing) return syncing;
+    syncing = remote({ action: 'get' }).then(function (j) {
+      if (!j || !Array.isArray(j.attempts)) return false;
+      var local = readAttempts(), have = {}, seen = {};
+      j.attempts.forEach(function (r) { have[sig(r)] = 1; });
+      local.forEach(function (r) { seen[sig(r)] = 1; });
+      var fresh = j.attempts.filter(function (r) { return !seen[sig(r)]; });
+      var missing = local.filter(function (r) { return !have[sig(r)]; });
+      if (fresh.length) {
+        try { localStorage.setItem(attemptsKey(), JSON.stringify(local.concat(fresh).sort(function (a, b) { return a.at - b.at; }).slice(-3000))); } catch (e) { /* storage blocked */ }
+      }
+      synced = true;
+      return pushAll(missing).then(function () { return fresh.length > 0; });
+    }).then(function (changed) { syncing = null; return changed; }, function () { syncing = null; return false; });
+    return syncing;
   }
   function pct(ok, n) { return n ? Math.round(100 * ok / n) : 0; }
   function fmtTime(sec) { sec = Math.round(sec); return Math.floor(sec / 60) + ':' + ('0' + (sec % 60)).slice(-2); }
@@ -36,6 +80,7 @@
   var BLURB = { random: 'A mix of all three levels, question by question.', 1: 'Round numbers and one step. Warm up and build speed.', 2: 'Two steps and messier numbers. Case-interview level.', 3: 'Multi-step and unfamiliar setups. Final-round pace.' };
 
   function setup() {
+    if (!synced && canSync()) sync().then(function (changed) { if (changed && app.querySelector('.mx-card') && !app.querySelector('.mx-form')) setup(); });
     clear();
     var card = el('div', 'card mx-card');
     card.appendChild(el('h3', null, 'Choose your difficulty'));
@@ -88,7 +133,7 @@
     var rep = el('div', 'card mx-card'); rep.style.marginTop = '20px';
     rep.appendChild(el('h3', null, 'Your progress report'));
     rep.appendChild(el('p', 'muted', att.length ? 'You have answered ' + att.length + ' question' + (att.length === 1 ? '' : 's') + '. See your totals for each question type, by difficulty, and what to practise next.' : 'Answer a few questions and your totals for each question type will appear here.'));
-    if (att.length) { var rb = el('button', 'btn btn-ghost', 'Open my report'); rb.type = 'button'; rb.addEventListener('click', function () { report(); }); rep.appendChild(rb); }
+    if (att.length) { var rb = el('button', 'btn btn-ghost', 'Open my report'); rb.type = 'button'; rb.addEventListener('click', function () { openReport(); }); rep.appendChild(rb); }
     app.appendChild(rep);
 
     var h = readHistory();
@@ -105,6 +150,12 @@
   }
 
   // ---------------------------------------------------------------- progress report
+  function openReport() {
+    if (!canSync() || synced) return report();
+    clear();
+    app.appendChild(el('p', 'muted', 'Loading your progress\u2026'));
+    sync().then(report, report);
+  }
   function report() {
     clear();
     var a = readAttempts();
@@ -159,7 +210,7 @@
       else msg = 'Strong across the board. Move up a difficulty level.';
       card.appendChild(el('h4', null, 'What to practise next'));
       card.appendChild(el('p', null, msg));
-      card.appendChild(el('p', 'muted', 'Your totals are stored in this browser for ' + (who() === 'guest' ? 'this device' : who()) + '. Clearing your browser data clears them.'));
+      card.appendChild(el('p', 'muted', canSync() ? 'Your totals are saved to your Mada account (' + who() + '), so they follow you to any device.' : 'Your totals are stored in this browser for ' + (who() === 'guest' ? 'this device' : who()) + '. Clearing your browser data clears them.'));
     }
     var back = el('button', 'btn btn-primary', 'Back to the drills'); back.type = 'button';
     back.addEventListener('click', function () { setup(); });
@@ -275,7 +326,7 @@
     again.addEventListener('click', function () { setup(); });
     card.appendChild(again);
     var rp = el('button', 'btn btn-ghost', 'My progress report'); rp.type = 'button'; rp.style.marginLeft = '10px';
-    rp.addEventListener('click', function () { report(); });
+    rp.addEventListener('click', function () { openReport(); });
     card.appendChild(rp);
     app.appendChild(card);
 

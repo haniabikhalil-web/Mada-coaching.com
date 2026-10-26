@@ -80,8 +80,11 @@
     Promise.all([
       MATHS_ON ? call('/functions/v1/maths-access', { action: 'status' }) : Promise.resolve({ off: true }),
       call('/functions/v1/interview-checkout', { action: 'balance' }),
-      call('/functions/v1/interview-report', {})
+      call('/functions/v1/interview-report', {}),
+      MATHS_ON ? call('/functions/v1/maths-progress', { action: 'get' }) : Promise.resolve({ off: true })
     ]).then(function (res) {
+      if (res[3] && res[3].ok && res[3].data && Array.isArray(res[3].data.attempts)) serverAttempts = res[3].data.attempts;
+      res = res.slice(0, 3);
       if (res.some(function (x) { return x.unauthorised; })) {
         return S.recover(API, KEY).then(function (ok) {
           if (ok) { location.reload(); return; }
@@ -93,7 +96,12 @@
   }
 
   // Local maths progress (kept by the drills page in this browser, per email)
+  var serverAttempts = null;
   function mathsProgress() {
+    if (serverAttempts && serverAttempts.length) {
+      var oks = serverAttempts.filter(function (r) { return r.ok; }).length;
+      return { n: serverAttempts.length, pct: Math.round(100 * oks / serverAttempts.length) };
+    }
     try {
       var a = JSON.parse(localStorage.getItem('mada_maths_attempts:' + String(email).toLowerCase()) || '[]');
       if (!Array.isArray(a) || !a.length) return null;
