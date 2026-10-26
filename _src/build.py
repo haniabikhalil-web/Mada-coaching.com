@@ -149,6 +149,7 @@ def header(ctx):
     <a class="logo" href="{ctx.url('')}" aria-label="Mada Coaching home">{LOGO}</a>
     <ul class="nav-links">{links}</ul>
     <div class="nav-cta">
+      <a class="btn btn-ghost btn-sm" href="{ctx.url('ai/account')}">My Mada</a>
       <a class="btn btn-primary btn-sm" {intro_attrs(ctx)}>Book a free call</a>
       <button class="menu-btn" aria-expanded="false" aria-controls="nav-panel" aria-label="Menu">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
@@ -157,7 +158,8 @@ def header(ctx):
   </div>
   <div class="nav-panel" id="nav-panel"><div class="wrap">
     <ul>{mobile}</ul>
-    <a class="btn btn-primary" {intro_attrs(ctx)}>Book a free call</a>
+    <a class="btn btn-ghost" href="{ctx.url('ai/account')}">My Mada</a>
+    <a class="btn btn-primary" {intro_attrs(ctx)} style="margin-top:10px">Book a free call</a>
   </div></div>
 </header>'''
 
