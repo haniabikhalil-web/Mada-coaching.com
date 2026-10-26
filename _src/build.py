@@ -189,6 +189,7 @@ def footer(ctx):
         <ul>
           <li><a href="{u('how-it-works')}">How it works</a></li>
           <li><a href="{u('ai')}">Mada AI</a></li>
+          <li><a href="{u('ai/account')}">My Mada</a></li>
           <li><a href="{u('coaches')}">Coaches</a></li>
           <li><a href="{u('about')}">About</a></li>
           <li><a href="{u('resources')}">Resources</a></li>
