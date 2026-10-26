@@ -448,7 +448,7 @@ def ai():
   <p class="eyebrow">Mada AI &middot; Coming soon</p>
   <h1>Practice More. Interview Better.</h1>
   <p class="lede">Realistic AI-powered consulting interviews, available 24/7. Practice at your own pace, get actionable feedback, and build confidence before the real thing.</p>
-  <div class="btn-row"><a class="btn btn-primary" href="#options">See the options <span class="arrow" aria-hidden="true">&darr;</span></a><a class="btn btn-light" href="{wl('Mada AI')}">Join the waitlist</a></div>
+  <div class="btn-row"><a class="btn btn-primary" href="#options">See the options <span class="arrow" aria-hidden="true">&darr;</span></a><a class="btn btn-light" href="{wl('Mada AI')}">Join the waitlist</a><a class="btn btn-light" href="{u('ai/account')}">My Mada</a></div>
 </div></header>
 
 <section id="options">
@@ -626,7 +626,7 @@ def ai_maths():
   <div class="wrap">
     <div id="maths-account"></div>
     <div id="maths-app"{attrs}><noscript><p>This page needs JavaScript.</p></noscript></div>
-    <p class="muted" style="margin-top:32px;text-align:center">Want to talk it through with a person? <a href="{u('services')}">Work with a Mada coach</a>.</p>
+    <p class="muted" style="margin-top:32px;text-align:center">Want to talk it through with a person? <a href="{u('services')}">Work with a Mada coach</a>. Manage your subscription in <a href="{u('ai/account')}">My Mada</a>.</p>
   </div>
 </section>
 '''
@@ -682,7 +682,7 @@ def ai_reports():
       <noscript><p>This page needs JavaScript to show your reports.</p></noscript>
       <p class="muted">Loading&hellip;</p>
     </div>
-    <p class="muted" style="margin-top:32px">Questions about a report? <a href="mailto:{C.EMAIL}">{C.EMAIL}</a> or <a href="{u('services')}">book a coach</a>.</p>
+    <p class="muted" style="margin-top:32px">Questions about a report? <a href="mailto:{C.EMAIL}">{C.EMAIL}</a> or <a href="{u('services')}">book a coach</a>. Everything you have with Mada is in <a href="{u('ai/account')}">My Mada</a>.</p>
   </div>
 </section>
 '''
