@@ -405,46 +405,46 @@ def ai():
     single, mock, unlimited, addon = C.AI_PRACTICE_PRICE_USD, C.AI_FULL_MOCK_PRICE_USD, C.AI_PASS_PRICE_USD, C.MATHS_ADDON_PRICE_USD
     drills_live = bool(C.MATHS_PAID_LIVE)
 
-    # ---- 1. The five products: what you practise. No prices here.
+    # ---- 1. The five products: what you practise.
     products = [
-        ('Introduction to Case Solving', 'An AI guide that teaches you how to approach a case, build a structured framework and solve with confidence.', False, None),
-        ('Case Interviews', 'Solve realistic business problems, test your quantitative skills and deliver a recommendation in an interactive AI-led case.', False, None),
-        ('Fit Interviews', 'Practice your personal stories, consulting motivation, leadership and behavioral questions with realistic AI interviewers.', False, None),
-        ('Full Mock Interviews', 'A complete case and fit simulation in one sitting, followed by consolidated feedback on your performance.', False, None),
-        ('Math Drills', 'Build calculation speed, accuracy and confidence through unlimited, interactive quantitative practice.', drills_live, 'ai/maths'),
+        ('compass', 'Introduction to Case Solving', 'An AI guide that teaches you how to approach a case, build a structured framework and solve with confidence.', None),
+        ('chat', 'Case Interviews', 'Solve realistic business problems, test your quantitative skills and deliver a recommendation in an interactive AI-led case.', None),
+        ('mic', 'Fit Interviews', 'Practice your personal stories, consulting motivation, leadership and behavioral questions with realistic AI interviewers.', None),
+        ('target', 'Full Mock Interviews', 'A complete case and fit simulation in one sitting, followed by consolidated feedback on your performance.', None),
+        ('bolt', 'Math Drills', 'Build calculation speed, accuracy and confidence through unlimited, interactive quantitative practice.', 'ai/maths'),
     ]
-    def product_card(n, t, d, live, page):
-        badge = '<span class="badge rise">Open now</span>' if live else '<span class="badge soon">Coming soon</span>'
-        cta = (f'<a class="btn btn-primary btn-sm" href="{u(page)}" style="margin-top:auto">Start the drills <span class="arrow" aria-hidden="true">&rarr;</span></a>' if live
-               else f'<a class="btn btn-ghost btn-sm" href="{wl(t)}" style="margin-top:auto">Join the waitlist</a>')
-        return f'<div class="card reveal" style="display:flex;flex-direction:column"><p class="tag">{n:02d}</p><h3>{t}</h3><p>{d}</p><div style="margin-top:16px;display:flex;flex-direction:column;gap:12px">{badge}{cta}</div></div>'
-    product_cards = ''.join(product_card(i, *p) for i, p in enumerate(products, 1))
+    def product_card(n, p):
+        ic, t, d, page = p
+        live = bool(page) and drills_live
+        pill = ('<span class="ai-pill live">Open now</span>' if live else '<span class="ai-pill soon">Coming soon</span>')
+        price = (f'<p class="ai-prod-price"><b>${C.MATHS_PRICE_USD}</b> / month <span>&middot; ${addon} with Unlimited Interviews</span></p>' if page else '')
+        cta = (f'<a class="btn btn-primary btn-sm" href="{u(page)}">Start the drills <span class="arrow" aria-hidden="true">&rarr;</span></a>' if live
+               else f'<a class="ai-link" href="{wl(t)}">Join the waitlist <span aria-hidden="true">&rarr;</span></a>')
+        if t == 'Introduction to Case Solving':
+            price = '<p class="ai-prod-price"><span>Pricing announced when it opens</span></p>'
+        return f'''<article class="ai-prod{' is-live' if live else ''} reveal">
+<div class="ai-prod-top">{icon(ic)}<span class="ai-num">{n:02d}</span></div>
+<h3>{t}</h3><p class="ai-prod-desc">{d}</p>{price}
+<div class="ai-prod-foot">{pill}{cta}</div></article>'''
+    cards = [product_card(i, p) for i, p in enumerate(products, 1)]
+    product_cards = f'<div class="ai-prods top">{"".join(cards[:3])}</div><div class="ai-prods bottom">{"".join(cards[3:])}</div>'
 
-    # ---- 2. How you pay: two choices for interviews, one separate subscription for maths.
-    interviews_pay = f'''<div class="card price-card reveal"><span class="badge soon">Coming soon</span>
-<h3>Single Interview</h3><p class="price"><b>${single}</b> <span>/ interview</span></p>
-<p class="muted">One Case or Fit Interview. No commitment.</p>
-<ul><li>Pick your interviewer and case</li><li>Full feedback report after the session</li><li>A Full Mock Interview is ${mock}</li></ul>
-<a class="btn btn-ghost" href="{wl("Single Interview")}" style="margin-top:16px">Join the waitlist</a></div>
-<div class="card price-card price-rec reveal"><span class="badge rise">Best value</span><span class="badge soon">Coming soon</span>
-<h3>Unlimited Interviews</h3><p class="price"><b>${unlimited}</b> <span>/ month</span></p>
-<p class="muted">One subscription for every interview: Case, Fit and Full Mock.</p>
-<ul><li>Unlimited Case, Fit and Full Mock Interviews, subject to fair use</li><li>Every interviewer, case type and level</li><li>Feedback and progress after every session</li><li>Cancel any time</li></ul>
-<a class="btn btn-primary" href="{wl("Unlimited Interviews")}" style="margin-top:16px">Join the waitlist</a></div>'''
-    drills_pay = (f'''<div class="card price-card reveal"><span class="badge rise">Open now</span>
-<h3>Math Drills</h3><p class="price"><b>${C.MATHS_PRICE_USD}</b> <span>/ month</span></p>
-<p class="muted">A separate subscription with unlimited maths practice. It works with either interview option.</p>
-<ul><li>Timed questions, three levels, worked solutions</li><li>Accuracy tracking and progress over time</li><li>${addon} / month instead of ${C.MATHS_PRICE_USD} for Unlimited Interviews subscribers</li></ul>
-<a class="btn btn-primary" href="{u('ai/maths')}" style="margin-top:16px">Start the drills</a></div>''' if drills_live else
-        f'''<div class="card price-card reveal"><span class="badge soon">Coming soon</span>
-<h3>Math Drills</h3><p class="price"><b>${C.MATHS_PRICE_USD}</b> <span>/ month</span></p>
-<p class="muted">A separate subscription with unlimited maths practice.</p>
-<a class="btn btn-ghost" href="{wl("Math Drills")}" style="margin-top:16px">Join the waitlist</a></div>''')
+    # ---- 2. How you pay for interviews.
+    interviews_pay = f'''<div class="ai-plan reveal"><span class="ai-pill soon">Coming soon</span>
+<h3>Single Interview</h3><p class="ai-plan-sub">One Case or Fit Interview. No commitment.</p>
+<p class="ai-plan-price"><b>${single}</b><span>/ interview</span></p>
+<ul class="ai-list"><li>Choose your interviewer and case</li><li>Full feedback report after the session</li><li>Full Mock Interview: ${mock}</li></ul>
+<a class="btn btn-ghost" href="{wl("Single Interview")}">Join the waitlist</a></div>
+<div class="ai-plan best reveal"><div class="ai-plan-flag"><span class="ai-pill best">Best value</span><span class="ai-pill soon">Coming soon</span></div>
+<h3>Unlimited Interviews</h3><p class="ai-plan-sub">One subscription for every interview: Case, Fit and Full Mock.</p>
+<p class="ai-plan-price"><b>${unlimited}</b><span>/ month</span></p>
+<ul class="ai-list"><li>Unlimited Case, Fit and Full Mock Interviews, subject to fair use</li><li>Every interviewer, case type and level</li><li>Feedback and progress after every session</li><li>Cancel any time</li></ul>
+<a class="btn btn-primary" href="{wl("Unlimited Interviews")}">Join the waitlist</a></div>'''
 
     minis = ''.join(f'''<div class="mini-persona reveal"><img src="{ctx.asset("img/interviewers/" + i["img"] + ".jpg")}" alt="{i["name"]}, {i["title"]}" width="160" height="160" loading="lazy">
 <h3>{i['name']}</h3><span class="tag">{i['title']}</span><p>{i['traits']}</p></div>''' for i in INTERVIEWERS_SIX)
     body = f'''
-<header class="subhero"><div class="wrap">
+<header class="subhero ai-hero"><div class="wrap">
   <p class="eyebrow">Mada AI</p>
   <h1>Practice as much as you need.</h1>
   <p class="lede">Walk into your consulting interview prepared. Realistic AI interviews, available 24/7, with structured feedback after every session.</p>
@@ -455,20 +455,16 @@ def ai():
   <div class="wrap">
     <div class="section-head reveal"><p class="eyebrow">What you can practice</p><h2>Five ways to prepare.</h2>
       <p class="lede">Math Drills are open now. The AI interviews are not open yet: join the waitlist and we will email you first.</p></div>
-    <div class="grid-5">{product_cards}</div>
+    {product_cards}
   </div>
 </section>
 
 <section class="bg-mist" id="pricing">
   <div class="wrap">
-    <div class="section-head reveal"><p class="eyebrow">How you pay</p><h2>Two simple choices.</h2>
-      <p class="lede">Pay per interview, or subscribe once and practice as much as you need. Math Drills is its own subscription.</p></div>
-    <h3 class="reveal" style="margin-bottom:12px">For Case, Fit and Full Mock Interviews</h3>
-    <div class="grid g2">{interviews_pay}</div>
-    <h3 class="reveal" style="margin:32px 0 12px">For maths</h3>
-    <div class="narrow">{drills_pay}</div>
-    <p class="muted" style="margin-top:20px"><b>Introduction to Case Solving:</b> pricing and access will be announced when it opens.</p>
-    <p class="muted small" style="margin-top:16px">Prices in USD. Interview prices are planned and confirmed when interviews open.</p>
+    <div class="section-head reveal"><p class="eyebrow">Case, Fit and Full Mock Interviews</p><h2>Pay per interview, or practice without limits.</h2>
+      <p class="lede">One Unlimited Interviews subscription covers all three.</p></div>
+    <div class="ai-plans">{interviews_pay}</div>
+    <p class="ai-trust reveal"><span>Cancel any time</span><span>Secure payment by Stripe</span><span>Prices in USD</span></p>
   </div>
 </section>
 
