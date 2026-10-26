@@ -423,6 +423,10 @@ def ai():
                else f'<a class="ai-link" href="{wl(t)}">Join the waitlist <span aria-hidden="true">&rarr;</span></a>')
         if t in ('Introduction to Case Solving', 'AI CV Review'):
             price = '<p class="ai-prod-price"><span>Pricing announced when it opens</span></p>'
+        if t == 'AI CV Review':
+            # The app is invite-only for now: link to it, but do not call it open.
+            pill = '<span class="ai-pill soon">Invite-only beta</span>'
+            cta = f'<a class="ai-link" href="{C.APP_URL}">Open the beta <span aria-hidden="true">&rarr;</span></a>'
         return f'''<article class="ai-prod{' is-live' if live else ''} reveal">
 <div class="ai-prod-top">{icon(ic)}<span class="ai-num">{n:02d}</span></div>
 <h3>{t}</h3><p class="ai-prod-desc">{d}</p>{price}
