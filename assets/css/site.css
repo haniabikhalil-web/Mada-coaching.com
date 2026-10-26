@@ -650,7 +650,7 @@ a:hover .arrow{transform:translateX(3px)}
 .ai-hero{background:radial-gradient(900px 420px at 85% -10%,rgba(43,75,238,.55),transparent 60%),radial-gradient(600px 300px at 5% 110%,rgba(255,122,69,.18),transparent 60%),var(--navy)}
 .ai-prods{display:grid;gap:22px}
 .ai-prods.top{grid-template-columns:repeat(3,1fr)}
-.ai-prods.bottom{grid-template-columns:repeat(2,1fr);margin-top:22px}
+.ai-prods.bottom{grid-template-columns:repeat(3,1fr);margin-top:22px}
 .ai-prod{position:relative;display:flex;flex-direction:column;background:#fff;border:1px solid var(--line);border-radius:22px;padding:30px;box-shadow:var(--shadow);transition:transform .2s,box-shadow .2s}
 .ai-prod:hover{transform:translateY(-3px);box-shadow:0 2px 4px rgba(15,31,75,.05),0 18px 40px rgba(15,31,75,.12)}
 .ai-prod-top{display:flex;justify-content:space-between;align-items:flex-start}

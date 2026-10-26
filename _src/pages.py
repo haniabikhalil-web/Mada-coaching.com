@@ -412,6 +412,7 @@ def ai():
         ('mic', 'Fit Interviews', 'Practice your personal stories, consulting motivation, leadership and behavioral questions with realistic AI interviewers.', None),
         ('target', 'Full Mock Interviews', 'A complete case and fit simulation in one sitting, followed by consolidated feedback on your performance.', None),
         ('bolt', 'Math Drills', 'Build calculation speed, accuracy and confidence through unlimited, interactive quantitative practice.', 'ai/maths'),
+        ('doc', 'AI CV Review', 'Upload your CV and get instant, structured feedback on impact, clarity and positioning, with clear fixes to make before you apply.', None),
     ]
     def product_card(n, p):
         ic, t, d, page = p
@@ -420,7 +421,7 @@ def ai():
         price = (f'<p class="ai-prod-price"><b>${C.MATHS_PRICE_USD}</b> / month <span>&middot; ${addon} with Unlimited Interviews</span></p>' if page else '')
         cta = (f'<a class="btn btn-primary btn-sm" href="{u(page)}">Start the drills <span class="arrow" aria-hidden="true">&rarr;</span></a>' if live
                else f'<a class="ai-link" href="{wl(t)}">Join the waitlist <span aria-hidden="true">&rarr;</span></a>')
-        if t == 'Introduction to Case Solving':
+        if t in ('Introduction to Case Solving', 'AI CV Review'):
             price = '<p class="ai-prod-price"><span>Pricing announced when it opens</span></p>'
         return f'''<article class="ai-prod{' is-live' if live else ''} reveal">
 <div class="ai-prod-top">{icon(ic)}<span class="ai-num">{n:02d}</span></div>
@@ -453,8 +454,8 @@ def ai():
 
 <section id="products">
   <div class="wrap">
-    <div class="section-head reveal"><p class="eyebrow">What you can practice</p><h2>Five ways to prepare.</h2>
-      <p class="lede">Math Drills are open now. The AI interviews are not open yet: join the waitlist and we will email you first.</p></div>
+    <div class="section-head reveal"><p class="eyebrow">What you can practice</p><h2>Six ways to prepare.</h2>
+      <p class="lede">Math Drills are open now. Everything else is opening soon: join the waitlist and we will email you first.</p></div>
     {product_cards}
   </div>
 </section>
@@ -485,7 +486,7 @@ def ai():
 </section>
 '''
     page('ai', 'Mada AI',
-         'Mada AI: Introduction to Case Solving, Case Interviews, Fit Interviews, Full Mock Interviews and Math Drills. Single interviews from $30, or unlimited interviews for $100 a month.',
+         'Mada AI: Introduction to Case Solving, Case Interviews, Fit Interviews, Full Mock Interviews, Math Drills and AI CV Review. Single interviews from $30, or unlimited interviews for $100 a month.',
          body, ctx)
 
 
