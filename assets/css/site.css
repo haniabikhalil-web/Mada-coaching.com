@@ -528,7 +528,7 @@ a:hover .arrow{transform:translateX(3px)}
 .pk-person.is-on .pk-avatar{box-shadow:none}
 .pk-person.is-on{box-shadow:0 0 0 3px var(--cobalt-tint)}
 .pk-person.is-soon .pk-avatar img{filter:grayscale(.15);opacity:.92}
-.pk-grid:has(.pk-person){grid-template-columns:repeat(auto-fit,minmax(240px,1fr))}
+.pk-grid:has(.pk-person){grid-template-columns:repeat(3,1fr)}@media (max-width:760px){.pk-grid:has(.pk-person){grid-template-columns:repeat(2,1fr)}}@media (max-width:480px){.pk-grid:has(.pk-person){grid-template-columns:1fr}}
 
 .card.persona{padding-top:0;overflow:hidden}
 .card.persona .persona-img{width:calc(100% + 2*var(--pad,28px));max-width:none;margin:0 calc(-1*var(--pad,28px)) 14px;aspect-ratio:560/469;object-fit:cover;display:block}
@@ -705,3 +705,17 @@ a:hover .arrow{transform:translateX(3px)}
 .call-pay-best .badge.rise{position:static;align-self:flex-start;margin-bottom:10px}.call-pay-grid .card>h3:first-child{margin-top:34px}.call-pay-best>h3{margin-top:0!important}
 .call-pay .rp-notice{margin-bottom:16px}
 @media (max-width:760px){.call-pay-grid{grid-template-columns:1fr}}
+
+/* Difficulty slider */
+.dl{max-width:560px;margin:4px auto 0;text-align:center}
+.dl-head{margin:0 0 14px;font-size:22px;display:flex;gap:10px;justify-content:center;align-items:center}
+.dl-head strong{font-family:var(--display);color:var(--ink)}
+.dl-track{position:relative;height:40px;border-radius:999px;background:#E3E4E8;margin:0 20px}
+.dl-fill{position:absolute;left:0;top:0;bottom:0;border-radius:999px;background:var(--cobalt);transition:width .2s}
+.dl-stop{position:absolute;top:0;width:40px;height:40px;margin-left:-20px;border:0;background:transparent;cursor:pointer;border-radius:50%;padding:0}
+.dl-stop::after{content:"";position:absolute;left:50%;top:50%;width:8px;height:8px;margin:-4px 0 0 -4px;border-radius:50%;background:rgba(15,31,75,.25)}
+.dl-stop.is-soon{cursor:help}
+.dl-stop:focus-visible{outline:3px solid var(--cobalt-tint);outline-offset:2px}
+.dl-thumb{position:absolute;top:50%;width:46px;height:46px;margin:-23px 0 0 -23px;border-radius:50%;background:#fff;border:1px solid var(--line);box-shadow:0 2px 8px rgba(15,31,75,.25);pointer-events:none;transition:left .2s}
+.dl-ends{display:flex;justify-content:space-between;margin:10px 4px 0;font-size:13px;color:var(--stone);font-weight:600}
+.dl-desc{margin:14px 0 0;color:var(--stone)}
