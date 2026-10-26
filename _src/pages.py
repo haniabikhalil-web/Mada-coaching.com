@@ -439,7 +439,7 @@ def ai():
 <p class="muted">Sharpen the maths that case interviews turn on.</p>
 <ul><li>Timed questions on growth, margins, breakeven, payback, market sizing and unit economics</li><li>Choose your difficulty and topics</li><li>A worked solution after every question</li></ul>{drills_cta}</div>
 <div class="card price-card reveal"><span class="badge soon">Coming soon</span>
-<h3>Introduction to Case Solving</h3><p class="price"><span>Price to be announced</span></p>
+<h3>Introduction to Case Solving</h3>
 <p class="muted">An AI guide that teaches you how to think through a case.</p>
 <ul><li>How to structure a problem and form a hypothesis</li><li>How to use numbers to test your thinking</li><li>How to reach and deliver a clear recommendation</li></ul>
 <a class="btn btn-ghost" href="{wl("Introduction to Case Solving")}" style="margin-top:16px">Join the waitlist</a></div>'''
