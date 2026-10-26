@@ -601,7 +601,7 @@ def ai_report():
 '''
     page('ai/report', 'Your interview report',
          'Your Mada AI interview report: scores, evidence from your interview and one thing to practise next.',
-         body, ctx, noindex=True, extra_js=('js/ai-session.js', 'js/report-view.js', 'js/report.js'))
+         body, ctx, noindex=True, extra_js=('js/ai-session.js', 'js/report-insights.js', 'js/report-view.js', 'js/report.js'))
 
 
 def ai_maths():
@@ -688,7 +688,7 @@ def ai_reports():
 '''
     page('ai/reports', 'My reports',
          'All your Mada AI interview reports in one place.',
-         body, ctx, noindex=True, extra_js=('js/ai-session.js', 'js/my-reports.js'))
+         body, ctx, noindex=True, extra_js=('js/ai-session.js', 'js/report-insights.js', 'js/my-reports.js'))
 
 
 def ai_start():
