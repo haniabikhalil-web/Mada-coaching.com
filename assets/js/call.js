@@ -208,6 +208,44 @@
     return open[Math.floor(Math.random() * open.length)].id;
   }
 
+  // Difficulty as a slider: Easier, Standard, Harder. Only the open levels can be chosen; tapping a coming-soon stop
+  // shows what it will be, and the thumb stays where it is. The server only accepts the open level.
+  var dPreview = null;
+  function difficultySlider(title, chosen, onPick) {
+    var wrap = el('div', 'pk');
+    wrap.appendChild(el('h4', 'pk-title', title));
+    var box = el('div', 'dl');
+    var LV = ['soon-e', 'standard', 'soon-h'].map(function (id) { return DIFFICULTIES.filter(function (d) { return d.id === id; })[0]; });
+    var idx = 1;
+    LV.forEach(function (d, i) { if (d.id === chosen) idx = i; });
+    var shown = LV[dPreview !== null ? dPreview : idx];
+    var head = el('p', 'dl-head');
+    head.appendChild(el('strong', null, shown.name));
+    if (!shown.open) head.appendChild(el('span', 'pk-badge', 'Coming soon'));
+    box.appendChild(head);
+    var track = el('div', 'dl-track');
+    var pos = [0, 50, 100];
+    var fill = el('span', 'dl-fill'); fill.style.width = pos[idx] + '%'; track.appendChild(fill);
+    LV.forEach(function (d, i) {
+      var b = el('button', 'dl-stop' + (d.open ? '' : ' is-soon') + (i === dPreview ? ' is-preview' : '')); b.type = 'button';
+      b.style.left = pos[i] + '%';
+      b.setAttribute('aria-label', d.name + (d.open ? '' : ' (coming soon)'));
+      b.addEventListener('click', function () {
+        if (d.open) { dPreview = null; onPick(d.id); } else { dPreview = i; onPick(chosen); }
+      });
+      track.appendChild(b);
+    });
+    var thumb = el('span', 'dl-thumb'); thumb.style.left = pos[idx] + '%'; thumb.setAttribute('aria-hidden', 'true');
+    track.appendChild(thumb);
+    box.appendChild(track);
+    var ends = el('div', 'dl-ends');
+    LV.forEach(function (d) { ends.appendChild(el('span', null, d.name)); });
+    box.appendChild(ends);
+    box.appendChild(el('p', 'dl-desc', shown.desc));
+    wrap.appendChild(box);
+    return wrap;
+  }
+
   function picker(title, items, chosen, onPick, avatar) {
     var wrap = el('div', 'pk');
     wrap.appendChild(el('h4', 'pk-title', title));
@@ -246,7 +284,7 @@
       slotI.textContent = ''; slotC.textContent = ''; slotD.textContent = '';
       slotI.appendChild(picker('1. Choose your interviewer', INTERVIEWERS, chosenI, function (id) { chosenI = id; interviewer = id === 'alex' ? 'alex' : id === 'faisal' ? 'faisal' : 'victoria'; draw(); }, true));
       slotC.appendChild(picker('2. Choose a case type', CASE_TYPES, chosenC, function (id) { chosenC = id; draw(); }, false));
-      slotD.appendChild(picker('3. Choose a difficulty', DIFFICULTIES, chosenD, function (id) { chosenD = id; draw(); }, false));
+      slotD.appendChild(difficultySlider('3. Choose a difficulty', chosenD, function (id) { chosenD = id; draw(); }));
     }
     draw();
     form.appendChild(slotI); form.appendChild(slotC); form.appendChild(slotD);
