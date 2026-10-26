@@ -2,7 +2,7 @@
 
 DOMAIN = 'mada-coaching.com'
 EMAIL = 'hello@mada-coaching.com'
-VERSION = '66'   # bump to force browsers to reload CSS/JS after changes
+VERSION = '67'   # bump to force browsers to reload CSS/JS after changes
 
 GA_ID = 'G-0JW66CX0T1'   # Google Analytics 4 measurement ID
 
@@ -43,5 +43,7 @@ MATHS_PRICE_USD = 20
 # Mada AI interview reports (ai/report/). Both values are public by design (the publishable key is
 # meant for browsers). Leave the key as None until the Phase A functions are deployed: the report
 # page then shows "not available yet" and makes no network calls. Never put a secret key here.
+# The Mada AI app (CV review). Invite-only beta; sign-in is by emailed code.
+APP_URL = 'https://app.mada-coaching.com'
 SUPABASE_URL = 'https://gjijobwtergfgeaaildq.supabase.co'
 SUPABASE_PUBLISHABLE_KEY = 'sb_publishable_bQyU2LHpTxWVnqBN1eMoNA_LBozNVx6'
