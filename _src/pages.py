@@ -611,7 +611,7 @@ def ai_maths():
     if gated:
         attrs = (f' data-gated="1" data-api="{C.SUPABASE_URL}" data-key="{C.SUPABASE_PUBLISHABLE_KEY}"'
                  f' data-terms="{u("terms")}" data-refunds="{u("refunds")}" data-price="{C.MATHS_PRICE_USD}"')
-        lede_extra = f' A ${C.MATHS_PRICE_USD}/month subscription, with sign-in so your access follows you.'
+        lede_extra = ''
         js = ('js/ai-session.js', 'js/maths-engine.js', 'js/maths.js', 'js/maths-gate.js')
     else:
         attrs, lede_extra = '', ''
