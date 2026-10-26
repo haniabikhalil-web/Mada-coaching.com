@@ -685,7 +685,7 @@ def ai_start():
 '''
     page('ai/case-practice/start', 'Start AI case practice',
          'Start a spoken case interview with Tatiana and get a structured report.',
-         body, ctx, noindex=True, extra_js=('js/vendor/elevenlabs-client.js', 'js/report-view.js', 'js/call.js'))
+         body, ctx, noindex=True, extra_js=('js/vendor/elevenlabs-client.js', 'js/ai-session.js', 'js/report-view.js', 'js/call.js'))
 
 
 # ---------------------------------------------------------------- coaches

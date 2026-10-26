@@ -24,10 +24,14 @@
   var RETENTION_DAYS = 90;
   // The sign-in survives the trip to Stripe and back in this browser (localStorage, www and non-www are folded into one host below), so the candidate
   // is not asked for their email and code twice. It expires after 50 minutes and is cleared on any 401.
-  var STORE = 'mada_ai_session';
-  var KEEP_MS = 50 * 60 * 1000; // the access token lasts an hour; never keep it longer than 50 minutes
-  function loadSaved() { try { var j = JSON.parse(localStorage.getItem(STORE) || 'null'); return j && j.token && j.email && j.until > Date.now() ? j : null; } catch (e) { return null; } }
-  function saveSession() { try { if (token) localStorage.setItem(STORE, JSON.stringify({ token: token, email: email, until: Date.now() + KEEP_MS })); else localStorage.removeItem(STORE); } catch (e) {} }
+  // Sign-in is shared with the other Mada AI pages through window.MadaSession (ai-session.js): an hour-long access token plus a refresh token.
+  var S = window.MadaSession;
+  function saveSession(refresh, expiresIn) { if (!S) return; if (token) S.save(token, email, refresh, expiresIn); else S.clear(); }
+  function expire(msg) {
+    // One quiet refresh before asking for a new code.
+    var go = S ? S.recover(API, KEY) : Promise.resolve(false);
+    return go.then(function (ok) { if (ok) { location.reload(); return; } token = null; saveSession(); signInForm(msg); });
+  }
   var token = null;
   var email = '';
   var conv = null;
@@ -86,7 +90,7 @@
       btn.disabled = true;
       post('/auth/v1/verify', { type: 'email', email: email, token: input.value.trim() }).then(function (r) {
         return r.ok ? r.json() : Promise.reject();
-      }).then(function (j) { token = j.access_token; saveSession(); gate(); }, function () { signInForm('That code did not work. Request a new one.'); });
+      }).then(function (j) { token = j.access_token; saveSession(j.refresh_token, j.expires_in); gate(); }, function () { signInForm('That code did not work. Request a new one.'); });
     });
     app.appendChild(form);
   }
@@ -123,7 +127,7 @@
     btn.addEventListener('click', function () {
       btn.disabled = true;
       post('/functions/v1/interview-checkout', { action: 'checkout' }, token).then(function (r) {
-        if (r.status === 401) { token = null; saveSession(); return signInForm('Your session expired. Sign in again.'); }
+        if (r.status === 401) return expire('Your session expired. Sign in again.');
         return r.json().then(function (j) {
           if (r.ok && j.url && j.url.indexOf('https://') === 0) { location.href = j.url; return; }
           if (j && j.error && j.error.code === 'already_has_credit') return gate();
@@ -254,7 +258,7 @@
   function start(caseType) {
     say('Starting your call…');
     post('/functions/v1/interview-start', { interviewer: interviewer, case_type: caseType, consent: true, consent_version: CONSENT_VERSION }, token).then(function (r) {
-      if (r.status === 401) { token = null; saveSession(); return signInForm('Your session expired. Sign in again.'); }
+      if (r.status === 401) return expire('Your session expired. Sign in again.');
       return r.json().then(function (j) {
         if (!r.ok) {
           var code = j && j.error && j.error.code;
@@ -376,7 +380,7 @@
       tries++;
       stat.textContent = steps[Math.min(steps.length - 1, Math.floor(tries / 6))] + ' This usually takes under a minute. Keep this page open.';
       post('/functions/v1/interview-status', { session_id: sessionId }, token).then(function (r) {
-        if (r.status === 401) { token = null; saveSession(); return signInForm('Your session expired. Sign in again to see your report; it has also been emailed to you.'); }
+        if (r.status === 401) return expire('Your session expired. Sign in again to see your report; it has also been emailed to you.');
         return r.json().then(function (j) {
           if (j.status === 'ready') return window.MadaReport.render(j.report, app);
           if (j.status === 'in_review') return say('Your report needs a little more time. We will email it to ' + email + ' as soon as it is ready.');
@@ -390,7 +394,8 @@
   }
 
   if (!ready()) { say('AI case practice is opening soon.'); return; }
-  var saved = loadSaved();
-  if (saved) { token = saved.token; email = saved.email; gate(); }
-  else signInForm(paidReturn ? 'Payment received. Sign in with the same email to continue to your interview.' : undefined);
+  (S ? S.restore(API, KEY) : Promise.resolve(null)).then(function (saved) {
+    if (saved) { token = saved.token; email = saved.email; gate(); }
+    else signInForm(paidReturn ? 'Payment received. Sign in with the same email to continue to your interview.' : undefined);
+  });
 })();

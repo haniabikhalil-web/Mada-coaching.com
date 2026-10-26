@@ -61,7 +61,7 @@
       btn.disabled = true;
       post('/auth/v1/verify', { type: 'email', email: email, token: input.value.trim() }).then(function (r) {
         return r.ok ? r.json() : Promise.reject();
-      }).then(function (j) { token = j.access_token; S.save(token, email); load(); },
+      }).then(function (j) { token = j.access_token; S.save(token, email, j.refresh_token, j.expires_in); load(); },
         function () { signInForm('That code did not work. Request a new one.'); });
     });
     app.appendChild(form);
@@ -121,13 +121,14 @@
   function load() {
     say('Loading your reports…');
     post('/functions/v1/interview-report', {}, token).then(function (r) {
-      if (r.status === 401) { S.clear(); token = null; return signInForm('Your session expired. Sign in again.'); }
+      if (r.status === 401) return S.recover(API, KEY).then(function (ok) { if (ok) { location.reload(); return; } S.clear(); token = null; signInForm('Your session expired. Sign in again.'); });
       if (!r.ok) return say('Something went wrong. Please try again shortly.');
       return r.json().then(function (j) { show(j.reports || []); });
     }, function () { say('Could not reach the report service. Please try again shortly.'); });
   }
 
   if (!ready()) { say('Reports are not available yet.'); return; }
-  var saved = S.load();
-  if (saved) { token = saved.token; email = saved.email; load(); } else signInForm();
+  S.restore(API, KEY).then(function (saved) {
+    if (saved) { token = saved.token; email = saved.email; load(); } else signInForm();
+  });
 })();

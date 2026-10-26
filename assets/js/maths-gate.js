@@ -33,7 +33,12 @@
     return fetch(API.replace(/\/+$/, '') + path, { method: 'POST', headers: h, body: JSON.stringify(body) });
   }
   function access(action) { return post('/functions/v1/maths-access', { action: action }, token); }
-  function expired(msg) { S.clear(); token = null; if (bar) clear(bar); signInForm(msg || 'Your session expired. Sign in again.'); }
+  function expired(msg) {
+    S.recover(API, KEY).then(function (ok) {
+      if (ok) { location.reload(); return; }
+      S.clear(); token = null; if (bar) clear(bar); signInForm(msg || 'Your session expired. Sign in again.');
+    });
+  }
   function stripeUrl(u) {
     try { var x = new URL(u); return x.protocol === 'https:' && /(^|\.)stripe\.com$/.test(x.hostname) ? x.href : null; } catch (e) { return null; }
   }
@@ -79,7 +84,7 @@
       btn.disabled = true;
       post('/auth/v1/verify', { type: 'email', email: email, token: input.value.trim() }).then(function (r) {
         return r.ok ? r.json() : Promise.reject();
-      }).then(function (j) { token = j.access_token; S.save(token, email); check(q.get('paid') === '1' ? 12 : 0); },
+      }).then(function (j) { token = j.access_token; S.save(token, email, j.refresh_token, j.expires_in); check(q.get('paid') === '1' ? 12 : 0); },
         function () { signInForm('That code did not work. Request a new one.'); });
     });
     app.appendChild(form);
@@ -197,6 +202,7 @@
   }
 
   if (!ready()) { say('The maths drills are not available yet.'); return; }
-  var saved = S.load();
-  if (saved) { token = saved.token; email = saved.email; check(q.get('paid') === '1' ? 12 : 0); } else signInForm();
+  S.restore(API, KEY).then(function (saved) {
+    if (saved) { token = saved.token; email = saved.email; check(q.get('paid') === '1' ? 12 : 0); } else signInForm();
+  });
 })();
