@@ -603,7 +603,7 @@ a:hover .arrow{transform:translateX(3px)}
 .mx-name{display:flex;flex-direction:column;gap:6px}
 .mx-bar{display:block;height:6px;border-radius:99px;background:#E6EAF4;overflow:hidden}
 .mx-fill{display:block;height:100%;background:var(--cobalt)}
-@media (max-width:680px){.mx-tiles{grid-template-columns:1fr}.mx-row{grid-template-columns:1.6fr .7fr .7fr .8fr;font-size:14px}.mx-row>span:nth-child(5){display:none}.mx-levels{grid-template-columns:1fr}.mx-prompt{font-size:18px}}
+@media (max-width:680px){.mx-tiles{gap:8px}.mx-tile{padding:10px}.mx-tile b{font-size:22px}.mx-tile span{font-size:12px}.mx-row{grid-template-columns:1.6fr .7fr .7fr .8fr;font-size:14px}.mx-row>span:nth-child(5){display:none}.mx-levels{grid-template-columns:1fr}.mx-prompt{font-size:18px}}
 .mx-choices{display:flex;flex-direction:column;gap:10px;align-items:stretch}
 .mx-option{text-align:left;font:inherit;font-size:17px;padding:14px 16px;border:1px solid #C3CAE0;border-radius:10px;background:#fff;color:var(--ink);cursor:pointer}
 .mx-option:hover,.mx-option:focus-visible{border-color:var(--cobalt);outline:none}
