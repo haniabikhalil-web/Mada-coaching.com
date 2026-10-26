@@ -28,8 +28,8 @@
         save(n.access_token, j.email, n.refresh_token || j.refresh, n.expires_in);
         return load();
       });
-      var other = load(); // another tab may have rotated the token a moment ago
-      if (other) return other;
+      var other = load(); // another tab may have rotated the token a moment ago: only a different token counts
+      if (other && other.token !== j.token) return other;
       clear(); return null;
     }, function () { return null; });
   }

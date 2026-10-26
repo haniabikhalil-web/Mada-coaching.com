@@ -554,7 +554,7 @@ def ai_case_practice():
 <section class="bg-mist">
   <div class="wrap">
     <div class="grid g3">{cards}</div>
-    <p class="muted" style="margin-top:24px">Already practised? <a href="{u('ai/reports')}">See all your reports</a>.</p>
+    <p class="muted" style="margin-top:24px">Already practised? <a href="{u('ai/reports')}">See all your reports</a>, or open <a href="{u('ai/account')}">My Mada</a> for everything in one place.</p>
   </div>
 </section>
 
@@ -633,6 +633,35 @@ def ai_maths():
     page('ai/maths', 'Maths drills',
          'Practise consulting case maths with timed questions at three difficulty levels and worked solutions.',
          body, ctx, noindex=True, extra_js=js)
+
+
+# ---------------------------------------------------------------- Mada AI "My Mada" (one sign-in; everything the candidate has, in one place)
+def ai_account():
+    ctx = Ctx('ai/account')
+    u = ctx.url
+    cfg_url = C.SUPABASE_URL if C.SUPABASE_PUBLISHABLE_KEY else ''
+    cfg_key = C.SUPABASE_PUBLISHABLE_KEY or ''
+    maths = '1' if (C.MATHS_PAID_LIVE and C.SUPABASE_PUBLISHABLE_KEY) else ''
+    body = f'''
+<header class="subhero"><div class="wrap">
+  <p class="eyebrow">Mada AI &middot; My Mada</p>
+  <h1>Everything you have with Mada, in one place.</h1>
+  <p class="lede">Sign in once to see your maths drills, your AI case interviews and your reports, and to manage your subscription.</p>
+</div></header>
+<section>
+  <div class="wrap narrow">
+    <div id="account-app" data-api="{cfg_url}" data-key="{cfg_key}" data-maths="{maths}"
+         data-maths-url="{u('ai/maths')}" data-start="{u('ai/case-practice/start')}" data-reports="{u('ai/reports')}" data-book="{u('services')}" aria-live="polite">
+      <noscript><p>This page needs JavaScript.</p></noscript>
+      <p class="muted">Loading&hellip;</p>
+    </div>
+    <p class="muted" style="margin-top:32px">Questions? <a href="mailto:{C.EMAIL}">{C.EMAIL}</a>. See our <a href="{u('privacy')}">privacy policy</a>.</p>
+  </div>
+</section>
+'''
+    page('ai/account', 'My Mada',
+         'Your Mada AI maths drills, case interviews and reports in one place.',
+         body, ctx, noindex=True, extra_js=('js/ai-session.js', 'js/my-mada.js'))
 
 
 # ---------------------------------------------------------------- Mada AI "My reports" (signed-in list of all released reports)
@@ -1107,9 +1136,9 @@ def not_found():
 
 def build_all():
     not_found()
-    home(); how_it_works(); services(); ai(); ai_case_practice(); ai_start(); ai_report(); ai_reports(); ai_maths(); coaches(); about(); cv_review(); resources(); book(); legal_pages(); thank_you()
+    home(); how_it_works(); services(); ai(); ai_case_practice(); ai_start(); ai_report(); ai_reports(); ai_account(); ai_maths(); coaches(); about(); cv_review(); resources(); book(); legal_pages(); thank_you()
     root_files()
-    return ['', 'how-it-works', 'services', 'ai', 'ai/case-practice', 'ai/case-practice/start', 'ai/report', 'ai/reports', 'coaches', 'about', 'cv-review', 'resources', 'book',
+    return ['', 'how-it-works', 'services', 'ai', 'ai/case-practice', 'ai/case-practice/start', 'ai/report', 'ai/reports', 'ai/account', 'coaches', 'about', 'cv-review', 'resources', 'book',
             'privacy', 'terms', 'refunds', 'cookies', 'thank-you', '404']
 
 
