@@ -741,8 +741,12 @@ section.mm-sec{padding-top:40px}
 .mm-tile .mm-note{color:var(--stone);font-size:14px;margin-top:6px}
 .mm-tile-top{display:flex;align-items:center;justify-content:space-between;gap:10px}
 .mm-icon{width:44px;height:44px;border-radius:12px;display:grid;place-items:center;background:var(--cobalt-tint);color:var(--cobalt)}
-.mm-foot{display:flex;align-items:center;justify-content:space-between;gap:8px 14px;flex-wrap:wrap;margin-top:auto;padding-top:20px}
-.mm-tile.owned{box-shadow:var(--shadow);border-top:3px solid var(--cobalt)}
+.mm-foot{display:flex;flex-direction:column;align-items:flex-start;gap:12px;margin-top:auto;padding-top:20px}
+.mm-foot .btn{align-self:flex-start}
+.mm-mrow{height:20px;line-height:20px}
+.mm-mrow .mm-manage{line-height:20px;display:block}
+.mm-tile.owned{box-shadow:var(--shadow);position:relative;overflow:hidden}
+.mm-tile.owned::before{content:"";position:absolute;left:0;right:0;top:0;height:3px;background:var(--cobalt)}
 .mm-tile.explore{background:var(--mist);border-color:transparent}
 .mm-tile.explore .mm-icon{background:#fff;color:var(--navy)}
 .mm-tile.explore h3{font-size:19px}

@@ -118,7 +118,11 @@
     maths: 'M5 4h14v16H5zM8 8h8M8 12h2M12 12h2M16 12h0M8 16h2M12 16h2M16 16h0',
     reports: 'M7 3h8l4 4v14H7zM15 3v4h4M10 12h6M10 16h6',
     coach: 'M9 11a3 3 0 1 0 0-6 3 3 0 0 0 0 6zM3 20a6 6 0 0 1 12 0M17 11a2.5 2.5 0 1 0 0-5M21 19a5 5 0 0 0-4-4.9',
-    unlimited: 'M7 8a4 4 0 1 0 0 8c4 0 6-8 10-8a4 4 0 1 1 0 8c-4 0-6-8-10-8z'
+    unlimited: 'M7 8a4 4 0 1 0 0 8c4 0 6-8 10-8a4 4 0 1 1 0 8c-4 0-6-8-10-8z',
+    intro: 'M4 5a2 2 0 0 1 2-2h13v16H6a2 2 0 0 0-2 2zM4 19V5M9 8h6M9 12h4',
+    fit: 'M4 5h16v11H9l-5 4zM8 9.5h8M8 12.5h5',
+    mock: 'M12 3l9 5-9 5-9-5zM3 13l9 5 9-5M3 17.5l9 5 9-5',
+    cv: 'M7 3h8l4 4v14H7zM15 3v4h4M10 14l2 2 4-4'
   };
   function icon(name) {
     var NS = 'http://www.w3.org/2000/svg';
@@ -142,10 +146,16 @@
     if (o.note) t.appendChild(el('p', 'mm-note', o.note));
     var foot = el('div', 'mm-foot');
     if (o.cta) foot.appendChild(link(o.cta.text, o.cta.href, o.owned ? 'btn btn-primary btn-sm' : 'btn btn-ghost btn-sm'));
-    if (o.manage) {
-      var m = el('button', 'mm-manage', 'Manage subscription'); m.type = 'button';
-      m.addEventListener('click', function () { o.manage(m); });
-      foot.appendChild(m);
+    if (!o.owned && !o.cta) return t;
+    if (o.owned) {
+      // Same row, same size, in every owned tile; an empty row where there is no subscription keeps the buttons level
+      var mrow = el('div', 'mm-mrow');
+      if (o.manage) {
+        var m = el('button', 'mm-manage', 'Manage subscription'); m.type = 'button';
+        m.addEventListener('click', function () { o.manage(m); });
+        mrow.appendChild(m);
+      }
+      foot.appendChild(mrow);
     }
     t.appendChild(foot);
     return t;
@@ -244,6 +254,14 @@
 
     // Coaching, always something to explore
     more.push(tile({ icon: 'coach', title: 'Coaching with a Mada coach', text: 'Work 1:1 with a consultant on your applications, cases and offers.', cta: { text: 'See coaching options', href: BOOK } }));
+
+    // Not built yet: shown so the road ahead is visible
+    [['intro', 'Introduction to case study', 'A guided start for newcomers: how cases work and how to structure your first one.'],
+     ['fit', 'Fit interviews', 'Practise behavioural and motivation questions with an AI interviewer and get feedback on your stories.'],
+     ['mock', 'Full mock', 'A complete interview, case and fit together, with one report at the end.'],
+     ['cv', 'AI CV review', 'Upload your CV and get structured feedback on what consulting recruiters look for.']].forEach(function (x) {
+      more.push(tile({ icon: x[0], title: x[1], text: x[2], pill: 'Coming soon', pillCls: 'soon' }));
+    });
 
     if (mine.length) app.appendChild(group('Your products', mine));
     else {
