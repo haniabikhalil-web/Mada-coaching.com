@@ -420,7 +420,8 @@ def ai():
         pill = ('<span class="ai-pill live">Open now</span>' if live else '<span class="ai-pill soon">Coming soon</span>')
         price = (f'<p class="ai-prod-price"><b>${C.MATHS_PRICE_USD}</b> / month <span>&middot; included with Unlimited Interviews</span></p>' if page == 'ai/maths' else '')
         if page == 'ai/case-practice/start':
-            price = f'<p class="ai-prod-price"><b>${C.AI_PRACTICE_PRICE_USD}</b> / interview</p>'
+            price = (f'<p class="ai-prod-price"><b>${C.AI_PRACTICE_PRICE_USD}</b> / interview <span>&middot; Single Interview</span></p>'
+                     f'<p class="ai-prod-price"><b>${C.AI_PASS_PRICE_USD}</b> / month <span>&middot; Unlimited Interviews{"" if C.AI_PASS_LIVE else ", coming soon"}</span></p>')
         cta = (f'<a class="btn btn-primary btn-sm" href="{u(page)}">{"Start the drills" if page == "ai/maths" else "Start a case"} <span class="arrow" aria-hidden="true">&rarr;</span></a>' if live
                else f'<a class="ai-link" href="{wl(t)}">Join the waitlist <span aria-hidden="true">&rarr;</span></a>')
         if t in ('Introduction to Case Solving', 'AI CV Review'):
