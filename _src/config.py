@@ -2,7 +2,7 @@
 
 DOMAIN = 'mada-coaching.com'
 EMAIL = 'hello@mada-coaching.com'
-VERSION = '67'   # bump to force browsers to reload CSS/JS after changes
+VERSION = '68'   # bump to force browsers to reload CSS/JS after changes
 
 GA_ID = 'G-0JW66CX0T1'   # Google Analytics 4 measurement ID
 
@@ -29,6 +29,7 @@ BOOKING = {
 AI_PRACTICE_LIVE = True
 AI_PRACTICE_PRICE_USD = 30   # per single interview; shown on the Mada AI page. Revisit once real call costs are known.
 AI_FULL_MOCK_PRICE_USD = 50  # one Full Mock (case and fit together); included in the Practice Pass.
+AI_PASS_LIVE = False       # Unlimited Interviews opens with Fit and Full Mock; until then the plan shows as coming soon.
 AI_PASS_PRICE_USD = 100      # Practice Pass: unlimited interviews a month, subject to fair use.
 # Math Drills are included with an active Practice Pass at no extra cost; standalone stays MATHS_PRICE_USD.
 
