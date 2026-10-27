@@ -19,8 +19,6 @@ BOOKING = {
     'mock-4': 'https://tidycal.com/mada-coaching/mock-interview-4-pack',
     'offer': 'https://tidycal.com/mada-coaching/offer-negotiation',
     'progress-session': 'https://tidycal.com/mada-coaching/progress-session',
-    'progress-30': 'https://tidycal.com/mada-coaching/30-day-support',
-    'progress-90': 'https://tidycal.com/mada-coaching/first-90-days',
     'membership': 'https://tidycal.com/mada-coaching/mentorship',
     'full-journey': 'https://tidycal.com/mada-coaching/full-journey',
 }
