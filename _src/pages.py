@@ -420,7 +420,7 @@ def ai():
         pill = ('<span class="ai-pill live">Open now</span>' if live else '<span class="ai-pill soon">Coming soon</span>')
         price = (f'<p class="ai-prod-price"><b>${C.MATHS_PRICE_USD}</b> / month <span>&middot; included with Unlimited Interviews</span></p>' if page == 'ai/maths' else '')
         if page == 'ai/case-practice':
-            price = f'<p class="ai-prod-price"><b>${C.AI_PRACTICE_PRICE_USD}</b> / interview <span>&middot; or included with Unlimited Interviews</span></p>'
+            price = f'<p class="ai-prod-price"><b>${C.AI_PRACTICE_PRICE_USD}</b> / interview</p>'
         cta = (f'<a class="btn btn-primary btn-sm" href="{u(page)}">{"Start the drills" if page == "ai/maths" else "Start a case"} <span class="arrow" aria-hidden="true">&rarr;</span></a>' if live
                else f'<a class="ai-link" href="{wl(t)}">Join the waitlist <span aria-hidden="true">&rarr;</span></a>')
         if t in ('Introduction to Case Solving', 'AI CV Review'):
@@ -435,14 +435,14 @@ def ai():
     # ---- 2. How you pay for interviews.
     open_pill = '<span class="ai-pill live">Case Interviews open now</span>'
     plan_cta_single = (f'<a class="btn btn-ghost" href="{u("ai/case-practice")}">Start a Case Interview</a>' if C.AI_PRACTICE_LIVE else f'<a class="btn btn-ghost" href="{wl("Single Interview")}">Join the waitlist</a>')
-    plan_cta_unl = (f'<a class="btn btn-primary" href="{u("ai/case-practice")}">Get Unlimited Interviews</a>' if C.AI_PRACTICE_LIVE else f'<a class="btn btn-primary" href="{wl("Unlimited Interviews")}">Join the waitlist</a>')
+    plan_cta_unl = (f'<a class="btn btn-primary" href="{u("ai/case-practice")}">Get Unlimited Interviews</a>' if C.AI_PASS_LIVE else f'<a class="btn btn-primary" href="{wl("Unlimited Interviews")}">Join the waitlist</a>')
     soon_pill = open_pill if C.AI_PRACTICE_LIVE else '<span class="ai-pill soon">Coming soon</span>'
     interviews_pay = f'''<div class="ai-plan reveal">{soon_pill}
-<h3>Single Interview</h3><p class="ai-plan-sub">One Case or Fit Interview. No commitment.</p>
+<h3>Single Interview</h3><p class="ai-plan-sub">One Case Interview. No commitment.</p>
 <p class="ai-plan-price"><b>${single}</b><span>/ interview</span></p>
-<ul class="ai-list"><li>Choose your interviewer and case</li><li>Full feedback report after the session</li><li>Full Mock Interview: ${mock}</li></ul>
+<ul class="ai-list"><li>Choose your interviewer and case</li><li>Full feedback report after the session</li><li>Fit (${single}) and Full Mock (${mock}) coming soon</li></ul>
 {plan_cta_single}</div>
-<div class="ai-plan best reveal"><div class="ai-plan-flag"><span class="ai-pill best">Best value</span>{soon_pill}</div>
+<div class="ai-plan best reveal"><div class="ai-plan-flag"><span class="ai-pill best">Best value</span>{open_pill if C.AI_PASS_LIVE else '<span class="ai-pill soon">Coming soon</span>'}</div>
 <h3>Unlimited Interviews</h3><p class="ai-plan-sub">One subscription for every interview: Case, Fit and Full Mock.</p>
 <p class="ai-plan-price"><b>${unlimited}</b><span>/ month</span></p>
 <ul class="ai-list"><li>Unlimited Case, Fit and Full Mock Interviews, subject to fair use</li><li>Every interviewer, case type and level</li><li>Feedback and progress after every session</li><li>Cancel any time</li></ul>
@@ -469,7 +469,7 @@ def ai():
 <section class="bg-mist" id="pricing">
   <div class="wrap">
     <div class="section-head reveal"><p class="eyebrow">Case, Fit and Full Mock Interviews</p><h2>Pay per interview, or practice without limits.</h2>
-      <p class="lede">One Unlimited Interviews subscription covers all three. Case Interviews are open now; Fit and Full Mock Interviews are opening soon.</p></div>
+      <p class="lede">Case Interviews are open now. Fit and Full Mock Interviews are opening soon, and Unlimited Interviews will open with them.</p></div>
     <div class="ai-plans">{interviews_pay}</div>
     <p class="ai-trust reveal"><span>Cancel any time</span><span>Secure payment by Stripe</span><span>Prices in USD</span></p>
   </div>
@@ -697,7 +697,7 @@ def ai_start():
 </div></header>
 <section>
   <div class="wrap">
-    <div id="call-app" data-api="{cfg_url}" data-key="{cfg_key}" data-price="{C.AI_PRACTICE_PRICE_USD}" data-pass-price="{C.AI_PASS_PRICE_USD}" aria-live="polite">
+    <div id="call-app" data-api="{cfg_url}" data-key="{cfg_key}" data-price="{C.AI_PRACTICE_PRICE_USD}" data-pass-live="{1 if C.AI_PASS_LIVE else 0}" data-pass-price="{C.AI_PASS_PRICE_USD}" aria-live="polite">
       <noscript><p>This page needs JavaScript and a microphone.</p></noscript>
       <p class="muted">Loading&hellip;</p>
     </div>
