@@ -719,3 +719,34 @@ a:hover .arrow{transform:translateX(3px)}
 .dl-thumb{position:absolute;top:50%;width:46px;height:46px;margin:-23px 0 0 -23px;border-radius:50%;background:#fff;border:1px solid var(--line);box-shadow:0 2px 8px rgba(15,31,75,.25);pointer-events:none;transition:left .2s}
 .dl-ends{display:flex;justify-content:space-between;margin:10px 4px 0;font-size:13px;color:var(--stone);font-weight:600}
 .dl-desc{margin:14px 0 0;color:var(--stone)}
+
+/* My Mada, signed in: your products and what to explore */
+.wrap.mm-wide{max-width:1040px}
+.subhero.mm-compact{padding:56px 0 48px}
+.subhero.mm-compact h1{font-size:clamp(32px,4vw,48px)}
+.subhero.mm-compact .lede{margin-top:12px}
+.mm-top{margin-bottom:24px;font-size:14px}
+section.mm-sec{padding-top:40px}
+.mm-foot .mm-manage{white-space:nowrap}
+.mm-manage{background:none;border:0;padding:0;font:inherit;font-size:13px;color:var(--stone);text-decoration:underline;text-decoration-thickness:1px;text-underline-offset:3px;cursor:pointer}
+.mm-manage:hover{color:var(--navy)}
+.mm-manage:disabled{opacity:.5;cursor:default}
+.mm-group{margin-bottom:44px}
+.mm-label{font-family:var(--body);font-size:13px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--stone);margin:0 0 16px}
+.mm-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:16px}
+.mm-tile{display:flex;flex-direction:column;border-radius:var(--radius);padding:24px 22px;border:1px solid var(--line);background:#fff;min-height:100%}
+.mm-tile h3{margin:16px 0 6px}
+.mm-tile p{margin:0}
+.mm-tile .mm-text{color:var(--stone);font-size:15.5px;line-height:1.5}
+.mm-tile .mm-note{color:var(--stone);font-size:14px;margin-top:6px}
+.mm-tile-top{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.mm-icon{width:44px;height:44px;border-radius:12px;display:grid;place-items:center;background:var(--cobalt-tint);color:var(--cobalt)}
+.mm-foot{display:flex;align-items:center;justify-content:space-between;gap:8px 14px;flex-wrap:wrap;margin-top:auto;padding-top:20px}
+.mm-tile.owned{box-shadow:var(--shadow);border-top:3px solid var(--cobalt)}
+.mm-tile.explore{background:var(--mist);border-color:transparent}
+.mm-tile.explore .mm-icon{background:#fff;color:var(--navy)}
+.mm-tile.explore h3{font-size:19px}
+.mm-empty{background:var(--mist);border-radius:var(--radius);padding:28px;margin-bottom:44px}
+.mm-empty h2{font-size:24px;margin-bottom:6px}
+.mm-err{font-size:14px;margin:-24px 0 32px}
+@media (max-width:680px){.subhero.mm-compact{padding:44px 0 36px}.mm-grid{grid-template-columns:1fr}}

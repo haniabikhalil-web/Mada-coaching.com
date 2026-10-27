@@ -33,7 +33,7 @@
 
   // ---------------------------------------------------------------- sign in (existing accounts only, same as My reports)
   function signInForm(msg) {
-    clear();
+    clear(); hero(false);
     var form = el('form', 'rp-form card');
     form.appendChild(el('h3', null, 'Sign in to My Mada'));
     form.appendChild(el('p', 'muted', msg || 'Enter the email you use with Mada. We will email you a one-time code.'));
@@ -113,99 +113,147 @@
   }
 
   // ---------------------------------------------------------------- page
-  function section(title, badgeText, badgeCls) {
-    var c = el('div', 'card acct-card');
-    var head = el('div', 'acct-head');
-    head.appendChild(el('h3', null, title));
-    if (badgeText) head.appendChild(el('span', 'badge ' + (badgeCls || ''), badgeText));
-    c.appendChild(head);
-    return c;
+  var ICONS = {
+    interview: 'M12 3a3 3 0 0 0-3 3v6a3 3 0 0 0 6 0V6a3 3 0 0 0-3-3zM5 11a7 7 0 0 0 14 0M12 18v3',
+    maths: 'M5 4h14v16H5zM8 8h8M8 12h2M12 12h2M16 12h0M8 16h2M12 16h2M16 16h0',
+    reports: 'M7 3h8l4 4v14H7zM15 3v4h4M10 12h6M10 16h6',
+    coach: 'M9 11a3 3 0 1 0 0-6 3 3 0 0 0 0 6zM3 20a6 6 0 0 1 12 0M17 11a2.5 2.5 0 1 0 0-5M21 19a5 5 0 0 0-4-4.9',
+    unlimited: 'M7 8a4 4 0 1 0 0 8c4 0 6-8 10-8a4 4 0 1 1 0 8c-4 0-6-8-10-8z'
+  };
+  function icon(name) {
+    var NS = 'http://www.w3.org/2000/svg';
+    var s = document.createElementNS(NS, 'svg');
+    s.setAttribute('viewBox', '0 0 24 24'); s.setAttribute('width', '22'); s.setAttribute('height', '22');
+    s.setAttribute('fill', 'none'); s.setAttribute('stroke', 'currentColor'); s.setAttribute('stroke-width', '1.8');
+    s.setAttribute('stroke-linecap', 'round'); s.setAttribute('stroke-linejoin', 'round'); s.setAttribute('aria-hidden', 'true');
+    var p = document.createElementNS(NS, 'path'); p.setAttribute('d', ICONS[name]); s.appendChild(p);
+    return s;
   }
-  function row(children) { var d = el('div', 'acct-actions'); children.forEach(function (c) { d.appendChild(c); }); return d; }
 
-  function mathsCard(m) {
-    if (m.off) return null;
-    var active = m.ok && m.data && m.data.active;
-    var c = section('Maths drills', m.error ? '' : active ? 'Active' : 'Not subscribed', active ? 'good' : '');
-    if (m.error) { c.appendChild(el('p', 'muted', 'We could not load this just now. Refresh in a minute.')); return c; }
-    if (active) {
-      var d = m.data;
-      c.appendChild(el('p', null, d.renewsOn ? (d.cancelsAtPeriodEnd ? 'Your access ends on ' : 'Renews on ') + fmtDate(d.renewsOn) + '.' : 'Your subscription is active.'));
-      var p = mathsProgress();
-      if (p) c.appendChild(el('p', 'muted', p.n + ' questions answered, ' + p.pct + '% correct. Your full report is on the drills page.'));
-      var manage = el('button', 'btn btn-ghost btn-sm', 'Manage subscription'); manage.type = 'button';
-      manage.addEventListener('click', function () {
-        manage.disabled = true;
-        call('/functions/v1/maths-access', { action: 'portal' }).then(function (r) {
-          var u = r.ok && stripeUrl(r.data && r.data.url);
-          if (u) { location.href = u; return; }
-          manage.disabled = false; window.alert('Could not open the billing page. Try again shortly, or email hello@mada-coaching.com.');
-        });
+  // One product tile. o: {icon, title, text, note, pill, pillCls, cta:{text,href}, manage:fn, owned}
+  function tile(o) {
+    var t = el('div', 'mm-tile' + (o.owned ? ' owned' : ' explore'));
+    var top = el('div', 'mm-tile-top');
+    var ic = el('span', 'mm-icon'); ic.appendChild(icon(o.icon)); top.appendChild(ic);
+    if (o.pill) top.appendChild(el('span', 'badge ' + (o.pillCls || ''), o.pill));
+    t.appendChild(top);
+    t.appendChild(el('h3', null, o.title));
+    if (o.text) t.appendChild(el('p', 'mm-text', o.text));
+    if (o.note) t.appendChild(el('p', 'mm-note', o.note));
+    var foot = el('div', 'mm-foot');
+    if (o.cta) foot.appendChild(link(o.cta.text, o.cta.href, o.owned ? 'btn btn-primary btn-sm' : 'btn btn-ghost btn-sm'));
+    if (o.manage) {
+      var m = el('button', 'mm-manage', 'Manage subscription'); m.type = 'button';
+      m.addEventListener('click', function () { o.manage(m); });
+      foot.appendChild(m);
+    }
+    t.appendChild(foot);
+    return t;
+  }
+  function portal(fn) {
+    return function (btn) {
+      btn.disabled = true;
+      call(fn, { action: 'portal' }).then(function (r) {
+        var u = r.ok && stripeUrl(r.data && r.data.url);
+        if (u) { location.href = u; return; }
+        btn.disabled = false; window.alert('Could not open the billing page. Try again shortly, or email hello@mada-coaching.com.');
       });
-      c.appendChild(row([link('Open the drills', MATHS_URL, 'btn btn-primary btn-sm'), manage]));
-    } else {
-      c.appendChild(el('p', 'muted', 'Timed case-maths questions with worked solutions and a progress report.'));
-      c.appendChild(row([link('See the maths drills', MATHS_URL, 'btn btn-primary btn-sm')]));
-    }
-    return c;
+    };
+  }
+  function renewal(d) { return d && d.renewsOn ? (d.cancelsAtPeriodEnd ? 'Ends on ' : 'Renews on ') + fmtDate(d.renewsOn) + '.' : ''; }
+  function group(label, tiles) {
+    var g = el('div', 'mm-group');
+    g.appendChild(el('h2', 'mm-label', label));
+    var grid = el('div', 'mm-grid');
+    tiles.forEach(function (t) { grid.appendChild(t); });
+    g.appendChild(grid);
+    return g;
   }
 
-  function passCard(p) {
-    var active = p && p.ok && p.data && p.data.active;
-    var c = section('Unlimited interviews', p && p.error ? '' : active ? 'Active' : 'Not subscribed', active ? 'good' : '');
-    if (p && p.error) { c.appendChild(el('p', 'muted', 'We could not load this just now. Refresh in a minute.')); return c; }
-    if (active) {
-      var d = p.data;
-      c.appendChild(el('p', null, (d.renewsOn ? (d.cancelsAtPeriodEnd ? 'Your access ends on ' : 'Renews on ') + fmtDate(d.renewsOn) + '. ' : '') + 'Practice as much as you need, up to ' + d.dailyLimit + ' interviews a day.'));
-      var manage = el('button', 'btn btn-ghost btn-sm', 'Manage subscription'); manage.type = 'button';
-      manage.addEventListener('click', function () {
-        manage.disabled = true;
-        call('/functions/v1/pass-access', { action: 'portal' }).then(function (r) {
-          var u = r.ok && stripeUrl(r.data && r.data.url);
-          if (u) { location.href = u; return; }
-          manage.disabled = false; window.alert('Could not open the billing page. Try again shortly, or email hello@mada-coaching.com.');
-        });
-      });
-      c.appendChild(row([link('Start an interview', START, 'btn btn-primary btn-sm'), manage]));
+  function hero(signedIn) {
+    var t = document.getElementById('mm-title'), l = document.getElementById('mm-lede'), h = document.getElementById('mm-hero');
+    if (!t || !l) return;
+    if (signedIn) {
+      t.textContent = 'Welcome back.';
+      l.textContent = 'Pick up where you left off, or explore what else Mada can do for you.';
+      if (h) h.classList.add('mm-compact');
     } else {
-      c.appendChild(el('p', 'muted', 'One subscription for Case, Fit and Full Mock interviews, with Math Drills included.'));
-      c.appendChild(row([link('See the options', START, 'btn btn-primary btn-sm')]));
+      t.textContent = 'Everything you have with Mada, in one place.';
+      l.textContent = 'Sign in once to see your maths drills, your AI case interviews and your reports, and to manage your subscription.';
+      if (h) h.classList.remove('mm-compact');
     }
-    return c;
-  }
-
-  function casesCard(bal, rep, pass) {
-    var subscribed = !!(pass && pass.ok && pass.data && pass.data.active);
-    var credits = bal.ok && bal.data ? bal.data.credits : null;
-    var list = rep.ok && rep.data ? (rep.data.reports || []) : null;
-    var c = section('AI case interviews', credits > 0 ? 'Call ready' : '', credits > 0 ? 'good' : '');
-    if (credits === null && list === null) { c.appendChild(el('p', 'muted', 'We could not load this just now. Refresh in a minute.')); return c; }
-    if (credits !== null) c.appendChild(el('p', null, subscribed && !(credits > 0) ? 'Your subscription covers your interviews, so there is nothing to buy.' : credits > 0 ? 'You have ' + credits + ' practice interview' + (credits === 1 ? '' : 's') + ' ready to use.' : 'No practice interview ready. You can buy one when you want to practise.'));
-    if (list !== null) {
-      c.appendChild(el('p', 'muted', list.length ? list.length + (list.length === 1 ? ' report' : ' reports') + ' so far.' : 'Your reports will appear here after each call.'));
-    }
-    var acts = [link(credits > 0 || subscribed ? 'Start a practice interview' : 'Practise a case', START, 'btn btn-primary btn-sm')];
-    if (list && list.length) acts.push(link('See my reports', REPORTS));
-    c.appendChild(row(acts));
-    return c;
+    l.hidden = false;
+    var w = app.parentNode; if (w) w.classList[signedIn ? 'add' : 'remove']('mm-wide');
+    var sec = app.closest ? app.closest('section') : null; if (sec) sec.classList[signedIn ? 'add' : 'remove']('mm-sec');
   }
 
   function show(maths, bal, rep, pass) {
-    clear();
-    var top = el('div', 'acct-top');
+    clear(); hero(true);
+    var top = el('div', 'acct-top mm-top');
     top.appendChild(el('span', 'muted', 'Signed in as ' + email));
-    var out = el('button', 'btn btn-ghost btn-sm', 'Sign out'); out.type = 'button';
+    var out = el('button', 'mm-manage', 'Sign out'); out.type = 'button';
     out.addEventListener('click', function () { S.clear(); token = null; signInForm(); });
     top.appendChild(out);
     app.appendChild(top);
-    var m = mathsCard(maths);
-    if (m) app.appendChild(m);
-    app.appendChild(passCard(pass));
-    app.appendChild(casesCard(bal, rep, pass));
-    var coach = section('Coaching with a Mada coach');
-    coach.appendChild(el('p', 'muted', 'Work 1:1 with a consultant on your applications, cases and offers.'));
-    coach.appendChild(row([link('See coaching options', BOOK)]));
-    app.appendChild(coach);
+
+    var mine = [], more = [], notes = [];
+    var failed = function (what) { notes.push('We could not load ' + what + ' just now. Refresh in a minute.'); };
+
+    // Unlimited interviews
+    var passOn = !!(pass && pass.ok && pass.data && pass.data.active);
+    if (pass && pass.error) failed('your Unlimited interviews');
+    else if (passOn) {
+      mine.push(tile({ owned: true, icon: 'unlimited', title: 'Unlimited interviews', pill: 'Active', pillCls: 'good',
+        text: 'Practise as much as you need, up to ' + pass.data.dailyLimit + ' interviews a day.', note: renewal(pass.data),
+        cta: { text: 'Start an interview', href: START }, manage: portal('/functions/v1/pass-access') }));
+    } else {
+      more.push(tile({ icon: 'unlimited', title: 'Unlimited interviews', text: 'One subscription for Case, Fit and Full Mock interviews, with Math Drills included.', cta: { text: 'See the options', href: START } }));
+    }
+
+    // Case interviews (single credits)
+    var credits = bal.ok && bal.data ? bal.data.credits : null;
+    var list = rep.ok && rep.data ? (rep.data.reports || []) : null;
+    if (credits === null && list === null) failed('your interviews');
+    if (credits > 0 && !passOn) {
+      mine.push(tile({ owned: true, icon: 'interview', title: 'AI case interviews', pill: credits + ' ready', pillCls: 'good',
+        text: 'You have ' + credits + ' practice interview' + (credits === 1 ? '' : 's') + ' ready to use.',
+        cta: { text: 'Start a practice interview', href: START } }));
+    } else if (!passOn && credits !== null) {
+      more.push(tile({ icon: 'interview', title: 'AI case interviews', text: 'Practise a real case with an AI interviewer and get a scored report.', cta: { text: 'Practise a case', href: START } }));
+    }
+
+    // Maths drills
+    if (!maths.off) {
+      var mOn = !!(maths.ok && maths.data && maths.data.active);
+      if (maths.error) failed('your maths drills');
+      else if (mOn) {
+        var pr = mathsProgress();
+        mine.push(tile({ owned: true, icon: 'maths', title: 'Maths drills', pill: 'Active', pillCls: 'good',
+          text: pr ? pr.n + ' questions answered, ' + pr.pct + '% correct.' : 'Timed case-maths questions with worked solutions.', note: renewal(maths.data),
+          cta: { text: 'Open the drills', href: MATHS_URL }, manage: portal('/functions/v1/maths-access') }));
+      } else {
+        more.push(tile({ icon: 'maths', title: 'Maths drills', text: 'Timed case-maths questions with worked solutions and a progress report.', cta: { text: 'See the maths drills', href: MATHS_URL } }));
+      }
+    }
+
+    // Reports
+    if (list && list.length) {
+      mine.push(tile({ owned: true, icon: 'reports', title: 'Your reports', pill: list.length + (list.length === 1 ? ' report' : ' reports'),
+        text: 'Every practice interview you have taken, ready to read again.', cta: { text: 'See my reports', href: REPORTS } }));
+    }
+
+    // Coaching, always something to explore
+    more.push(tile({ icon: 'coach', title: 'Coaching with a Mada coach', text: 'Work 1:1 with a consultant on your applications, cases and offers.', cta: { text: 'See coaching options', href: BOOK } }));
+
+    if (mine.length) app.appendChild(group('Your products', mine));
+    else {
+      var empty = el('div', 'mm-empty');
+      empty.appendChild(el('h2', null, 'Nothing active yet.'));
+      empty.appendChild(el('p', 'muted', 'Start with any of the options below. Your products and reports will show up here.'));
+      app.appendChild(empty);
+    }
+    notes.forEach(function (n) { app.appendChild(el('p', 'muted mm-err', n)); });
+    app.appendChild(group(mine.length ? 'Explore more' : 'Explore', more));
   }
 
   if (!ready()) { say('My Mada is not available yet.'); return; }
