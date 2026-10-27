@@ -20,6 +20,7 @@
   var KEY = app.getAttribute('data-key');
   var PRICE = app.getAttribute('data-price') || '50';
   var PASS_PRICE = app.getAttribute('data-pass-price') || '100';
+  var PASS_LIVE = app.getAttribute('data-pass-live') === '1';
   var passReturn = /[?&]pass=1/.test(location.search);
   var paidReturn = /[?&]paid=1/.test(location.search) || passReturn;
   var CONSENT_VERSION = '2026-10-v1';
@@ -59,8 +60,8 @@
   function signInForm(msg) {
     clear();
     var form = el('form', 'rp-form card');
-    form.appendChild(el('h3', null, 'Enter your email'));
-    form.appendChild(el('p', 'muted', msg || 'Your report is tied to this email. We will send you a one-time code.'));
+    form.appendChild(el('h3', null, 'Sign in to My Mada'));
+    form.appendChild(el('p', 'muted', msg || 'Your interviews, reports and subscriptions live in My Mada. Enter your email and we will send you a one-time code. New here? This creates your account.'));
     var input = el('input'); input.type = 'email'; input.required = true; input.autocomplete = 'email'; input.placeholder = 'you@example.com';
     input.setAttribute('aria-label', 'Email address');
     var btn = el('button', 'btn btn-primary', 'Email me a code'); btn.type = 'submit';
@@ -159,9 +160,9 @@
     b2.addEventListener('click', function () { pay('/functions/v1/pass-access', b2, note); });
     pass.appendChild(b2);
 
-    grid.appendChild(single); grid.appendChild(pass);
+    grid.appendChild(single); if (PASS_LIVE) grid.appendChild(pass);
     wrapEl.appendChild(grid);
-    wrapEl.appendChild(el('p', 'muted small', 'Secure payment by card on Stripe\u2019s page. We never see your card details. The subscription renews monthly until you cancel it from My Mada.'));
+    wrapEl.appendChild(el('p', 'muted small', 'Secure payment by card on Stripe\u2019s page. We never see your card details. ' + (PASS_LIVE ? 'The subscription renews monthly until you cancel it from My Mada.' : '')));
     wrapEl.appendChild(note);
     app.appendChild(wrapEl);
   }
