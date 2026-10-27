@@ -605,10 +605,10 @@ def ai_account():
     cfg_key = C.SUPABASE_PUBLISHABLE_KEY or ''
     maths = '1' if (C.MATHS_PAID_LIVE and C.SUPABASE_PUBLISHABLE_KEY) else ''
     body = f'''
-<header class="subhero"><div class="wrap">
+<header class="subhero" id="mm-hero"><div class="wrap">
   <p class="eyebrow">Mada AI &middot; My Mada</p>
-  <h1>Everything you have with Mada, in one place.</h1>
-  <p class="lede">Sign in once to see your maths drills, your AI case interviews and your reports, and to manage your subscription.</p>
+  <h1 id="mm-title">My Mada</h1>
+  <p class="lede" id="mm-lede" hidden></p>
 </div></header>
 <section>
   <div class="wrap narrow">
