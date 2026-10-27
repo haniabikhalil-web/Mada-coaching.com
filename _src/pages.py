@@ -446,7 +446,7 @@ def ai():
 <div class="ai-plan best reveal"><div class="ai-plan-flag"><span class="ai-pill best">Best value</span>{open_pill if C.AI_PASS_LIVE else '<span class="ai-pill soon">Coming soon</span>'}</div>
 <h3>Unlimited Interviews</h3><p class="ai-plan-sub">One subscription for every interview: Case, Fit and Full Mock.</p>
 <p class="ai-plan-price"><b>${unlimited}</b><span>/ month</span></p>
-<ul class="ai-list"><li>Unlimited Case, Fit and Full Mock Interviews, subject to fair use</li><li>Every interviewer, case type and level</li><li>Feedback and progress after every session</li><li>Cancel any time</li></ul>
+<ul class="ai-list"><li>Unlimited Case Interviews now, with Fit and Full Mock added as they open, subject to fair use</li><li>Every interviewer, case type and level</li><li>Feedback and progress after every session</li><li>Cancel any time</li></ul>
 {plan_cta_unl}</div>'''
 
     minis = ''.join(f'''<div class="mini-persona reveal"><img src="{ctx.asset("img/interviewers/" + i["img"] + ".jpg")}" alt="{i["name"]}, {i["title"]}" width="160" height="160" loading="lazy">
@@ -470,7 +470,7 @@ def ai():
 <section class="bg-mist" id="pricing">
   <div class="wrap">
     <div class="section-head reveal"><p class="eyebrow">Case, Fit and Full Mock Interviews</p><h2>Pay per interview, or practice without limits.</h2>
-      <p class="lede">Case Interviews are open now. Fit and Full Mock Interviews are opening soon, and Unlimited Interviews will open with them.</p></div>
+      <p class="lede">Case Interviews are open now. Fit and Full Mock Interviews are opening soon and will be included in Unlimited Interviews when they open.</p></div>
     <div class="ai-plans">{interviews_pay}</div>
     <p class="ai-trust reveal"><span>Cancel any time</span><span>Secure payment by Stripe</span><span>Prices in USD</span></p>
   </div>
