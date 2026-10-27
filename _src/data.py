@@ -83,7 +83,7 @@ AI_TOOLS = [
      'desc': 'Upload your consulting CV and receive structured feedback and recommendations.'},
     {'name': 'AI Case Practice', 'icon': 'chart', 'stage': 'soon',
      'desc': 'Practice spoken consulting cases with an AI interviewer, on your own schedule, and receive a structured report on your structure, numbers, business judgment and communication, backed by quotes from your own interview.',
-     'page': 'ai/case-practice', 'cta': 'Try AI case practice'},
+     'page': 'ai/case-practice/start', 'cta': 'Try AI case practice'},
     {'name': 'AI Case Prep Program', 'icon': 'route', 'stage': 'later',
      'desc': 'A personalized case interview preparation journey. Start with an assessment, identify your weaknesses and follow a tailored practice plan that adapts as you improve.'},
     {'name': 'AI Case Maths Practice', 'icon': 'bolt', 'stage': 'next',

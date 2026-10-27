@@ -60,8 +60,8 @@
   function signInForm(msg) {
     clear();
     var form = el('form', 'rp-form card');
-    form.appendChild(el('h3', null, 'Enter your email'));
-    form.appendChild(el('p', 'muted', msg || 'Your report is tied to this email. We will send you a one-time code.'));
+    form.appendChild(el('h3', null, 'Sign in to My Mada'));
+    form.appendChild(el('p', 'muted', msg || 'Your interviews, reports and subscriptions live in My Mada. Enter your email and we will send you a one-time code. New here? This creates your account.'));
     var input = el('input'); input.type = 'email'; input.required = true; input.autocomplete = 'email'; input.placeholder = 'you@example.com';
     input.setAttribute('aria-label', 'Email address');
     var btn = el('button', 'btn btn-primary', 'Email me a code'); btn.type = 'submit';

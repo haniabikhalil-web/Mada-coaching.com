@@ -408,7 +408,7 @@ def ai():
     # ---- 1. The five products: what you practise.
     products = [
         ('compass', 'Introduction to Case Solving', 'An AI guide that teaches you how to approach a case, build a structured framework and solve with confidence.', None),
-        ('chat', 'Case Interviews', 'Solve realistic business problems, test your quantitative skills and deliver a recommendation in an interactive AI-led case.', 'ai/case-practice'),
+        ('chat', 'Case Interviews', 'Solve realistic business problems, test your quantitative skills and deliver a recommendation in an interactive AI-led case.', 'ai/case-practice/start'),
         ('mic', 'Fit Interviews', 'Practice your personal stories, consulting motivation, leadership and behavioral questions with realistic AI interviewers.', None),
         ('target', 'Full Mock Interviews', 'A complete case and fit simulation in one sitting, followed by consolidated feedback on your performance.', None),
         ('bolt', 'Math Drills', 'Build calculation speed, accuracy and confidence through unlimited, interactive quantitative practice.', 'ai/maths'),
@@ -419,7 +419,7 @@ def ai():
         live = bool(page) and (drills_live if page == 'ai/maths' else bool(C.AI_PRACTICE_LIVE))
         pill = ('<span class="ai-pill live">Open now</span>' if live else '<span class="ai-pill soon">Coming soon</span>')
         price = (f'<p class="ai-prod-price"><b>${C.MATHS_PRICE_USD}</b> / month <span>&middot; included with Unlimited Interviews</span></p>' if page == 'ai/maths' else '')
-        if page == 'ai/case-practice':
+        if page == 'ai/case-practice/start':
             price = f'<p class="ai-prod-price"><b>${C.AI_PRACTICE_PRICE_USD}</b> / interview</p>'
         cta = (f'<a class="btn btn-primary btn-sm" href="{u(page)}">{"Start the drills" if page == "ai/maths" else "Start a case"} <span class="arrow" aria-hidden="true">&rarr;</span></a>' if live
                else f'<a class="ai-link" href="{wl(t)}">Join the waitlist <span aria-hidden="true">&rarr;</span></a>')
@@ -434,8 +434,8 @@ def ai():
 
     # ---- 2. How you pay for interviews.
     open_pill = '<span class="ai-pill live">Case Interviews open now</span>'
-    plan_cta_single = (f'<a class="btn btn-ghost" href="{u("ai/case-practice")}">Start a Case Interview</a>' if C.AI_PRACTICE_LIVE else f'<a class="btn btn-ghost" href="{wl("Single Interview")}">Join the waitlist</a>')
-    plan_cta_unl = (f'<a class="btn btn-primary" href="{u("ai/case-practice")}">Get Unlimited Interviews</a>' if C.AI_PASS_LIVE else f'<a class="btn btn-primary" href="{wl("Unlimited Interviews")}">Join the waitlist</a>')
+    plan_cta_single = (f'<a class="btn btn-ghost" href="{u("ai/case-practice/start")}">Start a Case Interview</a>' if C.AI_PRACTICE_LIVE else f'<a class="btn btn-ghost" href="{wl("Single Interview")}">Join the waitlist</a>')
+    plan_cta_unl = (f'<a class="btn btn-primary" href="{u("ai/case-practice/start")}">Get Unlimited Interviews</a>' if C.AI_PASS_LIVE else f'<a class="btn btn-primary" href="{wl("Unlimited Interviews")}">Join the waitlist</a>')
     soon_pill = open_pill if C.AI_PRACTICE_LIVE else '<span class="ai-pill soon">Coming soon</span>'
     interviews_pay = f'''<div class="ai-plan reveal">{soon_pill}
 <h3>Single Interview</h3><p class="ai-plan-sub">One Case Interview. No commitment.</p>
@@ -522,52 +522,20 @@ INTERVIEWERS_SIX = [
 
 
 def ai_case_practice():
+    """Old address of the interviewer page. The interviewer is now chosen after sign-in, on the start page, so this only forwards there."""
     ctx = Ctx('ai/case-practice')
-    u = ctx.url
-    live = C.AI_PRACTICE_LIVE
-    cards = ''
-    for i in INTERVIEWERS:
-        img = f'<img class="persona-img" src="{ctx.asset("img/interviewers/" + i["img"] + ".jpg")}" alt="{i["name"]}, {i["title"]}" width="560" height="469" loading="lazy">'
-        if live and i['name'] == 'Tatiana':
-            badge = '<span class="badge">Available</span>'
-            btn = f'<a class="btn btn-primary" href="{u("ai/case-practice/start")}" style="margin-top:16px">Start with Tatiana <span class="arrow" aria-hidden="true">&rarr;</span></a>'
-        else:
-            badge = '<span class="badge soon">Coming soon</span>'
-            btn = f'<a class="btn btn-ghost btn-sm" href="{waitlist_href("AI case practice with " + i["name"])}" style="margin-top:16px">Join waitlist</a>'
-        cards += f'''<div class="card tool persona reveal">{img}{badge}
-<span class="tag" style="margin-top:12px">{i['title']}</span>
-<h3>{i['name']}</h3><p>{i['desc']}</p>{btn}</div>'''
+    start = ctx.url('ai/case-practice/start')
     body = f'''
-<header class="subhero"><div class="wrap">
-  <p class="eyebrow">Mada AI &middot; AI case practice</p>
-  <h1>Choose your interviewer.</h1>
-  <p class="lede">Practise out loud, on your own schedule, and get a structured report on how you did.</p>
-</div></header>
-
-<section class="bg-mist">
-  <div class="wrap">
-    <div class="grid g3">{cards}</div>
-    <p class="muted" style="margin-top:24px">Already practised? <a href="{u('ai/reports')}">See all your reports</a>, or open <a href="{u('ai/account')}">My Mada</a> for everything in one place.</p>
-  </div>
-</section>
-
-<section>
-  <div class="wrap narrow">
-    <div class="section-head reveal"><p class="eyebrow">Good to know</p><h2>How it works.</h2></div>
-    <ol class="steps-list">
-      <li><strong>Sign in with your email.</strong> We send you a one-time code. Your report is tied to this email.</li>
-      <li><strong>Pay once.</strong> A secure card payment on Stripe&rsquo;s page covers one interview and its report.</li>
-      <li><strong>Choose your interviewer, case type and difficulty.</strong> Agree to the recording notice: your voice is recorded and transcribed so the interview can be assessed, and we tell you how long it is kept before you start.</li>
-      <li><strong>Have your case.</strong> Up to 25 minutes, by voice, with a quiet space and a microphone.</li>
-      <li><strong>Get your report.</strong> Scores for each skill, backed by quotes from your own interview. It appears on screen at the end of the call and is emailed to you.</li>
-    </ol>
-    <p class="muted" style="margin-top:24px">The report is a Mada developmental assessment, not official employer scoring. For personal feedback from someone who has interviewed candidates at consulting firms, <a href="{u('services')}">book a coach</a>.</p>
-  </div>
-</section>
+<section><div class="wrap narrow center" style="text-align:center;padding:96px 0">
+  <p class="muted">Taking you to your AI interview&hellip;</p>
+  <p><a class="btn btn-primary" href="{start}">Continue</a></p>
+</div></section>
+<script>location.replace({start!r} + location.search + location.hash);</script>
+<meta http-equiv="refresh" content="1;url={start}">
 '''
-    page('ai/case-practice', 'AI Case Practice',
-         'Choose your AI interviewer. Practise a spoken consulting case interview with Tatiana and get a structured, evidence-based report.',
-         body, ctx)
+    page('ai/case-practice', 'AI Case Interviews',
+         'Start a spoken AI case interview. Sign in to My Mada, choose your interviewer, case type and difficulty, and start the call.',
+         body, ctx, noindex=True)
 
 
 # ---------------------------------------------------------------- Mada AI interview report (signed-in)
@@ -671,7 +639,7 @@ def ai_reports():
 </div></header>
 <section>
   <div class="wrap narrow">
-    <div id="reports-app" data-api="{cfg_url}" data-key="{cfg_key}" data-start="{u('ai/case-practice')}" aria-live="polite">
+    <div id="reports-app" data-api="{cfg_url}" data-key="{cfg_key}" data-start="{u('ai/case-practice/start')}" aria-live="polite">
       <noscript><p>This page needs JavaScript to show your reports.</p></noscript>
       <p class="muted">Loading&hellip;</p>
     </div>
@@ -706,7 +674,7 @@ def ai_start():
 </section>
 '''
     page('ai/case-practice/start', 'Start AI case practice',
-         'Start a spoken case interview with Tatiana and get a structured report.',
+         'Sign in to My Mada, choose your interviewer, case type and difficulty, and start a spoken AI case interview.',
          body, ctx, noindex=True, extra_js=('js/vendor/elevenlabs-client.js', 'js/ai-session.js', 'js/report-view.js', 'js/call.js'))
 
 
@@ -1138,7 +1106,7 @@ def build_all():
 def root_files():
     import os
     from build import ROOT
-    pages_ = ['', 'how-it-works/', 'services/', 'ai/', 'ai/case-practice/', 'coaches/', 'about/', 'cv-review/', 'resources/', 'book/',
+    pages_ = ['', 'how-it-works/', 'services/', 'ai/', 'coaches/', 'about/', 'cv-review/', 'resources/', 'book/',
               'privacy/', 'terms/', 'refunds/', 'cookies/']
     urls = ''.join(f'  <url><loc>https://{C.DOMAIN}/{p}</loc><lastmod>2026-10-02</lastmod></url>\n' for p in pages_)
     files = {
