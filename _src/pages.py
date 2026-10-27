@@ -408,7 +408,7 @@ def ai():
     # ---- 1. The five products: what you practise.
     products = [
         ('compass', 'Introduction to Case Solving', 'An AI guide that teaches you how to approach a case, build a structured framework and solve with confidence.', None),
-        ('chat', 'Case Interviews', 'Solve realistic business problems, test your quantitative skills and deliver a recommendation in an interactive AI-led case.', None),
+        ('chat', 'Case Interviews', 'Solve realistic business problems, test your quantitative skills and deliver a recommendation in an interactive AI-led case.', 'ai/case-practice'),
         ('mic', 'Fit Interviews', 'Practice your personal stories, consulting motivation, leadership and behavioral questions with realistic AI interviewers.', None),
         ('target', 'Full Mock Interviews', 'A complete case and fit simulation in one sitting, followed by consolidated feedback on your performance.', None),
         ('bolt', 'Math Drills', 'Build calculation speed, accuracy and confidence through unlimited, interactive quantitative practice.', 'ai/maths'),
@@ -416,10 +416,12 @@ def ai():
     ]
     def product_card(n, p):
         ic, t, d, page = p
-        live = bool(page) and drills_live
+        live = bool(page) and (drills_live if page == 'ai/maths' else bool(C.AI_PRACTICE_LIVE))
         pill = ('<span class="ai-pill live">Open now</span>' if live else '<span class="ai-pill soon">Coming soon</span>')
-        price = (f'<p class="ai-prod-price"><b>${C.MATHS_PRICE_USD}</b> / month <span>&middot; included with Unlimited Interviews</span></p>' if page else '')
-        cta = (f'<a class="btn btn-primary btn-sm" href="{u(page)}">Start the drills <span class="arrow" aria-hidden="true">&rarr;</span></a>' if live
+        price = (f'<p class="ai-prod-price"><b>${C.MATHS_PRICE_USD}</b> / month <span>&middot; included with Unlimited Interviews</span></p>' if page == 'ai/maths' else '')
+        if page == 'ai/case-practice':
+            price = f'<p class="ai-prod-price"><b>${C.AI_PRACTICE_PRICE_USD}</b> / interview <span>&middot; or included with Unlimited Interviews</span></p>'
+        cta = (f'<a class="btn btn-primary btn-sm" href="{u(page)}">{"Start the drills" if page == "ai/maths" else "Start a case"} <span class="arrow" aria-hidden="true">&rarr;</span></a>' if live
                else f'<a class="ai-link" href="{wl(t)}">Join the waitlist <span aria-hidden="true">&rarr;</span></a>')
         if t in ('Introduction to Case Solving', 'AI CV Review'):
             price = '<p class="ai-prod-price"><span>Pricing announced when it opens</span></p>'
@@ -431,16 +433,20 @@ def ai():
     product_cards = f'<div class="ai-prods top">{"".join(cards[:3])}</div><div class="ai-prods bottom">{"".join(cards[3:])}</div>'
 
     # ---- 2. How you pay for interviews.
-    interviews_pay = f'''<div class="ai-plan reveal"><span class="ai-pill soon">Coming soon</span>
+    open_pill = '<span class="ai-pill live">Case Interviews open now</span>'
+    plan_cta_single = (f'<a class="btn btn-ghost" href="{u("ai/case-practice")}">Start a Case Interview</a>' if C.AI_PRACTICE_LIVE else f'<a class="btn btn-ghost" href="{wl("Single Interview")}">Join the waitlist</a>')
+    plan_cta_unl = (f'<a class="btn btn-primary" href="{u("ai/case-practice")}">Get Unlimited Interviews</a>' if C.AI_PRACTICE_LIVE else f'<a class="btn btn-primary" href="{wl("Unlimited Interviews")}">Join the waitlist</a>')
+    soon_pill = open_pill if C.AI_PRACTICE_LIVE else '<span class="ai-pill soon">Coming soon</span>'
+    interviews_pay = f'''<div class="ai-plan reveal">{soon_pill}
 <h3>Single Interview</h3><p class="ai-plan-sub">One Case or Fit Interview. No commitment.</p>
 <p class="ai-plan-price"><b>${single}</b><span>/ interview</span></p>
 <ul class="ai-list"><li>Choose your interviewer and case</li><li>Full feedback report after the session</li><li>Full Mock Interview: ${mock}</li></ul>
-<a class="btn btn-ghost" href="{wl("Single Interview")}">Join the waitlist</a></div>
-<div class="ai-plan best reveal"><div class="ai-plan-flag"><span class="ai-pill best">Best value</span><span class="ai-pill soon">Coming soon</span></div>
+{plan_cta_single}</div>
+<div class="ai-plan best reveal"><div class="ai-plan-flag"><span class="ai-pill best">Best value</span>{soon_pill}</div>
 <h3>Unlimited Interviews</h3><p class="ai-plan-sub">One subscription for every interview: Case, Fit and Full Mock.</p>
 <p class="ai-plan-price"><b>${unlimited}</b><span>/ month</span></p>
 <ul class="ai-list"><li>Unlimited Case, Fit and Full Mock Interviews, subject to fair use</li><li>Every interviewer, case type and level</li><li>Feedback and progress after every session</li><li>Cancel any time</li></ul>
-<a class="btn btn-primary" href="{wl("Unlimited Interviews")}">Join the waitlist</a></div>'''
+{plan_cta_unl}</div>'''
 
     minis = ''.join(f'''<div class="mini-persona reveal"><img src="{ctx.asset("img/interviewers/" + i["img"] + ".jpg")}" alt="{i["name"]}, {i["title"]}" width="160" height="160" loading="lazy">
 <h3>{i['name']}</h3><span class="tag">{i['title']}</span><p>{i['traits']}</p></div>''' for i in INTERVIEWERS_SIX)
@@ -455,7 +461,7 @@ def ai():
 <section id="products">
   <div class="wrap">
     <div class="section-head reveal"><p class="eyebrow">What you can practice</p><h2>Six ways to prepare.</h2>
-      <p class="lede">Math Drills are open now. Everything else is opening soon: join the waitlist and we will email you first.</p></div>
+      <p class="lede">Math Drills and Case Interviews are open now. Everything else is opening soon: join the waitlist and we will email you first.</p></div>
     {product_cards}
   </div>
 </section>
@@ -463,7 +469,7 @@ def ai():
 <section class="bg-mist" id="pricing">
   <div class="wrap">
     <div class="section-head reveal"><p class="eyebrow">Case, Fit and Full Mock Interviews</p><h2>Pay per interview, or practice without limits.</h2>
-      <p class="lede">One Unlimited Interviews subscription covers all three.</p></div>
+      <p class="lede">One Unlimited Interviews subscription covers all three. Case Interviews are open now; Fit and Full Mock Interviews are opening soon.</p></div>
     <div class="ai-plans">{interviews_pay}</div>
     <p class="ai-trust reveal"><span>Cancel any time</span><span>Secure payment by Stripe</span><span>Prices in USD</span></p>
   </div>
