@@ -142,10 +142,15 @@
     if (o.note) t.appendChild(el('p', 'mm-note', o.note));
     var foot = el('div', 'mm-foot');
     if (o.cta) foot.appendChild(link(o.cta.text, o.cta.href, o.owned ? 'btn btn-primary btn-sm' : 'btn btn-ghost btn-sm'));
-    if (o.manage) {
-      var m = el('button', 'mm-manage', 'Manage subscription'); m.type = 'button';
-      m.addEventListener('click', function () { o.manage(m); });
-      foot.appendChild(m);
+    if (o.owned) {
+      // Same row, same size, in every owned tile; an empty row where there is no subscription keeps the buttons level
+      var mrow = el('div', 'mm-mrow');
+      if (o.manage) {
+        var m = el('button', 'mm-manage', 'Manage subscription'); m.type = 'button';
+        m.addEventListener('click', function () { o.manage(m); });
+        mrow.appendChild(m);
+      }
+      foot.appendChild(mrow);
     }
     t.appendChild(foot);
     return t;
