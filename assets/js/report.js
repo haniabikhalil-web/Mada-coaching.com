@@ -21,7 +21,7 @@
   function clear() { while (app.firstChild) app.removeChild(app.firstChild); }
   function say(msg) { clear(); app.appendChild(el('p', 'muted', msg)); }
 
-  function render(r, ins) { window.MadaReport.render(r, app, ins); }
+  function render(r, ins, level) { window.MadaReport.render(r, app, ins, level); }
 
   // ---------------------------------------------------------------- sign-in and fetch
   function ready() { return API && KEY && API.indexOf('https://') === 0; }
@@ -84,10 +84,11 @@
         if (!j.reports.length) return say('You have no reports yet. Reports appear here after your call; a few are checked by a Mada coach first.');
         if (!id) { location.replace('../reports/'); return; }
         var shown = j.reports[0].report;
-        render(shown);
+        var level = j.reports[0].difficulty;
+        render(shown, undefined, level);
         // Benchmarks and next focus load after the report, so a slow or failed insights call never hides the report.
         post('/functions/v1/interview-insights', {}, token).then(function (ir) { return ir.ok ? ir.json() : null; })
-          .then(function (ins) { if (ins) { render(shown, ins); app.appendChild(backLink()); } }, function () {});
+          .then(function (ins) { if (ins) { render(shown, ins, level); app.appendChild(backLink()); } }, function () {});
         app.appendChild(backLink());
       });
     }, function () { say('Could not reach the report service. Please try again shortly.'); });
