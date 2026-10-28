@@ -169,17 +169,14 @@
 
 
   // ---------------------------------------------------------------- 3. set up
-  // Only Tatiana and the investment case are open today. The other cards show what is coming and cannot be picked;
+  // Tatiana, Faisal and Alex are open today. The other cards show what is coming and cannot be picked;
   // the server accepts nothing else either (interview-start validates interviewer and case type).
-  // Alex is not public. A tester opens the start page with ?interviewer=alex; the server still refuses him until his agent is set up.
-  var TESTER_ALEX = false;
-  try { TESTER_ALEX = new URLSearchParams(location.search).get('interviewer') === 'alex'; } catch (e) { TESTER_ALEX = false; }
-  // Faisal is open on the same start page as Tatiana.
+  // Tatiana, Faisal and Alex are open on the same start page.
   var interviewer = 'victoria';
   function who() { return interviewer === 'alex' ? 'Alex' : interviewer === 'faisal' ? 'Faisal' : 'Tatiana'; }
   var INTERVIEWERS = [
     { id: 'victoria', name: 'Tatiana', title: 'Partner', desc: 'Executive-level mock interviewer. Calm, direct and demanding, with sharp follow-ups that push clear top-down thinking and confident recommendations.', img: 'tatiana', open: true },
-    { id: TESTER_ALEX ? 'alex' : 'soon-alex', name: 'Alex', title: 'Senior Manager', desc: 'Analytical drill specialist. Fast-paced and numbers-first, he pushes quantitative accuracy, exhibit reading and data-backed insights.', img: 'alex', open: TESTER_ALEX },
+    { id: 'alex', name: 'Alex', title: 'Senior Manager', desc: 'Analytical drill specialist. Fast-paced and numbers-first, he pushes quantitative accuracy, exhibit reading and data-backed insights.', img: 'alex', open: true },
     { id: 'faisal', name: 'Faisal', title: 'Principal', desc: 'Challenge-focused interviewer. Tests how well you structure ambiguity, defend your logic and synthesize clearly under pressure.', img: 'faisal', open: true },
     { id: 'soon-layal', name: 'Layal', title: 'Senior Manager', desc: 'Strategic thought partner. Curious and probing, she keeps asking \u2018so what?\u2019 to sharpen implications, trade-offs and recommendations.', img: 'layal', open: false },
     { id: 'soon-joe', name: 'Joe', title: 'Junior Manager', desc: 'Approachable practice interviewer. Relaxed and conversational, ideal for building confidence, sharpening structure and improving core case habits.', img: 'joe', open: false },
