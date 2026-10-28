@@ -19,7 +19,7 @@
     return wrap;
   }
 
-  function render(r, mount, ins) {
+  function render(r, mount, ins, level) {
     var MI = window.MadaInsights || null;
     var om = MI && ins ? MI.othersMap(ins) : {};
     while (mount.firstChild) mount.removeChild(mount.firstChild);
@@ -27,6 +27,7 @@
 
     root.appendChild(el('p', 'rp-disclaimer', r.disclaimer));
     root.appendChild(el('h2', null, r.title));
+    if (level === 'easier' || level === 'standard' || level === 'harder') root.appendChild(el('p', 'rp-level', 'Difficulty: ' + level.charAt(0).toUpperCase() + level.slice(1) + '. Scored against the same rubric at every level.'));
 
     var sum = el('div', 'rp-summary card');
     sum.appendChild(el('span', 'tag', 'Overall'));

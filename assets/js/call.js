@@ -195,8 +195,8 @@
 
   var DIFFICULTIES = [
     { id: 'standard', name: 'Standard', desc: 'Typical first-round difficulty.', open: true },
-    { id: 'soon-e', name: 'Easier', desc: 'More guidance and a slower pace.', open: false },
-    { id: 'soon-h', name: 'Harder', desc: 'Less guidance, tougher follow-ups.', open: false }
+    { id: 'easier', name: 'Easier', desc: 'More guidance and a slower pace.', open: true },
+    { id: 'harder', name: 'Harder', desc: 'Less guidance, tougher follow-ups.', open: true }
   ];
 
   // "Random" is chosen here, in the browser, from the case types that are open today; the server still picks
@@ -207,13 +207,13 @@
   }
 
   // Difficulty as a slider: Easier, Standard, Harder. Only the open levels can be chosen; tapping a coming-soon stop
-  // shows what it will be, and the thumb stays where it is. The server only accepts the open level.
+  // shows what it will be, and the thumb stays where it is. The server accepts easier, standard or harder.
   var dPreview = null;
   function difficultySlider(title, chosen, onPick) {
     var wrap = el('div', 'pk');
     wrap.appendChild(el('h4', 'pk-title', title));
     var box = el('div', 'dl');
-    var LV = ['soon-e', 'standard', 'soon-h'].map(function (id) { return DIFFICULTIES.filter(function (d) { return d.id === id; })[0]; });
+    var LV = ['easier', 'standard', 'harder'].map(function (id) { return DIFFICULTIES.filter(function (d) { return d.id === id; })[0]; });
     var idx = 1;
     LV.forEach(function (d, i) { if (d.id === chosen) idx = i; });
     var shown = LV[dPreview !== null ? dPreview : idx];
@@ -311,15 +311,15 @@
       e.preventDefault();
       if (!cb.checked) return;
       btn.disabled = true;
-      start(chosenC === 'random' ? randomCaseType() : chosenC);
+      start(chosenC === 'random' ? randomCaseType() : chosenC, chosenD);
     });
     app.appendChild(form);
   }
 
   // ---------------------------------------------------------------- 4. the call
-  function start(caseType) {
+  function start(caseType, difficulty) {
     say('Starting your call…');
-    post('/functions/v1/interview-start', { interviewer: interviewer, case_type: caseType, consent: true, consent_version: CONSENT_VERSION }, token).then(function (r) {
+    post('/functions/v1/interview-start', { interviewer: interviewer, case_type: caseType, difficulty: difficulty || 'standard', consent: true, consent_version: CONSENT_VERSION }, token).then(function (r) {
       if (r.status === 401) return expire('Your session expired. Sign in again.');
       return r.json().then(function (j) {
         if (!r.ok) {
@@ -445,7 +445,7 @@
       post('/functions/v1/interview-status', { session_id: sessionId }, token).then(function (r) {
         if (r.status === 401) return expire('Your session expired. Sign in again to see your report; it has also been emailed to you.');
         return r.json().then(function (j) {
-          if (j.status === 'ready') return window.MadaReport.render(j.report, app);
+          if (j.status === 'ready') return window.MadaReport.render(j.report, app, undefined, j.difficulty);
           if (j.status === 'in_review') return say('Your report needs a little more time. We will email it to ' + email + ' as soon as it is ready.');
           if (j.status === 'failed') return say('We could not score this call. It may have been too short, or there was a technical problem. Please email us and we will sort it out.');
           if (j.status === 'expired') return say('This call did not start in time. You can start again.');

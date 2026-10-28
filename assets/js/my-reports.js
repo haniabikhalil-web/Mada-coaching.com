@@ -81,6 +81,7 @@
     var left = el('div');
     left.appendChild(el('span', 'tag', when(x.released_at)));
     left.appendChild(el('h3', null, caseName(r.title)));
+    if (x.difficulty === 'easier' || x.difficulty === 'harder') left.appendChild(el('span', 'tag', x.difficulty.charAt(0).toUpperCase() + x.difficulty.slice(1)));
     head.appendChild(left);
     head.appendChild(el('div', 'rp-item-score', r.overall === null || r.overall === undefined ? 'Not scored' : r.overall.toFixed(1) + ' / 5'));
     a.appendChild(head);
