@@ -176,10 +176,10 @@
   function who() { return interviewer === 'alex' ? 'Alex' : interviewer === 'faisal' ? 'Faisal' : interviewer === 'layal' ? 'Layal' : interviewer === 'joe' ? 'Joe' : interviewer === 'mona' ? 'Mona' : 'Tatiana'; }
   var INTERVIEWERS = [
     { id: 'victoria', name: 'Tatiana', title: 'Partner', desc: 'Executive-level mock interviewer. Calm, direct and demanding, with sharp follow-ups that push clear top-down thinking and confident recommendations.', img: 'tatiana', open: true },
-    { id: 'alex', name: 'Alex', title: 'Senior Manager', desc: 'Analytical drill specialist. Fast-paced and numbers-first, he pushes quantitative accuracy, exhibit reading and data-backed insights.', img: 'alex', open: true },
+    { id: 'alex', name: 'Alex', title: 'Partner', desc: 'Analytical drill specialist. Fast-paced and numbers-first, he pushes quantitative accuracy, exhibit reading and data-backed insights.', img: 'alex', open: true },
     { id: 'faisal', name: 'Faisal', title: 'Principal', desc: 'Challenge-focused interviewer. Tests how well you structure ambiguity, defend your logic and synthesize clearly under pressure.', img: 'faisal', open: true },
-    { id: 'layal', name: 'Layal', title: 'Senior Manager', desc: 'Strategic thought partner. Curious and probing, she keeps asking \u2018so what?\u2019 to sharpen implications, trade-offs and recommendations.', img: 'layal', open: true },
-    { id: 'joe', name: 'Joe', title: 'Junior Manager', desc: 'Approachable practice interviewer. Relaxed and conversational, ideal for building confidence, sharpening structure and improving core case habits.', img: 'joe', open: true },
+    { id: 'layal', name: 'Layal', title: 'Manager', desc: 'Strategic thought partner. Curious and probing, she keeps asking \u2018so what?\u2019 to sharpen implications, trade-offs and recommendations.', img: 'layal', open: true },
+    { id: 'joe', name: 'Joe', title: 'Manager', desc: 'Approachable practice interviewer. Relaxed and conversational, ideal for building confidence, sharpening structure and improving core case habits.', img: 'joe', open: true },
     { id: 'mona', name: 'Mona', title: 'Principal', desc: 'Precision-focused evaluator. Expects crisp communication, disciplined problem solving and strong case execution with minimal hand-holding.', img: 'mona', open: true }
   ];
   var CASE_TYPES = [
