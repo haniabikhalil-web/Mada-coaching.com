@@ -1,5 +1,5 @@
 // Mada team dashboard (coach accounts only). Reads one function, public.admin_dashboard(), with the signed-in user's token;
-// the database refuses anyone who is not a coach. Profile data arrives as counts only. Every server string is written with textContent.
+// the database refuses anyone who is not a coach. Per-person profile rows arrive only for coaches (never the date of birth). Every server string is written with textContent.
 (function () {
   var app = document.getElementById('admin-app');
   if (!app) return;
@@ -76,13 +76,30 @@
       rows: function () { return (data.purchases || []).map(function (p) { return [p.email || '', usd(p.amount_cents), p.status, when(p.created_at)]; }); } },
     profiles: { name: 'Profiles', cols: ['Email', 'Name', 'City', 'Country', 'Nationality', 'Education', 'Interviews expected', 'Target firms', 'Target offices', 'Universities', 'Experience', 'Updated'],
       rows: function () { return (data.profiles || []).map(function (p) { return [p.email || '', p.full_name, p.city, p.country, p.nationality || '', p.education || '', LABEL.timing[p.timing] || p.timing || '', (p.target_firms || []).join(', '), (p.target_offices || []).join(', '), (p.universities || []).join(', '), (p.experience || []).join(', '), day(p.updated_at)]; }); } },
-    calls: { name: 'Interviews', cols: ['Email', 'Interviewer', 'Case', 'Level', 'Status', 'Date'],
-      rows: function () { return (data.calls || []).map(function (c) { return [c.email || '', c.interviewer, c.case_id, c.difficulty, c.status, when(c.created_at)]; }); } }
+    calls: { name: 'Interviews', cols: ['Email', 'Interviewer', 'Case', 'Level', 'Status', 'Why it failed', 'Date', ''],
+      rows: function () { return (data.calls || []).map(function (c) { return [c.email || '', c.interviewer, c.case_id, c.difficulty, c.status, c.failure_reason ? (FAILED[c.failure_reason] || c.failure_reason) : '', when(c.created_at), c.can_rescore ? { rescore: c.id } : '']; }); } }
   };
+
+  // Cells are text, except the Re-score action on a failed call (an object that is drawn as a button, never searched or exported).
+  function txt(v) { return v && typeof v === 'object' ? '' : v; }
+  var FAILED = { validation_failed: 'The report did not pass our checks', model_error: 'The scoring model errored', not_assessable: 'The call was too short to assess', pipeline_error: 'Unexpected error', transcript_unusable: 'The transcript could not be read' };
+  function rescoreButton(id) {
+    var wrapb = el('span'), b = el('button', 'btn btn-ghost btn-sm', 'Re-score'); b.type = 'button'; var n = el('small', 'muted'); n.setAttribute('role', 'status');
+    b.addEventListener('click', function () {
+      b.disabled = true; n.textContent = ' Starting…';
+      fetch(url('/functions/v1/interview-rescore'), { method: 'POST', headers: { 'content-type': 'application/json', apikey: KEY, authorization: 'Bearer ' + token }, body: JSON.stringify({ session_id: id }) })
+        .then(function (r) {
+          if (r.status === 202) { n.textContent = ' Re-scoring. This takes about a minute; the list refreshes by itself.'; setTimeout(load, 60000); return; }
+          var why = { 403: 'only coaches can do this', 404: 'it is no longer a failed call', 409: 'it was already picked up', 502: 'the transcript could not be fetched from ElevenLabs' }[r.status] || 'error ' + r.status;
+          n.textContent = ' Not started: ' + why + '.'; b.disabled = r.status === 404 || r.status === 409;
+        }, function () { n.textContent = ' Not started. Check your connection.'; b.disabled = false; });
+    });
+    wrapb.appendChild(b); wrapb.appendChild(n); return wrapb;
+  }
 
   function csv(rows, cols) {
     var esc = function (v) { v = String(v == null ? '' : v); if (/^[=+\-@]/.test(v)) v = "'" + v; return '"' + v.replace(/"/g, '""') + '"'; };
-    return [cols].concat(rows).map(function (r) { return r.map(esc).join(','); }).join('\n');
+    return [cols].concat(rows).map(function (r) { return r.map(function (v) { return esc(txt(v)); }).join(','); }).join('\n');
   }
 
   function welcomeBox() {
@@ -142,9 +159,9 @@
     bar.appendChild(sin); bar.appendChild(ex); app.appendChild(bar);
     var wrap = el('div', 'ad-table'); app.appendChild(wrap);
     function table() {
-      clear(wrap); var rows = all.filter(function (r) { return !q || r.join(' ').toLowerCase().indexOf(q) !== -1; });
+      clear(wrap); var rows = all.filter(function (r) { return !q || r.map(txt).join(' ').toLowerCase().indexOf(q) !== -1; });
       var tb = el('table'), th = el('tr'); def.cols.forEach(function (c) { th.appendChild(el('th', null, c)); }); var hd = el('thead'); hd.appendChild(th); tb.appendChild(hd);
-      var bd = el('tbody'); rows.slice(0, 300).forEach(function (r) { var tr = el('tr'); r.forEach(function (v) { tr.appendChild(el('td', null, v)); }); bd.appendChild(tr); }); tb.appendChild(bd); wrap.appendChild(tb);
+      var bd = el('tbody'); rows.slice(0, 300).forEach(function (r) { var tr = el('tr'); r.forEach(function (v) { var td = el('td'); if (v && typeof v === 'object') td.appendChild(rescoreButton(v.rescore)); else td.textContent = v == null ? '' : v; tr.appendChild(td); }); bd.appendChild(tr); }); tb.appendChild(bd); wrap.appendChild(tb);
       wrap.appendChild(el('p', 'muted', rows.length ? 'Showing ' + Math.min(300, rows.length) + ' of ' + rows.length + '.' : 'Nothing matches.'));
     }
     sin.addEventListener('input', function () { q = sin.value.trim().toLowerCase(); table(); }); table();
