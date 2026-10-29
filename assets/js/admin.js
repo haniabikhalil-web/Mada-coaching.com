@@ -74,6 +74,8 @@
       rows: function () { return (data.waitlist || []).map(function (w) { return [w.email, LABEL.tool[w.tool] || w.tool, day(w.created_at)]; }); } },
     purchases: { name: 'Purchases', cols: ['Email', 'Amount', 'Status', 'Date'],
       rows: function () { return (data.purchases || []).map(function (p) { return [p.email || '', usd(p.amount_cents), p.status, when(p.created_at)]; }); } },
+    profiles: { name: 'Profiles', cols: ['Email', 'Name', 'City', 'Country', 'Nationality', 'Education', 'Interviews expected', 'Target firms', 'Target offices', 'Universities', 'Experience', 'Updated'],
+      rows: function () { return (data.profiles || []).map(function (p) { return [p.email || '', p.full_name, p.city, p.country, p.nationality || '', p.education || '', LABEL.timing[p.timing] || p.timing || '', (p.target_firms || []).join(', '), (p.target_offices || []).join(', '), (p.universities || []).join(', '), (p.experience || []).join(', '), day(p.updated_at)]; }); } },
     calls: { name: 'Interviews', cols: ['Email', 'Interviewer', 'Case', 'Level', 'Status', 'Date'],
       rows: function () { return (data.calls || []).map(function (c) { return [c.email || '', c.interviewer, c.case_id, c.difficulty, c.status, when(c.created_at)]; }); } }
   };
@@ -117,7 +119,7 @@
 
     var pc = data.profile_counts || {}, ins = el('div', 'ad-card');
     ins.appendChild(el('h3', null, 'Who is applying (from completed profiles)'));
-    ins.appendChild(el('p', 'muted', 'Counts only. Profiles are private to each candidate, so names and emails are never shown here.'));
+    ins.appendChild(el('p', 'muted', 'Counts from completed profiles. The Profiles tab below lists each one.'));
     var g = el('div', 'ad-grid');
     [['When they expect interviews', pc.timing, LABEL.timing], ['Countries', pc.country], ['Target firms', pc.target_firms], ['Target offices', pc.target_offices], ['Education', pc.education]].forEach(function (x) {
       var d = el('div'); d.appendChild(el('h4', null, x[0])); d.appendChild(bars(x[1], x[2])); g.appendChild(d);
