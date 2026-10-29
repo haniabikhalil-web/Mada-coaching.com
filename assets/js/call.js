@@ -329,7 +329,7 @@
     }
     draw();
     form.appendChild(slotI); form.appendChild(slotC); form.appendChild(slotD);
-    form.appendChild(el('p', 'muted', 'You will get a case of this type at random. You need a quiet place, a microphone and about 25 minutes.'));
+    form.appendChild(el('p', 'muted', 'You will get a case of this type at random. You need a quiet place, a microphone and about 25 minutes. The interview ends automatically at 25 minutes.'));
 
     var box = el('div', 'rp-consent');
     box.appendChild(el('strong', null, 'Before you start'));
@@ -391,6 +391,8 @@
     var name = el('p', 'call-name', who());
     var stat = el('p', 'call-status', 'Connecting… allow the microphone when your browser asks.');
     var clock = el('p', 'call-clock', '0:00');
+    var left = el('p', 'call-left', 'Ends automatically at 25:00');
+    var warn = el('p', 'call-warn'); warn.setAttribute('role', 'alert'); warn.hidden = true;
     var tr = el('div', 'call-transcript');
     tr.setAttribute('aria-live', 'off');
     tr.appendChild(el('p', 'call-tr-empty', 'The conversation will appear here as you speak.'));
@@ -399,8 +401,9 @@
     var end = el('button', 'call-btn call-btn-end', 'End call'); end.type = 'button'; end.disabled = true;
     bar.appendChild(mute); bar.appendChild(end);
     var side = el('div', 'call-side');
-    [orbWrap, name, stat, clock, bar].forEach(function (n) { side.appendChild(n); });
+    [orbWrap, name, stat, clock, left, bar].forEach(function (n) { side.appendChild(n); });
     var main = el('div', 'call-main');
+    main.appendChild(warn);
     main.appendChild(el('p', 'call-tr-title', 'Live transcript'));
     main.appendChild(tr);
     stage.appendChild(side); stage.appendChild(main);
@@ -446,9 +449,29 @@
         setMode('listening');
         end.disabled = false; mute.disabled = false;
         var t0 = Date.now();
+        // The call ends by itself at 25 minutes. Warn the candidate on screen and tell the interviewer, so they say it out loud too.
+        var LIMIT = 25 * 60, fired = {};
+        var CHECKS = [
+          { at: 300, text: 'About 5 minutes left. Start moving toward your recommendation.',
+            tell: 'TIME CHECK: about five minutes remain; the call ends automatically at 25 minutes. At your next natural pause, tell the candidate in one short sentence that you are close to time, and steer them towards their final recommendation.' },
+          { at: 120, text: '2 minutes left. Wrap up with your recommendation.',
+            tell: 'TIME CHECK: two minutes remain. Ask the candidate to give their final recommendation now, then close the case briefly.' },
+          { at: 60, text: '1 minute left. The interview ends automatically at 25:00.',
+            tell: 'TIME CHECK: one minute remains. Thank the candidate and close the interview now; the call will end automatically.' }
+        ];
+        function mmss(n) { n = Math.max(0, n); return Math.floor(n / 60) + ':' + ('0' + (n % 60)).slice(-2); }
         timer = setInterval(function () {
-          var sec = Math.floor((Date.now() - t0) / 1000);
-          clock.textContent = Math.floor(sec / 60) + ':' + ('0' + (sec % 60)).slice(-2);
+          var sec = Math.floor((Date.now() - t0) / 1000), remain = LIMIT - sec;
+          clock.textContent = mmss(sec);
+          left.textContent = remain > 0 ? mmss(remain) + ' left' : 'Time is up';
+          left.classList.toggle('is-low', remain <= 300);
+          CHECKS.forEach(function (c) {
+            if (remain <= c.at && !fired[c.at]) {
+              fired[c.at] = true;
+              warn.textContent = c.text; warn.hidden = false;
+              try { if (conv && conv.sendContextualUpdate) conv.sendContextualUpdate(c.tell); } catch (e) {}
+            }
+          });
         }, 1000);
         raf = requestAnimationFrame(animate);
       },
