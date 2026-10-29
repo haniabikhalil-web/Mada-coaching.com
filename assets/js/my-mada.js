@@ -21,11 +21,30 @@
   }
   function clear() { while (app.firstChild) app.removeChild(app.firstChild); }
   function say(msg) { clear(); app.appendChild(el('p', 'muted', msg)); }
+  function spin(msg) {
+    clear();
+    var box = el('div', 'mada-loader'); box.setAttribute('role', 'status');
+    var ring = el('div', 'mada-loader-ring'); ring.setAttribute('aria-hidden', 'true');
+    box.appendChild(ring); box.appendChild(el('p', 'muted', msg));
+    app.appendChild(box);
+  }
+  function loadFailed() {
+    clear();
+    var box = el('div', 'mada-loader'); box.setAttribute('role', 'alert');
+    box.appendChild(el('h2', null, 'That took longer than expected'));
+    box.appendChild(el('p', 'muted', 'We could not load your account. Check your connection and try again.'));
+    var b = el('button', 'btn btn-primary', 'Try again'); b.type = 'button'; b.addEventListener('click', load);
+    box.appendChild(b); app.appendChild(box);
+  }
   function ready() { return API && KEY && API.indexOf('https://') === 0 && S; }
   function post(path, body, bearer) {
     var h = { 'content-type': 'application/json', apikey: KEY };
     if (bearer) h.authorization = 'Bearer ' + bearer;
-    return fetch(API.replace(/\/+$/, '') + path, { method: 'POST', headers: h, body: JSON.stringify(body) });
+    var ctl = typeof AbortController === 'function' ? new AbortController() : null;
+    var t = ctl ? setTimeout(function () { ctl.abort(); }, 15000) : null;
+    var req = fetch(API.replace(/\/+$/, '') + path, { method: 'POST', headers: h, body: JSON.stringify(body), signal: ctl ? ctl.signal : undefined });
+    if (t) req.then(function () { clearTimeout(t); }, function () { clearTimeout(t); });
+    return req;
   }
   function link(text, href, cls) { var a = el('a', cls || 'btn btn-ghost btn-sm', text); a.href = href; return a; }
   function fmtDate(iso) { var d = new Date(iso); return isNaN(d) ? '' : d.toLocaleDateString(undefined, { day: 'numeric', month: 'long', year: 'numeric' }); }
@@ -76,7 +95,7 @@
     }, function () { return { error: true }; });
   }
   function load() {
-    say('Loading your account…');
+    spin('Loading your account…');
     Promise.all([
       MATHS_ON ? call('/functions/v1/maths-access', { action: 'status' }) : Promise.resolve({ off: true }),
       call('/functions/v1/interview-checkout', { action: 'balance' }),
@@ -93,8 +112,8 @@
           S.clear(); token = null; signInForm('Your session expired. Sign in again.');
         });
       }
-      show(res[0], res[1], res[2], passRes);
-    });
+      try { show(res[0], res[1], res[2], passRes); } catch (e) { loadFailed(); }
+    }, loadFailed);
   }
 
   // Local maths progress (kept by the drills page in this browser, per email)
