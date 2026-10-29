@@ -20,6 +20,7 @@
   var KEY = app.getAttribute('data-key');
   var PRICE = app.getAttribute('data-price') || '50';
   var PASS_PRICE = app.getAttribute('data-pass-price') || '100';
+  var CAP_MIN = 25, CAP_SECS = CAP_MIN * 60; // matches the Max conversation duration on every ElevenLabs interviewer
   var PASS_LIVE = app.getAttribute('data-pass-live') === '1';
   var passReturn = /[?&]pass=1/.test(location.search);
   var paidReturn = /[?&]paid=1/.test(location.search) || passReturn;
@@ -409,13 +410,13 @@
     stage.appendChild(side); stage.appendChild(main);
     app.appendChild(stage);
 
-    var done = false, mode = 'listening', raf = null, muted = false;
+    var done = false, mode = 'listening', raf = null, muted = false, t0 = 0;
     function finish() {
       if (done) return;
       done = true;
       if (timer) { clearInterval(timer); timer = null; }
       if (raf) cancelAnimationFrame(raf);
-      waitForReport(s.session_id);
+      waitForReport(s.session_id, t0 && (Date.now() - t0) / 1000 >= CAP_SECS - 5 ? 'cap' : '', t0 ? Math.round((Date.now() - t0) / 1000) : 0);
     }
     function setMode(m) {
       mode = m;
@@ -448,9 +449,9 @@
       onConnect: function () {
         setMode('listening');
         end.disabled = false; mute.disabled = false;
-        var t0 = Date.now();
-        // The call ends by itself at 25 minutes. Warn the candidate on screen and tell the interviewer, so they say it out loud too.
-        var LIMIT = 25 * 60, fired = {};
+        t0 = Date.now();
+        // The call ends by itself at 25 minutes (the cap set on every interviewer in ElevenLabs). Warn the candidate on screen and tell the interviewer, so they say it out loud too.
+        var LIMIT = CAP_SECS, fired = {};
         var CHECKS = [
           { at: 300, text: 'About 5 minutes left. Start moving toward your recommendation.',
             tell: 'TIME CHECK: about five minutes remain; the call ends automatically at 25 minutes. At your next natural pause, tell the candidate in one short sentence that you are close to time, and steer them towards their final recommendation.' },
@@ -495,14 +496,14 @@
   }
 
   // ---------------------------------------------------------------- 5. the report
-  function waitForReport(sessionId) {
+  function waitForReport(sessionId, reason, secs) {
     clear();
     var card = el('div', 'call-stage call-wait');
-    var orbWrap = el('div', 'orb-wrap');
-    orbWrap.appendChild(el('div', 'orb-ring'));
-    orbWrap.appendChild(el('div', 'orb is-thinking'));
-    card.appendChild(orbWrap);
-    card.appendChild(el('h3', 'call-name', 'Preparing your report'));
+    var ring = el('div', 'mada-loader-ring'); ring.setAttribute('aria-hidden', 'true');
+    ring.style.margin = '0 auto 20px';
+    card.appendChild(ring);
+    card.appendChild(el('h3', 'call-name', reason === 'cap' ? 'Your interview has ended' : 'Preparing your report'));
+    if (reason === 'cap') card.appendChild(el('p', 'call-status', 'The interview reached its ' + CAP_MIN + '-minute limit, so the call ended automatically. Your report is on its way.'));
     var stat = el('p', 'call-status', who() + '’s notes are being scored. This usually takes about a minute. Keep this page open.');
     card.appendChild(stat);
     app.appendChild(card);
