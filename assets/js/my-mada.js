@@ -203,7 +203,8 @@
     top.appendChild(el('span', 'muted', 'Signed in as ' + email));
     var out = el('button', 'mm-manage', 'Sign out'); out.type = 'button';
     out.addEventListener('click', function () { S.clear(); token = null; signInForm(); });
-    top.appendChild(out);
+    var actions = el('span', 'mm-actions'); actions.appendChild(out);
+    top.appendChild(actions);
     app.appendChild(top);
 
     var mine = [], more = [], notes = [];
@@ -273,9 +274,9 @@
     notes.forEach(function (n) { app.appendChild(el('p', 'muted mm-err', n)); });
     app.appendChild(group(mine.length ? 'Explore more' : 'Explore', more));
     if (window.MadaProfile) {
-      var pfHost = el('div', 'mm-group');
-      app.insertBefore(pfHost, app.children[1] || null);   // right under "Signed in as", before the products
-      window.MadaProfile.mount(pfHost, { api: API, key: KEY, email: email, token: function () { return token; },
+      var pfHost = el('div', 'pf-host');
+      app.insertBefore(pfHost, top.nextSibling);   // the first-time card sits right under "Signed in as"
+      window.MadaProfile.mount({ api: API, key: KEY, email: email, token: function () { return token; }, bar: out, prompt: pfHost,
         expired: function () { return S.recover(API, KEY).then(function (ok) { if (ok) { location.reload(); return; } S.clear(); token = null; signInForm('Your session expired. Sign in again.'); }); } });
     }
   }

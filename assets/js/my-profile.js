@@ -11,6 +11,7 @@
     offices: ['Dubai','Abu Dhabi','Riyadh','Jeddah','Doha','Kuwait City','Manama','Muscat','Cairo','Amman','Beirut','London','Paris','Frankfurt','Munich','Zurich','Amsterdam','Madrid','Istanbul','New York','San Francisco','Singapore','Mumbai']
   };
   var EDU = ['High school', 'Bachelor’s degree', 'Master’s degree', 'MBA', 'PhD', 'Other'];
+  var TIMING = [['already-interviewing', 'I already have interviews lined up'], ['within-1-month', 'Within the next month'], ['1-3-months', 'In 1 to 3 months'], ['3-6-months', 'In 3 to 6 months'], ['later', 'More than 6 months from now'], ['exploring', 'Just exploring for now']];
   var LIMITS = { experience: 30, universities: 15, firms: 30, offices: 30 };
   var COLS = { experience: 'experience', universities: 'universities', firms: 'target_firms', offices: 'target_offices' };
 
@@ -87,33 +88,46 @@
     return w;
   }
 
-  function mount(host, o) {
-    // o: { api, key, token(), email, expired() }
+  // o: { api, key, email, token(), expired(), bar (element the "My profile" button goes before), prompt (element for the first-time card) }
+  function mount(o) {
     var API = o.api.replace(/\/+$/, '');
     function rest(method, qs, body) {
       var h = { apikey: o.key, authorization: 'Bearer ' + o.token(), 'content-type': 'application/json' };
       if (method !== 'GET') h.prefer = 'return=representation';
       return fetch(API + '/rest/v1/candidate_profiles' + qs, { method: method, headers: h, body: body ? JSON.stringify(body) : undefined });
     }
-    var sec = el('section', 'pf'); sec.setAttribute('aria-labelledby', 'pf-title');
-    var h = el('h2', 'mm-label', 'My Profile'); h.id = 'pf-title';
-    sec.appendChild(h);
-    var intro = el('p', 'muted', 'Tell us a little about you so Mada can personalize your experience. Your profile is private: only you can see it. Mada coaches and the AI interviewers do not read it, and you can change or delete it at any time.');
-    sec.appendChild(intro);
-    var body = el('div', 'pf-body'); sec.appendChild(body); host.appendChild(sec);
-    body.appendChild(el('p', 'muted', 'Loading your profile…'));
+    var cur = null, loaded = false;
+    var dlg = el('dialog', 'wl-dialog pf-dialog'); dlg.setAttribute('aria-labelledby', 'pf-title');
+    var sec = el('div', 'pf');
+    var closeBtn = el('button', 'wl-close', '\u00d7'); closeBtn.type = 'button'; closeBtn.setAttribute('aria-label', 'Close');
+    closeBtn.addEventListener('click', function () { dlg.close(); });
+    var h = el('h2', null, 'My Profile'); h.id = 'pf-title';
+    sec.appendChild(closeBtn); sec.appendChild(h);
+    sec.appendChild(el('p', 'muted', 'Tell us a little about you so Mada can personalize your experience. Your profile is private: only you can see it. Mada coaches and the AI interviewers do not read it, and you can change or delete it at any time.'));
+    var body = el('div', 'pf-body'); sec.appendChild(body); dlg.appendChild(sec); document.body.appendChild(dlg);
+    dlg.addEventListener('click', function (e) { if (e.target === dlg) dlg.close(); });
+
+    // The button next to "Sign out", and a one-time card for people who have not filled the profile in yet.
+    var btn = el('button', 'mm-manage', 'My profile'); btn.type = 'button'; btn.hidden = true;
+    o.bar.parentNode.insertBefore(btn, o.bar);
+    var card = el('div', 'pf-prompt'); card.hidden = true;
+    var ct = el('div'); ct.appendChild(el('h3', null, 'Complete your profile')); ct.appendChild(el('p', 'muted', 'One minute, once. It helps Mada tailor your practice and coaching to where you are and when your interviews are.'));
+    var cb2 = el('button', 'btn btn-primary btn-sm', 'Complete my profile'); cb2.type = 'button';
+    card.appendChild(ct); card.appendChild(cb2); o.prompt.appendChild(card);
+    function openDlg() { form(cur); dlg.showModal(); }
+    btn.addEventListener('click', openDlg); cb2.addEventListener('click', openDlg);
+    function refreshUi() { btn.hidden = !loaded; card.hidden = !loaded || !!(cur && cur.interview_timing); btn.textContent = 'My profile';
+      ct.firstChild.textContent = cur ? 'One more question' : 'Complete your profile';
+      ct.lastChild.textContent = cur ? 'When are you applying or expecting interviews? It helps Mada tailor your practice and coaching.' : 'One minute, once. It helps Mada tailor your practice and coaching to where you are and when your interviews are.';
+      cb2.textContent = cur ? 'Answer now' : 'Complete my profile'; }
+    function clearBody() { while (body.firstChild) body.removeChild(body.firstChild); }
 
     var me = uid(o.token());
     rest('GET', '?select=*&user_id=eq.' + encodeURIComponent(me)).then(function (r) {
       if (r.status === 401) return o.expired();
-      if (r.status === 404) { unavailable(); return; }
-      if (!r.ok) { fail('We could not load your profile just now. Refresh in a minute.'); return; }
-      r.json().then(function (rows) { form(rows && rows[0] ? rows[0] : null); });
-    }, function () { fail('We could not load your profile just now. Refresh in a minute.'); });
-
-    function clearBody() { while (body.firstChild) body.removeChild(body.firstChild); }
-    function fail(m) { clearBody(); body.appendChild(el('p', 'muted mm-err', m)); }
-    function unavailable() { clearBody(); body.appendChild(el('p', 'muted', 'My Profile is not available just yet. Please check back soon.')); }
+      if (!r.ok) return;                       // not available yet, or a hiccup: show nothing rather than a broken button
+      r.json().then(function (rows) { cur = rows && rows[0] ? rows[0] : null; loaded = true; refreshUi(); });
+    }, function () {});
 
     function form(p) {
       clearBody();
@@ -130,11 +144,16 @@
       EDU.forEach(function (e) { var op = el('option', null, e); op.value = e; edu.appendChild(op); });
       if (p && p.education_level) { if (EDU.indexOf(p.education_level) === -1) { var ox = el('option', null, p.education_level); ox.value = p.education_level; edu.appendChild(ox); } edu.value = p.education_level; }
 
+      var timing = el('select', 'pf-input'); timing.id = 'pf-timing';
+      var t0 = el('option', null, 'Select\u2026'); t0.value = ''; timing.appendChild(t0);
+      TIMING.forEach(function (t) { var op = el('option', null, t[1]); op.value = t[0]; timing.appendChild(op); });
+      timing.value = p && p.interview_timing ? p.interview_timing : '';
+      var fTiming = field('When are you applying or expecting interviews?', timing, { required: true, hint: 'This helps us prioritize what to prepare first.' });
       var fName = field('Full name', name, { required: true });
       var fDob = field('Date of birth', dob, { required: true, hint: 'Used only to personalize your experience. Never shown to anyone else.' });
       var fCity = field('City', city, { required: true });
       var fCountry = field('Country', country, { required: true });
-      var req = el('div', 'pf-grid'); [fName, emailField(), fDob, fCity, fCountry].forEach(function (n) { req.appendChild(n); });
+      var req = el('div', 'pf-grid'); [fName, emailField(), fDob, fCity, fCountry, fTiming].forEach(function (n) { req.appendChild(n); });
       f.appendChild(req); f.appendChild(dl);
 
       f.appendChild(el('h3', 'pf-sub', 'Optional'));
@@ -160,7 +179,7 @@
           if (!window.confirm('Delete your profile? This removes everything saved here and cannot be undone.')) return;
           del.disabled = true;
           rest('DELETE', '?user_id=eq.' + encodeURIComponent(me)).then(function (r) {
-            if (r.ok) form(null); else { del.disabled = false; msg.className = 'wl-msg bad'; msg.textContent = 'We could not delete your profile. Please try again.'; }
+            if (r.ok) { cur = null; refreshUi(); dlg.close(); } else { del.disabled = false; msg.className = 'wl-msg bad'; msg.textContent = 'We could not delete your profile. Please try again.'; }
           }, function () { del.disabled = false; msg.className = 'wl-msg bad'; msg.textContent = 'We could not reach the service. Please try again.'; });
         });
         row.appendChild(del);
@@ -200,13 +219,14 @@
         chk(fName, name, nm.length >= 2 && nm.length <= 100, 'Please enter your full name.');
         chk(fDob, dob, !!dob.value && dob.value >= '1900-01-01' && dob.value <= today(), 'Please enter a valid date of birth.');
         chk(fCity, city, ci.length >= 1 && ci.length <= 80, 'Please enter your city.');
+        chk(fTiming, timing, !!timing.value, 'Please choose one.');
         chk(fCountry, country, co.length >= 2 && co.length <= 80, 'Please enter your country.');
         if (!cb.checked) { bad = true; msg.className = 'wl-msg bad'; msg.textContent = 'Please tick the box to agree before saving.'; if (!first) first = cb; }
         else if (!bad) msg.textContent = '';
         if (bad) { if (first) first.focus(); return; }
         var data = {
           full_name: nm, date_of_birth: dob.value, city: ci, country: co,
-          nationality: nat.value.trim() || null, education_level: edu.value || null,
+          interview_timing: timing.value, nationality: nat.value.trim() || null, education_level: edu.value || null,
           experience: tExp.get(), universities: tUni.get(), target_firms: tFirm.get(), target_offices: tOff.get()
         };
         save.disabled = true; msg.className = 'wl-msg'; msg.textContent = 'Saving…';
@@ -218,8 +238,9 @@
           return r.json().then(function (rows) {
             var row = rows && rows[0];
             if (!row) throw new Error('no row');
-            form(row);
-            var m = body.querySelector('.wl-msg'); if (m) { m.className = 'wl-msg ok'; m.textContent = 'Saved.'; }
+            cur = row; refreshUi();
+            msg.className = 'wl-msg ok'; msg.textContent = 'Saved.';
+            setTimeout(function () { if (dlg.open) dlg.close(); }, 900);
           });
         }).catch(function () { save.disabled = false; msg.className = 'wl-msg bad'; msg.textContent = 'We could not save your profile. Please check your details and try again.'; });
       });
