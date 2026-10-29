@@ -51,7 +51,7 @@
   function signInForm(msg) {
     clear(app);
     var form = el('form', 'rp-form card mx-card');
-    form.appendChild(el('h3', null, 'Sign in to the maths drills'));
+    form.appendChild(el('h3', null, 'Sign in to Case Math Mastery'));
     form.appendChild(el('p', 'muted', msg || 'Enter your email and we will send you a one-time code. New here? The same step creates your account.'));
     var input = el('input'); input.type = 'email'; input.required = true; input.autocomplete = 'email'; input.placeholder = 'you@example.com';
     input.setAttribute('aria-label', 'Email address');
@@ -127,7 +127,7 @@
     var lapsed = st.status === 'past_due' || st.status === 'unpaid';
     var price = PRICE;
     card.appendChild(el('span', 'tag', lapsed ? 'Payment needed' : 'Subscription'));
-    card.appendChild(el('h3', null, lapsed ? 'Your last payment did not go through' : 'Maths drills, $' + price + ' a month'));
+    card.appendChild(el('h3', null, lapsed ? 'Your last payment did not go through' : 'Case Math Mastery, $' + price + ' a month'));
     if (!lapsed) card.appendChild(el('p', 'muted', 'Included at no extra cost with an Unlimited Interviews subscription.'));
     if (lapsed) {
       card.appendChild(el('p', null, 'Update your payment details to get your access back. Nothing else changes.'));
@@ -203,7 +203,7 @@
     }, function () { say('Could not reach the service. Please try again shortly.'); });
   }
 
-  if (!ready()) { say('The maths drills are not available yet.'); return; }
+  if (!ready()) { say('Case Math Mastery is not available yet.'); return; }
   S.restore(API, KEY).then(function (saved) {
     if (saved) { token = saved.token; email = saved.email; check(q.get('paid') === '1' ? 12 : 0); } else signInForm();
   });

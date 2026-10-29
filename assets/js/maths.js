@@ -7,7 +7,9 @@
   if (!app || !M) return;
 
   var HISTORY_KEY = 'mada_maths_history';
-  var state = { level: 'random', topics: M.TOPIC_IDS.slice(), count: 10 };
+  // mix = Random Mix (every topic). It is on by default and excludes picking individual topics; topics holds the individual choices.
+  var state = { level: 'random', mix: true, topics: [], count: 10 };
+  function chosenTopics() { return state.mix || !state.topics.length ? M.TOPIC_IDS.slice() : state.topics.slice(); }
 
   function el(tag, cls, text) {
     var n = document.createElement(tag);
@@ -96,18 +98,20 @@
 
     card.appendChild(el('h3', 'mx-h', 'Choose your topics'));
     var chips = el('div', 'mx-chips');
-    var allOn = state.topics.length === M.TOPIC_IDS.length;
-    var rnd = el('button', 'mx-chip' + (allOn ? ' on' : ''), 'Random mix');
-    rnd.type = 'button'; rnd.setAttribute('aria-pressed', allOn ? 'true' : 'false');
-    rnd.addEventListener('click', function () { state.topics = M.TOPIC_IDS.slice(); setup(); });
+    var rnd = el('button', 'mx-chip' + (state.mix ? ' on' : ''), 'Random Mix');
+    rnd.type = 'button'; rnd.setAttribute('aria-pressed', state.mix ? 'true' : 'false');
+    rnd.addEventListener('click', function () { state.mix = true; state.topics = []; setup(); });
     chips.appendChild(rnd);
     M.TOPIC_IDS.forEach(function (id) {
-      var on = state.topics.indexOf(id) !== -1;
+      var on = !state.mix && state.topics.indexOf(id) !== -1;
       var c = el('button', 'mx-chip' + (on ? ' on' : ''), M.TOPICS[id].label);
       c.type = 'button'; c.setAttribute('aria-pressed', on ? 'true' : 'false');
       c.addEventListener('click', function () {
         var i = state.topics.indexOf(id);
-        if (i === -1) state.topics.push(id); else if (state.topics.length > 1) state.topics.splice(i, 1);
+        if (state.mix) { state.mix = false; state.topics = [id]; }
+        else if (i === -1) state.topics.push(id);
+        else state.topics.splice(i, 1);
+        if (!state.topics.length) state.mix = true;   // never an empty selection: fall back to Random Mix
         setup();
       });
       chips.appendChild(c);
@@ -125,7 +129,7 @@
     card.appendChild(counts);
 
     var go = el('button', 'btn btn-primary', 'Start drill'); go.type = 'button'; go.style.marginTop = '24px';
-    go.addEventListener('click', function () { run(M.session({ level: state.level, count: state.count, topics: state.topics }), state.level); });
+    go.addEventListener('click', function () { run(M.session({ level: state.level, count: state.count, topics: chosenTopics() }), state.level); });
     card.appendChild(go);
     app.appendChild(card);
 
@@ -139,7 +143,7 @@
     var h = readHistory();
     if (h.length) {
       var box = el('div', 'card mx-card'); box.style.marginTop = '20px';
-      box.appendChild(el('h3', null, 'Your recent drills'));
+      box.appendChild(el('h3', null, 'Your recent practice'));
       var ul = el('ul', 'mx-history');
       h.slice(0, 5).forEach(function (e) {
         ul.appendChild(el('li', null, M.DIFFICULTIES[e.level] + ': ' + e.correct + ' of ' + e.total + ' correct, ' + fmtTime(e.avgSec) + ' per question'));
@@ -212,7 +216,7 @@
       card.appendChild(el('p', null, msg));
       card.appendChild(el('p', 'muted', canSync() ? 'Your totals are saved to your Mada account (' + who() + '), so they follow you to any device.' : 'Your totals are stored in this browser for ' + (who() === 'guest' ? 'this device' : who()) + '. Clearing your browser data clears them.'));
     }
-    var back = el('button', 'btn btn-primary', 'Back to the drills'); back.type = 'button';
+    var back = el('button', 'btn btn-primary', 'Back to Case Math Mastery'); back.type = 'button';
     back.addEventListener('click', function () { setup(); });
     card.appendChild(back);
     app.appendChild(card);
@@ -229,8 +233,8 @@
       var q = questions[idx];
       var card = el('div', 'card mx-card');
       var top = el('div', 'mx-top');
-      top.appendChild(el('span', 'badge', 'Question ' + (idx + 1) + ' of ' + questions.length));
-      top.appendChild(el('span', 'tag', q.topicLabel + ' · ' + M.DIFFICULTIES[q.level]));
+      top.appendChild(el('span', 'mx-q', 'Question ' + (idx + 1) + ' of ' + questions.length));
+      top.appendChild(el('span', 'mx-cat', q.topicLabel + ' \u00b7 ' + M.DIFFICULTIES[q.level]));
       var clock = el('span', 'mx-clock', '0:00'); clock.setAttribute('aria-label', 'Time on this question');
       top.appendChild(clock);
       card.appendChild(top);
@@ -273,7 +277,7 @@
         saveAttempt(q, res, sec);
         clear(); // rebuild the card with the feedback
         var c2 = el('div', 'card mx-card');
-        c2.appendChild(el('span', 'badge', 'Question ' + (idx + 1) + ' of ' + questions.length));
+        c2.appendChild(el('span', 'mx-q', 'Question ' + (idx + 1) + ' of ' + questions.length));
         c2.appendChild(el('p', 'mx-prompt', q.prompt));
         var verdict = el('p', 'mx-verdict ' + (res.ok ? 'good' : 'bad'), res.skipped ? 'Skipped.' : res.ok ? 'Correct.' : 'Not quite.');
         verdict.setAttribute('role', 'status');

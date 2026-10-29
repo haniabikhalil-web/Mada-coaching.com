@@ -189,7 +189,7 @@
       if (h) h.classList.add('mm-compact');
     } else {
       t.textContent = 'Everything you have with Mada, in one place.';
-      l.textContent = 'Sign in once to see your maths drills, your AI case interviews and your reports, and to manage your subscription.';
+      l.textContent = 'Sign in once to see your Case Math Mastery, your AI case interviews and your reports, and to manage your subscription.';
       if (h) h.classList.remove('mm-compact');
     }
     l.hidden = false;
@@ -211,13 +211,13 @@
 
     // Unlimited interviews
     var passOn = !!(pass && pass.ok && pass.data && pass.data.active);
-    if (pass && pass.error) failed('your Unlimited interviews');
+    if (pass && pass.error) failed('your Unlimited AI Interviews');
     else if (passOn) {
-      mine.push(tile({ owned: true, icon: 'unlimited', title: 'Unlimited interviews', pill: 'Active', pillCls: 'good',
-        text: 'Practise as much as you need, up to ' + pass.data.dailyLimit + ' interviews a day.', note: renewal(pass.data),
+      mine.push(tile({ owned: true, icon: 'unlimited', title: 'Unlimited AI Interviews', pill: 'Active', pillCls: 'good',
+        text: 'Practice as much as you need, up to ' + pass.data.dailyLimit + ' interviews a day.', note: renewal(pass.data),
         cta: { text: 'Start an interview', href: START }, manage: portal('/functions/v1/pass-access') }));
     } else {
-      more.push(tile({ icon: 'unlimited', title: 'Unlimited interviews', text: 'One subscription for Case, Fit and Full Mock interviews, with Math Drills included.', cta: { text: 'See the options', href: START } }));
+      more.push(tile({ icon: 'unlimited', title: 'Unlimited AI Interviews', text: 'One subscription for Case, Fit and Full Mock interviews, with Case Math Mastery included.', cta: { text: 'See the options', href: START } }));
     }
 
     // Case interviews (single credits)
@@ -229,20 +229,20 @@
         text: 'You have ' + credits + ' practice interview' + (credits === 1 ? '' : 's') + ' ready to use.',
         cta: { text: 'Start a practice interview', href: START } }));
     } else if (!passOn && credits !== null) {
-      more.push(tile({ icon: 'interview', title: 'AI case interviews', text: 'Practise a real case with an AI interviewer and get a scored report.', cta: { text: 'Practise a case', href: START } }));
+      more.push(tile({ icon: 'interview', title: 'AI case interviews', text: 'Practice a real case with an AI interviewer and get a scored report.', cta: { text: 'Practice a case', href: START } }));
     }
 
     // Maths drills
     if (!maths.off) {
       var mOn = !!(maths.ok && maths.data && maths.data.active);
-      if (maths.error) failed('your maths drills');
+      if (maths.error) failed('your Case Math Mastery');
       else if (mOn) {
         var pr = mathsProgress();
-        mine.push(tile({ owned: true, icon: 'maths', title: 'Maths drills', pill: 'Active', pillCls: 'good',
-          text: pr ? pr.n + ' questions answered, ' + pr.pct + '% correct.' : 'Timed case-maths questions with worked solutions.', note: renewal(maths.data),
-          cta: { text: 'Open the drills', href: MATHS_URL }, manage: portal('/functions/v1/maths-access') }));
+        mine.push(tile({ owned: true, icon: 'maths', title: 'Case Math Mastery', pill: 'Active', pillCls: 'good',
+          text: pr ? pr.n + ' questions answered, ' + pr.pct + '% correct.' : 'Timed case-math questions with worked solutions.', note: renewal(maths.data),
+          cta: { text: 'Open Case Math Mastery', href: MATHS_URL }, manage: portal('/functions/v1/maths-access') }));
       } else {
-        more.push(tile({ icon: 'maths', title: 'Maths drills', text: 'Timed case-maths questions with worked solutions and a progress report.', cta: { text: 'See the maths drills', href: MATHS_URL } }));
+        more.push(tile({ icon: 'maths', title: 'Case Math Mastery', text: 'Timed case-math questions with worked solutions and a progress report.', cta: { text: 'See Case Math Mastery', href: MATHS_URL } }));
       }
     }
 
@@ -256,10 +256,10 @@
     more.push(tile({ icon: 'coach', title: 'Coaching with a Mada coach', text: 'Work 1:1 with a consultant on your applications, cases and offers.', cta: { text: 'See coaching options', href: BOOK } }));
 
     // Not built yet: shown so the road ahead is visible
-    [['intro', 'Introduction to case study', 'A guided start for newcomers: how cases work and how to structure your first one.'],
-     ['fit', 'Fit interviews', 'Practise behavioural and motivation questions with an AI interviewer and get feedback on your stories.'],
-     ['mock', 'Full mock', 'A complete interview, case and fit together, with one report at the end.'],
-     ['cv', 'AI CV review', 'Upload your CV and get structured feedback on what consulting recruiters look for.']].forEach(function (x) {
+    [['intro', 'Introduction to Case Solving', 'A guided start for newcomers: how cases work and how to structure your first one.'],
+     ['fit', 'Fit Interviews', 'Practice behavioral and motivation questions with an AI interviewer and get feedback on your stories.'],
+     ['mock', 'Full Mock Interviews', 'A complete interview, case and fit together, with one report at the end.'],
+     ['cv', 'AI CV Review', 'Upload your CV and get structured feedback on what consulting recruiters look for.']].forEach(function (x) {
       more.push(tile({ icon: x[0], title: x[1], text: x[2], pill: 'Coming soon', pillCls: 'soon' }));
     });
 
@@ -272,6 +272,12 @@
     }
     notes.forEach(function (n) { app.appendChild(el('p', 'muted mm-err', n)); });
     app.appendChild(group(mine.length ? 'Explore more' : 'Explore', more));
+    if (window.MadaProfile) {
+      var pfHost = el('div', 'mm-group');
+      app.insertBefore(pfHost, app.children[1] || null);   // right under "Signed in as", before the products
+      window.MadaProfile.mount(pfHost, { api: API, key: KEY, email: email, token: function () { return token; },
+        expired: function () { return S.recover(API, KEY).then(function (ok) { if (ok) { location.reload(); return; } S.clear(); token = null; signInForm('Your session expired. Sign in again.'); }); } });
+    }
   }
 
   if (!ready()) { say('My Mada is not available yet.'); return; }
