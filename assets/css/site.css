@@ -922,3 +922,10 @@ section.mm-sec{padding-top:40px}
 
 .pf-prompt[hidden],.mm-manage[hidden]{display:none}
 .pf-field .mm-manage{align-self:flex-start}
+/* Call time warnings */
+.call-left{margin:4px 0 0;font-size:14px;font-weight:600;color:var(--on-navy)}
+.call-left.is-low{color:#FFB08F}
+.call-warn{margin:0 0 14px;padding:12px 16px;border-radius:14px;background:var(--dawn);color:var(--navy);font-weight:700;font-size:16px}
+@media (prefers-reduced-motion:no-preference){.call-warn:not([hidden]){animation:call-warn-in .4s ease-out}}
+@keyframes call-warn-in{from{transform:translateY(-6px);opacity:0}to{transform:none;opacity:1}}
+.call-warn[hidden]{display:none}
