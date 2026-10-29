@@ -42,7 +42,7 @@ def coach_cards(ctx, names=None):
             avatar = f'<span class="avatar" aria-hidden="true">{initials}</span>'
         rows = []
         if c.get('prev'):
-            rows.append(f'<div class="coach-row"><span class="k">Worked for</span><span>{c["prev"]}</span></div>')
+            rows.append(f'<div class="coach-row"><span class="k">Experience</span><span>{c["prev"]}</span></div>')
         if c.get('edu'):
             rows.append(f'<div class="coach-row"><span class="k">Education</span><span>{"<br>".join(c["edu"])}</span></div>')
         foot = []
@@ -62,20 +62,33 @@ def coach_cards(ctx, names=None):
 
 
 def coach_filters():
-    def opts(key):
-        vals = sorted({v for c in COACHES for v in c[key]}, key=lambda x: x.replace('&amp;', '&').lower())
-        return '<option value="">All</option>' + ''.join(f'<option value="{v}">{v}</option>' for v in vals)
+    """Two searchable filters (assets/js/site.js builds the suggestion lists from the coach cards)."""
+    def box(key, label, ph):
+        return (f'<div class="cb" data-coach-filter="{key}"><label for="f-{key}">{label}</label>'
+                f'<input id="f-{key}" type="text" role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="f-{key}-list" '
+                f'autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="{ph}">'
+                f'<button type="button" class="cb-clear" aria-label="Clear {label.lower()} filter" hidden>&times;</button>'
+                f'<ul class="cb-list" id="f-{key}-list" role="listbox" aria-label="{label} suggestions" hidden></ul></div>')
     return f'''<div class="coach-filters" role="group" aria-label="Filter coaches">
-  <label class="select-pill"><span>Company</span><select id="f-company" data-coach-filter="companies">{opts('companies')}</select></label>
-  <label class="select-pill"><span>School</span><select id="f-school" data-coach-filter="schools">{opts('schools')}</select></label>
+  {box('companies', 'Company', 'Search companies')}
+  {box('schools', 'School', 'Search schools')}
   <button class="filter" type="button" id="f-reset" hidden>Clear filters</button>
   <p class="muted small" id="f-count" aria-live="polite"></p>
 </div>'''
 
 
 def testimonial_cards():
-    return ''.join(f'''<figure class="quote reveal" style="margin:0"><p>{q}</p>
-<footer><b>{n}</b><br>{loc}</footer></figure>''' for q, n, loc in TESTIMONIALS)
+    """Two balanced columns, so one long testimonial does not stretch its neighbour into empty space."""
+    def card(q, n, loc, coaches):
+        by = f'<br><span class="coached"><b>Coached by:</b> {" &middot; ".join(coaches)}</span>' if coaches else ''
+        return f'''<figure class="quote reveal" style="margin:0"><p>{q}</p>
+<footer><b>{n}</b><br>{loc}{by}</footer></figure>'''
+    cols, heights = ([], []), [0, 0]
+    for t in TESTIMONIALS:
+        i = 0 if heights[0] <= heights[1] else 1
+        cols[i].append(card(*t))
+        heights[i] += len(t[0]) + 120
+    return ''.join(f'<div class="quote-col">{"".join(c)}</div>' for c in cols if c)
 
 
 def segments_block():
@@ -108,9 +121,9 @@ def home():
   <div class="wrap" style="position:relative">
     <p class="eyebrow">Consulting career coaching &middot; Middle East-focused</p>
     <h1>Get into consulting.<br>Then get ahead in it.</h1>
-    <p class="lede">Expert 1:1 coaching from consultants who went through the process, now work at the firms and were hired into those roles. Plus Mada AI, coming soon, to build your skills between sessions.</p>
+    <p class="lede lede-short">Expert Coaching. AI-Powered Preparation.</p>
     <p class="brand-line">Reach the room. Rise in it.</p>
-    <div class="btn-row">{intro_btn(ctx)}<a class="btn btn-ghost" href="{u('services')}">See services and prices</a></div>
+    <div class="btn-row">{intro_btn(ctx)}<a class="btn btn-ghost" href="{u('services')}">See Mada Expert and prices</a></div>
     {HORIZON}
     <div class="stats two">
       <div class="stat"><b>1,000+</b><span>candidates coached by our coaches</span></div>
@@ -123,7 +136,7 @@ def home():
   <div class="wrap">
     <div class="section-head reveal">
       <p class="eyebrow">Where are you now?</p>
-      <h2>Start at the step you&rsquo;re at.</h2>
+      <h2>Wherever you are in your journey, start here</h2>
     </div>
     <div class="grid g4">
       <a class="card pick reveal" href="{u('services#position')}"><span class="tag">Applying</span><h3>I&rsquo;m applying, or about to</h3><p>Decide where to aim, sharpen your CV and LinkedIn, and plan your outreach.</p><span class="pick-go">Position and Connect <span class="arrow" aria-hidden="true">&rarr;</span></span></a>
@@ -139,7 +152,7 @@ def home():
   <div class="wrap">
     <div class="section-head reveal">
       <p class="eyebrow">The problem we solve</p>
-      <h2>Candidates struggle twice: getting in, then getting ahead.</h2>
+      <h2>Candidates struggle twice: getting in, then getting ahead</h2>
     </div>
     <div class="grid g2">
       <div class="card reveal"><span class="tag">Problem 1 &middot; Getting in</span><h3>An opaque process, navigated alone</h3>
@@ -154,11 +167,11 @@ def home():
   <div class="wrap">
     <div class="section-head reveal">
       <p class="eyebrow">The journey</p>
-      <h2>Four steps, from target list to promotion.</h2>
+      <h2>Four steps, from target list to promotion</h2>
     </div>
     {journey_block(ctx)}
     <p style="margin-top:28px"><a href="{u('how-it-works')}">How a Mada engagement works <span class="arrow" aria-hidden="true">&rarr;</span></a></p>
-    <p class="muted" style="margin-top:12px">Want to practice between sessions? <a href="{u('ai')}">Mada AI</a> is coming soon: self-serve tools for CV feedback, case practice and interview prep. <a href="{u('ai')}">Meet Mada AI <span class="arrow" aria-hidden="true">&rarr;</span></a></p>
+    <p class="muted" style="margin-top:12px">Want to practice between sessions? <a href="{u('ai')}">Mada AI</a> has self-serve tools for case interviews and Case Math Mastery, with more coming soon. <a href="{u('ai')}">Meet Mada AI <span class="arrow" aria-hidden="true">&rarr;</span></a></p>
   </div>
 </section>
 
@@ -166,7 +179,7 @@ def home():
   <div class="wrap">
     <div class="section-head reveal">
       <p class="eyebrow">Who coaches</p>
-      <h2>Coaches who have been hired, and invited by the Mada team.</h2>
+      <h2>Coaches who have been hired, and invited by the Mada team</h2>
       <p class="lede">Every coach is vetted by the Mada team before joining, and every candidate is matched to the right coach.</p>
     </div>
     <div class="grid g2">{coach_cards(ctx, HOME_COACHES)}{more_coaches_card(ctx, len(COACHES) - len(HOME_COACHES))}</div>
@@ -179,15 +192,15 @@ def home():
     <div class="section-head reveal">
       <p class="eyebrow">What candidates say</p>
       <h2>Real people. Real progress.</h2>
-      <p class="lede">Candidates Hani has coached, identified by first name only for privacy.</p>
+      <p class="lede">Real experiences from candidates supported by Mada&rsquo;s network of expert coaches.</p>
     </div>
-    <div class="grid g2">{testimonial_cards()}</div>
+    <div class="quote-cols">{testimonial_cards()}</div>
   </div>
 </section>
 
 <section>
   <div class="wrap narrow">
-    <div class="section-head reveal"><p class="eyebrow">Questions</p><h2>Before you book.</h2></div>
+    <div class="section-head reveal"><p class="eyebrow">Questions</p><h2>Before you book</h2></div>
     {faq(faq_full(u)[:1] + faq_full(u)[1:3] + [faq_full(u)[3]] + [faq_full(u)[12]])}
     <p style="margin-top:24px"><a href="{u('book#faq')}">See all questions <span class="arrow" aria-hidden="true">&rarr;</span></a></p>
   </div>
@@ -228,7 +241,7 @@ def how_it_works():
     body = f'''
 <header class="subhero"><div class="wrap">
   <p class="eyebrow">How it works</p>
-  <h1>One method, from first target list to first promotion.</h1>
+  <h1>One method, from first target list to first promotion</h1>
   <p class="lede">Mada breaks a consulting career move into four steps. Use one, or let us carry you through all of them.</p>
   <div class="btn-row">{intro_btn(ctx)}</div>
 </div></header>
@@ -241,7 +254,7 @@ def how_it_works():
 
 <section class="bg-mist">
   <div class="wrap">
-    <div class="section-head reveal"><p class="eyebrow">Working with Mada</p><h2>What happens when you get in touch.</h2></div>
+    <div class="section-head reveal"><p class="eyebrow">Working with Mada</p><h2>What happens when you get in touch</h2></div>
     <div class="grid g4">
       <div class="card reveal"><span class="tag">1 &middot; Intro call</span><h3>Tell us where you are</h3><p>A free 20-minute call. We&rsquo;ll tell you where to start, or honestly if we&rsquo;re not the right help.</p></div>
       <div class="card reveal"><span class="tag">2 &middot; Matching</span><h3>We pick your coach</h3><p>Based on your target firms, level and what you need. Every coach is vetted by the Mada team.</p></div>
@@ -253,7 +266,7 @@ def how_it_works():
 
 <section>
   <div class="wrap">
-    <div class="section-head reveal"><p class="eyebrow">The four steps in detail</p><h2>What we work on at each step.</h2></div>
+    <div class="section-head reveal"><p class="eyebrow">The four steps in detail</p><h2>What we work on at each step</h2></div>
     {''.join(stage_detail)}
   </div>
 </section>
@@ -262,9 +275,9 @@ def how_it_works():
   <div class="wrap">
     <div class="split">
       <div class="reveal"><p class="eyebrow">Between sessions</p>
-        <h2>Practice more with Mada AI.</h2></div>
-      <div class="reveal"><p>Mada AI is a set of self-serve tools for CV feedback, case practice and interview preparation, for when repetition matters.</p>
-        <p>The tools are coming soon. Every coaching service is available now.</p>
+        <h2>Practice more with Mada AI</h2></div>
+      <div class="reveal"><p>Mada AI is a set of self-serve tools for case practice, case math and interview preparation, for when repetition matters.</p>
+        <p>Case Interviews and Case Math Mastery are available now, with more tools coming soon. Every coaching service is available today.</p>
         <div class="btn-row" style="margin-top:24px"><a class="btn btn-light" href="{u('ai')}">Meet Mada AI</a></div></div>
     </div>
   </div>
@@ -331,8 +344,8 @@ def services():
     fj_inc = ''.join(f'<li>{x}</li>' for x in fj['includes'])
     body = f'''
 <header class="subhero"><div class="wrap">
-  <p class="eyebrow">Mada Experts &middot; 1:1 coaching</p>
-  <h1>Expert coaching for every stage of your consulting journey.</h1>
+  <p class="eyebrow">Mada Expert &middot; 1:1 coaching</p>
+  <h1>Expert coaching for every stage of your consulting journey</h1>
   <p class="lede">Work 1:1 with experienced consultants and interviewers who understand what it takes to break into consulting&mdash;and succeed once you&rsquo;re there.</p>
   <p class="lede" style="margin-top:12px">Whether you need help choosing your target firms, strengthening your application, preparing for interviews, evaluating an offer or navigating life inside consulting, start with the support you need.</p>
   <div class="btn-row"><a class="btn btn-primary" href="#coaching">Explore expert coaching <span class="arrow" aria-hidden="true">&darr;</span></a></div>
@@ -340,7 +353,7 @@ def services():
 
 <section class="tight" style="padding-bottom:0">
   <div class="wrap">
-    <div class="section-head reveal"><p class="eyebrow">Choose your step</p><h2>Four steps, one journey.</h2></div>
+    <div class="section-head reveal"><p class="eyebrow">Choose your step</p><h2>Four steps, one journey</h2></div>
     {journey_block(ctx)}
   </div>
 </section>
@@ -374,56 +387,60 @@ def services():
 <section class="bg-mist tight">
   <div class="wrap">
     <div class="xsell reveal">
-      <div><h2>Want to practice between coaching sessions? <span class="badge soon">Coming soon</span></h2>
-        <p class="muted">Use Mada AI for on-demand CV feedback, case practice and interview preparation whenever you need it.</p></div>
+      <div><h2>Want to practice between coaching sessions?</h2>
+        <p class="muted">Use Mada AI for on-demand case interviews and case math practice whenever you need them, with more tools coming soon.</p></div>
       <a class="btn btn-ghost" href="{u('ai')}">Explore Mada AI</a>
     </div>
   </div>
 </section>
 {cta_band(ctx, 'Not sure which service you need?', 'Tell us where you are on a free 20-minute call and we&rsquo;ll point you to the right starting step.')}
 '''
-    page('services', 'Expert coaching & prices',
+    page('services', 'Mada Expert: coaching & prices',
          'Expert 1:1 coaching from experienced consultants and interviewers: career strategy, CV and LinkedIn, applications and networking, mock interviews, offer negotiation and support once you are in. From $50.',
          body, ctx)
 
 
 # ---------------------------------------------------------------- Mada AI
-AI_STAGE_LABEL = {'soon': 'Opening soon', 'next': 'Up next', 'later': 'Later'}
+def waitlist_btn(tool, label='Join the waitlist'):
+    """Opens the waitlist modal (assets/js/waitlist.js); the mailto link stays as the fallback without JavaScript."""
+    return (f'<a class="ai-link" data-waitlist="{tool}" href="{waitlist_href(tool)}">{label} <span aria-hidden="true">&rarr;</span></a>')
 
 
-def ai_tool_button(ctx, t):
-    """Tools with their own page link to it; the rest join the waitlist."""
-    if t.get('page'):
-        return f'<a class="btn btn-primary btn-sm" href="{ctx.url(t["page"])}" style="margin-top:8px">{t["cta"]} <span class="arrow" aria-hidden="true">&rarr;</span></a>'
-    return f'<a class="btn btn-ghost btn-sm" href="{waitlist_href(t["name"])}" style="margin-top:8px">Join waitlist</a>'
+# The four steps of an AI interview (item 17). Formats are shown as status chips, never as buttons.
+AI_STEPS = [
+    ('01', 'Choose your interview format', 'Select a Case Interview, Fit Interview, or Full Mock Interview.', 'chat'),
+    ('02', 'Customize your interview', 'Choose your AI interviewer, interview/case type, and difficulty level where applicable.', 'compass'),
+    ('03', 'Practice in a realistic interview', 'Work through the interview with your chosen AI interviewer, responding to questions and solving problems in real time.', 'mic'),
+    ('04', 'Get your feedback', 'Receive a structured performance report identifying strengths, areas for improvement, and recommended next steps.', 'doc'),
+]
 
 
 def ai():
     ctx = Ctx('ai')
     u = ctx.url
-    wl = lambda what: waitlist_href(what)
-    single, mock, unlimited = C.AI_PRACTICE_PRICE_USD, C.AI_FULL_MOCK_PRICE_USD, C.AI_PASS_PRICE_USD
     drills_live = bool(C.MATHS_PAID_LIVE)
 
-    # ---- 1. The five products: what you practise.
+    # ---- 1. The six products: what you practice.
     products = [
         ('compass', 'Introduction to Case Solving', 'An AI guide that teaches you how to approach a case, build a structured framework and solve with confidence.', None),
         ('chat', 'Case Interviews', 'Solve realistic business problems, test your quantitative skills and deliver a recommendation in an interactive AI-led case.', 'ai/case-practice/start'),
         ('mic', 'Fit Interviews', 'Practice your personal stories, consulting motivation, leadership and behavioral questions with realistic AI interviewers.', None),
         ('target', 'Full Mock Interviews', 'A complete case and fit simulation in one sitting, followed by consolidated feedback on your performance.', None),
-        ('bolt', 'Math Drills', 'Build calculation speed, accuracy and confidence through unlimited, interactive quantitative practice.', 'ai/maths'),
+        ('bolt', 'Case Math Mastery', 'Build calculation speed, accuracy and confidence through unlimited, interactive quantitative practice.', 'ai/maths'),
         ('doc', 'AI CV Review', 'Upload your CV and get instant, structured feedback on impact, clarity and positioning, with clear fixes to make before you apply.', None),
     ]
     def product_card(n, p):
         ic, t, d, page = p
         live = bool(page) and (drills_live if page == 'ai/maths' else bool(C.AI_PRACTICE_LIVE))
         pill = ('<span class="ai-pill live">Open now</span>' if live else '<span class="ai-pill soon">Coming soon</span>')
-        price = (f'<p class="ai-prod-price"><b>${C.MATHS_PRICE_USD}</b> / month <span>&middot; included with Unlimited Interviews</span></p>' if page == 'ai/maths' else '')
+        price = ''
+        if page == 'ai/maths':
+            price = f'<p class="ai-prod-price"><b>${C.MATHS_PRICE_USD}</b> / month <span>&middot; included with Unlimited AI Interviews</span></p>'
         if page == 'ai/case-practice/start':
-            price = (f'<p class="ai-prod-price"><b>${C.AI_PRACTICE_PRICE_USD}</b> / interview <span>&middot; Single Interview</span></p>'
-                     f'<p class="ai-prod-price"><b>${C.AI_PASS_PRICE_USD}</b> / month <span>&middot; Unlimited Interviews{"" if C.AI_PASS_LIVE else ", coming soon"}</span></p>')
-        cta = (f'<a class="btn btn-primary btn-sm" href="{u(page)}">{"Start the drills" if page == "ai/maths" else "Start a case"} <span class="arrow" aria-hidden="true">&rarr;</span></a>' if live
-               else f'<a class="ai-link" href="{wl(t)}">Join the waitlist <span aria-hidden="true">&rarr;</span></a>')
+            price = (f'<p class="ai-prod-price"><b>${C.AI_PRACTICE_PRICE_USD}</b> / interview <span>&middot; Single AI Interview</span></p>'
+                     f'<p class="ai-prod-price"><b>${C.AI_PASS_PRICE_USD}</b> / month <span>&middot; Unlimited AI Interviews{"" if C.AI_PASS_LIVE else ", coming soon"}</span></p>')
+        cta = (f'<a class="btn btn-primary btn-sm" href="{u(page)}">{"Start practicing" if page == "ai/maths" else "Start a case"} <span class="arrow" aria-hidden="true">&rarr;</span></a>' if live
+               else waitlist_btn(t))
         if t in ('Introduction to Case Solving', 'AI CV Review'):
             price = '<p class="ai-prod-price"><span>Pricing announced when it opens</span></p>'
         return f'''<article class="ai-prod{' is-live' if live else ''} reveal">
@@ -433,53 +450,49 @@ def ai():
     cards = [product_card(i, p) for i, p in enumerate(products, 1)]
     product_cards = f'<div class="ai-prods top">{"".join(cards[:3])}</div><div class="ai-prods bottom">{"".join(cards[3:])}</div>'
 
-    # ---- 2. How you pay for interviews.
-    open_pill = '<span class="ai-pill live">Case Interviews open now</span>'
-    plan_cta_single = (f'<a class="btn btn-ghost" href="{u("ai/case-practice/start")}">Start a Case Interview</a>' if C.AI_PRACTICE_LIVE else f'<a class="btn btn-ghost" href="{wl("Single Interview")}">Join the waitlist</a>')
-    plan_cta_unl = (f'<a class="btn btn-primary" href="{u("ai/case-practice/start")}">Get Unlimited Interviews</a>' if C.AI_PASS_LIVE else f'<a class="btn btn-primary" href="{wl("Unlimited Interviews")}">Join the waitlist</a>')
-    soon_pill = open_pill if C.AI_PRACTICE_LIVE else '<span class="ai-pill soon">Coming soon</span>'
-    interviews_pay = f'''<div class="ai-plan reveal">{soon_pill}
-<h3>Single Interview</h3><p class="ai-plan-sub">One Case Interview. No commitment.</p>
-<p class="ai-plan-price"><b>${single}</b><span>/ interview</span></p>
-<ul class="ai-list"><li>Choose your interviewer and case</li><li>Full feedback report after the session</li><li>Fit (${single}) and Full Mock (${mock}) coming soon</li></ul>
-{plan_cta_single}</div>
-<div class="ai-plan best reveal"><div class="ai-plan-flag"><span class="ai-pill best">Best value</span>{open_pill if C.AI_PASS_LIVE else '<span class="ai-pill soon">Coming soon</span>'}</div>
-<h3>Unlimited Interviews</h3><p class="ai-plan-sub">One subscription for every interview: Case, Fit and Full Mock.</p>
-<p class="ai-plan-price"><b>${unlimited}</b><span>/ month</span></p>
-<ul class="ai-list"><li>Unlimited Case Interviews now, with Fit and Full Mock added as they open, subject to fair use</li><li>Every interviewer, case type and level</li><li>Feedback and progress after every session</li><li>Cancel any time</li></ul>
-{plan_cta_unl}</div>'''
+    # ---- 2. How an AI interview works (replaces the old pricing section; pricing lives on the purchase page).
+    formats = [('Case Interview', True), ('Fit Interview', False), ('Full Mock Interview', False)]
+    fmt_chips = ''.join(
+        f'<li><span>{n}</span><span class="ai-pill {"live" if live else "soon"}">{"Available now" if live else "Coming soon"}</span></li>' for n, live in formats)
+    steps = []
+    for num, title, text, ic in AI_STEPS:
+        extra = f'<ul class="ai-formats" aria-label="Interview formats and availability">{fmt_chips}</ul>' if num == '01' else ''
+        steps.append(f'''<li class="ai-step reveal"><div class="ai-step-top">{icon(ic)}<span class="ai-num">{num}</span></div>
+<h3>{title}</h3><p>{text}</p>{extra}</li>''')
+    how = f'<ol class="ai-steps">{"".join(steps)}</ol>'
 
+    # ---- 3. Interviewers: one data list, any number of profiles.
     minis = ''.join(f'''<div class="mini-persona reveal"><img src="{ctx.asset("img/interviewers/" + i["img"] + ".jpg")}" alt="{i["name"]}, {i["title"]}" width="160" height="160" loading="lazy">
-<h3>{i['name']}</h3><span class="tag">{i['title']}</span><p>{i['traits']}</p></div>''' for i in INTERVIEWERS_SIX)
+<h3>{i['name']}</h3><span class="tag">{i['title']}</span><p>{i['traits']}</p></div>''' for i in INTERVIEWER_PROFILES)
+    intro_mail = f'<a href="mailto:{C.EMAIL}">Get in touch</a>'
     body = f'''
 <header class="subhero ai-hero"><div class="wrap">
   <p class="eyebrow">Mada AI</p>
-  <h1>Practice as much as you need.</h1>
+  <h1>Practice as much as you need</h1>
   <p class="lede">Walk into your consulting interview prepared. Realistic AI interviews, available 24/7, with structured feedback after every session.</p>
-  <div class="btn-row"><a class="btn btn-primary" href="#products">See what you can practice <span class="arrow" aria-hidden="true">&darr;</span></a><a class="btn btn-light" href="#pricing">Pricing</a><a class="btn btn-light" href="{u('ai/account')}">My Mada</a></div>
+  <div class="btn-row"><a class="btn btn-primary" href="#products">See what you can practice <span class="arrow" aria-hidden="true">&darr;</span></a></div>
 </div></header>
 
 <section id="products">
   <div class="wrap">
-    <div class="section-head reveal"><p class="eyebrow">What you can practice</p><h2>Six ways to prepare.</h2>
-      <p class="lede">Math Drills and Case Interviews are open now. Everything else is opening soon: join the waitlist and we will email you first.</p></div>
+    <div class="section-head reveal"><p class="eyebrow">What you can practice</p><h2>Six ways to prepare</h2>
+      <p class="lede">Case Math Mastery and Case Interviews are available now. More AI tools are coming soon. Interested? {intro_mail}.</p></div>
     {product_cards}
   </div>
 </section>
 
-<section class="bg-mist" id="pricing">
+<section class="bg-mist" id="how-it-works">
   <div class="wrap">
-    <div class="section-head reveal"><p class="eyebrow">Case, Fit and Full Mock Interviews</p><h2>Pay per interview, or practice without limits.</h2>
-      <p class="lede">Case Interviews are open now. Fit and Full Mock Interviews are opening soon and will be included in Unlimited Interviews when they open.</p></div>
-    <div class="ai-plans">{interviews_pay}</div>
-    <p class="ai-trust reveal"><span>Cancel any time</span><span>Secure payment by Stripe</span><span>Prices in USD</span></p>
+    <div class="section-head reveal"><p class="eyebrow">How it works</p><h2>Your interview, your way</h2>
+      <p class="lede">Choose your interview format, customize your experience, and get actionable feedback.</p></div>
+    {how}
   </div>
 </section>
 
 <section id="interviewers">
   <div class="wrap">
-    <div class="section-head reveal"><p class="eyebrow">Your interviewers</p><h2>Six interviewers, six styles.</h2>
-      <p class="lede">From partner to junior manager, practice with different personalities and seniority to be ready for any interview.</p></div>
+    <div class="section-head reveal"><p class="eyebrow">Your interviewers</p><h2>Different interviewers. Different styles</h2>
+      <p class="lede">From Partner to Manager, practice with different personalities and seniority to be ready for any interview.</p></div>
     <div class="mini-grid">{minis}</div>
   </div>
 </section>
@@ -488,37 +501,26 @@ def ai():
   <div class="wrap narrow center" style="text-align:center">
     <h2>AI practice. Human expertise. Better together.</h2>
     <p class="lede center" style="margin-top:16px">Complement your AI preparation with personalized sessions from experienced Mada coaches.</p>
-    <div class="btn-row" style="justify-content:center;margin-top:28px"><a class="btn btn-light" href="{u('services')}">Explore human coaching</a></div>
+    <div class="btn-row" style="justify-content:center;margin-top:28px"><a class="btn btn-light" href="{u('services')}">Explore Mada Expert</a></div>
   </div>
 </section>
+<div id="waitlist-cfg" hidden data-api="{C.SUPABASE_URL}" data-key="{C.SUPABASE_PUBLISHABLE_KEY}"></div>
 '''
     page('ai', 'Mada AI',
-         'Mada AI: Introduction to Case Solving, Case Interviews, Fit Interviews, Full Mock Interviews, Math Drills and AI CV Review. Single interviews from $30, or unlimited interviews for $100 a month.',
-         body, ctx)
+         'Mada AI: Case Interviews, Case Math Mastery, Fit and Full Mock Interviews, Introduction to Case Solving and AI CV Review. Single AI interviews from $30, or Unlimited AI Interviews for $100 a month.',
+         body, ctx, extra_js=('js/waitlist.js',))
 
 
 # ---------------------------------------------------------------- AI case practice: choose your interviewer
-INTERVIEWERS = [
-    {'name': 'Tatiana', 'title': 'Partner', 'img': 'tatiana',
-     'desc': 'Executive-level mock interviewer. Calm, direct and demanding, with sharp follow-ups that push clear top-down thinking and confident recommendations.'},
-    {'name': 'Alex', 'title': 'Senior Manager', 'img': 'alex',
-     'desc': 'Analytical drill specialist. Fast-paced and numbers-first, he pushes quantitative accuracy, exhibit reading and data-backed insights.'},
-    {'name': 'Faisal', 'title': 'Principal', 'img': 'faisal',
-     'desc': 'Challenge-focused interviewer. Tests how well you structure ambiguity, defend your logic and synthesize clearly under pressure.'},
-    {'name': 'Layal', 'title': 'Senior Manager', 'img': 'layal',
-     'desc': 'Strategic thought partner. Curious and probing, she keeps asking &lsquo;so what?&rsquo; to sharpen implications, trade-offs and recommendations.'},
-    {'name': 'Joe', 'title': 'Junior Manager', 'img': 'joe',
-     'desc': 'Approachable practice interviewer. Relaxed and conversational, ideal for building confidence, sharpening structure and improving core case habits.'},
-    {'name': 'Mona', 'title': 'Principal', 'img': 'mona',
-     'desc': 'Precision-focused evaluator. Expects crisp communication, disciplined problem solving and strong case execution with minimal hand-holding.'},
-]
-
-
-INTERVIEWERS_SIX = [
-    dict(i, traits=t) for i, t in zip(
-        [x for n in ('Tatiana', 'Faisal', 'Mona', 'Alex', 'Layal', 'Joe') for x in INTERVIEWERS if x['name'] == n],
-        ['Senior, demanding, strategic', 'Direct, challenging, synthesis-focused', 'Precise, analytical, detail-oriented',
-         'Quantitative, fast-paced, data-driven', 'Curious, strategic, focused on business implications', 'Approachable, conversational, encouraging'])
+# Display names and seniority only. The stored ids (for example "alex" and "victoria") and the ElevenLabs agents are
+# unchanged, so renaming a profile here never breaks a call. Add a new interviewer by adding one dict (and its portrait).
+INTERVIEWER_PROFILES = [
+    {'name': 'Tatiana', 'title': 'Partner', 'img': 'tatiana', 'traits': 'Senior, demanding, strategic'},
+    {'name': 'Faisal', 'title': 'Partner', 'img': 'faisal', 'traits': 'Direct, challenging, synthesis-focused'},
+    {'name': 'Arthur', 'title': 'Principal', 'img': 'alex', 'traits': 'Quantitative, fast-paced, data-driven'},
+    {'name': 'Layal', 'title': 'Principal', 'img': 'layal', 'traits': 'Curious, strategic, focused on business implications'},
+    {'name': 'Mona', 'title': 'Manager', 'img': 'mona', 'traits': 'Precise, analytical, detail-oriented'},
+    {'name': 'Joe', 'title': 'Manager', 'img': 'joe', 'traits': 'Approachable, conversational, encouraging'},
 ]
 
 
@@ -548,7 +550,7 @@ def ai_report():
     body = f'''
 <header class="subhero"><div class="wrap">
   <p class="eyebrow">Mada AI &middot; Interview report</p>
-  <h1>Your interview report.</h1>
+  <h1>Your interview report</h1>
   <p class="lede">Evidence-based feedback on your practice interview.</p>
 </div></header>
 <section>
@@ -562,7 +564,7 @@ def ai_report():
 </section>
 '''
     page('ai/report', 'Your interview report',
-         'Your Mada AI interview report: scores, evidence from your interview and one thing to practise next.',
+         'Your Mada AI interview report: scores, evidence from your interview and one thing to practice next.',
          body, ctx, noindex=True, extra_js=('js/ai-session.js', 'js/report-insights.js', 'js/report-view.js', 'js/report.js'))
 
 
@@ -580,9 +582,9 @@ def ai_maths():
         js = ('js/maths-engine.js', 'js/maths.js')
     body = f'''
 <header class="subhero"><div class="wrap">
-  <p class="eyebrow">Mada AI &middot; Maths drills</p>
-  <h1>Case maths, at your pace.</h1>
-  <p class="lede">Timed questions on the maths that case interviews turn on: growth, margins, breakeven, payback, compound growth, market sizing, mix and unit economics. Pick a difficulty and see a worked solution after every question.{lede_extra}</p>
+  <p class="eyebrow">Mada AI &middot; Case Math Mastery</p>
+  <h1>Master the Math Behind Every Case</h1>
+  <p class="lede">Timed questions on the math that case interviews turn on: growth, margins, breakeven, payback, compound growth, market sizing, mix and unit economics. Pick a difficulty and see a worked solution after every question.{lede_extra}</p>
 </div></header>
 <section>
   <div class="wrap">
@@ -592,8 +594,8 @@ def ai_maths():
   </div>
 </section>
 '''
-    page('ai/maths', 'Maths drills',
-         'Practise consulting case maths with timed questions at three difficulty levels and worked solutions.',
+    page('ai/maths', 'Case Math Mastery',
+         'Practice consulting case math with timed questions at three difficulty levels and worked solutions.',
          body, ctx, noindex=True, extra_js=js)
 
 
@@ -622,8 +624,8 @@ def ai_account():
 </section>
 '''
     page('ai/account', 'My Mada',
-         'Your Mada AI maths drills, case interviews and reports in one place.',
-         body, ctx, noindex=True, extra_js=('js/ai-session.js', 'js/my-mada.js'))
+         'Your Mada AI Case Math Mastery, case interviews and reports in one place.',
+         body, ctx, noindex=True, extra_js=('js/ai-session.js', 'js/my-profile.js', 'js/my-mada.js'))
 
 
 # ---------------------------------------------------------------- Mada AI "My reports" (signed-in list of all released reports)
@@ -635,7 +637,7 @@ def ai_reports():
     body = f'''
 <header class="subhero"><div class="wrap">
   <p class="eyebrow">Mada AI &middot; My reports</p>
-  <h1>Your reports, in one place.</h1>
+  <h1>Your reports, in one place</h1>
   <p class="lede">Every practice interview you have taken, newest first. Open any one to read it again.</p>
 </div></header>
 <section>
@@ -661,7 +663,7 @@ def ai_start():
     body = f'''
 <header class="subhero"><div class="wrap">
   <p class="eyebrow">Mada AI &middot; AI case practice</p>
-  <h1>Your AI interview.</h1>
+  <h1>Your AI interview</h1>
   <p class="lede">A spoken case interview, then a structured report on how you did.</p>
 </div></header>
 <section>
@@ -689,13 +691,13 @@ def coaches():
     body = f'''
 <header class="subhero"><div class="wrap">
   <p class="eyebrow">Coaches</p>
-  <h1>Coaches who have been hired, and invited by the Mada team.</h1>
+  <h1>Coaches who have been hired, and invited by the Mada team</h1>
   <p class="lede">Every Mada coach has worked at the kind of firm you&rsquo;re targeting. Every one is vetted by the Mada team before joining, and every candidate is matched to the right coach.</p>
 </div></header>
 
 <section class="bg-mist">
   <div class="wrap">
-    <div class="section-head reveal"><p class="eyebrow">Our coaches</p><h2>Experienced consultants, vetted by the Mada team.</h2></div>
+    <div class="section-head reveal"><p class="eyebrow">Our coaches</p><h2>Experienced consultants, vetted by the Mada team</h2></div>
     {coach_filters()}
     <div class="grid g2" id="coach-grid">{coach_cards(ctx)}</div>
     <p class="card" id="f-empty" hidden style="margin-top:20px">No coach matches both filters yet. Try clearing one, or tell us what you need on the intro call and we&rsquo;ll match you.</p>
@@ -705,7 +707,7 @@ def coaches():
 
 <section>
   <div class="wrap">
-    <div class="section-head reveal"><p class="eyebrow">How we choose coaches</p><h2>Who coaches at Mada.</h2></div>
+    <div class="section-head reveal"><p class="eyebrow">How we choose coaches</p><h2>Who coaches at Mada</h2></div>
     <div class="grid g3">
       <div class="card reveal">{icon('target')}<h3>Where they&rsquo;ve worked</h3><p>Coaches come from MBB, Tier 2 strategy firms such as Strategy&amp;, Oliver Wyman, Kearney, Roland Berger and Arthur D. Little, and Big Four strategy practices. Some are current consultants coaching alongside their role.</p></div>
       <div class="card reveal">{icon('badge')}<h3>How they&rsquo;re vetted</h3><p>Every coach is vetted by the Mada team before joining. We look for people who have interviewed or hired, and who can give direct, specific feedback.</p></div>
@@ -726,8 +728,8 @@ def coaches():
 
 <section>
   <div class="wrap">
-    <div class="section-head reveal"><p class="eyebrow">What candidates say</p><h2>Coaching with Hani.</h2></div>
-    <div class="grid g2">{testimonial_cards()}</div>
+    <div class="section-head reveal"><p class="eyebrow">What candidates say</p><h2>Coaching with Mada</h2></div>
+    <div class="quote-cols">{testimonial_cards()}</div>
   </div>
 </section>
 {cta_band(ctx)}
@@ -744,7 +746,7 @@ def about():
     body = f'''
 <header class="subhero"><div class="wrap">
   <p class="eyebrow">About Mada</p>
-  <h1>We help ambitious people get into consulting, then keep rising once they&rsquo;re in.</h1>
+  <h1>We help ambitious people get into consulting, then keep rising once they&rsquo;re in</h1>
 </div></header>
 
 <section>
@@ -752,7 +754,7 @@ def about():
     <div class="split">
       <div class="reveal">
         <p class="eyebrow">The name</p>
-        <h2>Mada means reach.</h2>
+        <h2>Mada means reach</h2>
         <p class="lede" style="margin-top:16px">In Arabic, <span lang="ar" style="font-family:var(--arabic)">مدى</span> (mada) means reach, range or horizon: how far a career can go.</p>
         <p class="muted">Our logo is a horizon line with the sun rising over it. Our job is to extend how far every candidate can reach: into the room, and beyond it.</p>
       </div>
@@ -781,7 +783,7 @@ def about():
 <section>
   <div class="wrap">
     <div class="split">
-      <div class="reveal"><p class="eyebrow">What we are, and aren&rsquo;t</p><h2>A career partner, not a recruiter.</h2></div>
+      <div class="reveal"><p class="eyebrow">What we are, and aren&rsquo;t</p><h2>A career partner, not a recruiter</h2></div>
       <div class="reveal">
         <p>Mada is not a recruitment agency. We don&rsquo;t place candidates into jobs, and we have no relationship with any employer&rsquo;s hiring decisions.</p>
         <p>We are not only interview coaching either. We help candidates decide where to aim, position themselves, build a strategy to get in, prepare for the process, negotiate the offer, and then do well once they&rsquo;re in.</p>
@@ -796,13 +798,13 @@ def about():
     <div class="reveal">
       {icon('heart')}
       <p class="eyebrow">Giving back</p>
-      <h2>Your journey can help support someone else&rsquo;s.</h2>
+      <h2>Your journey can help support someone else&rsquo;s</h2>
       <p class="lede" style="margin-top:16px">Mada is built on the idea that access to the right guidance can change someone&rsquo;s trajectory. As Mada grows, we intend to donate a portion of our profits to support education in Lebanon, including through UNESCO and LIFE Lebanon.</p>
       <p class="muted small">This is a contribution we intend to make, not a partnership, endorsement or affiliation with UNESCO or LIFE Lebanon. Details of how and when donations are made will be published here once they are formalised.</p>
     </div>
   </div>
 </section>
-{cta_band(ctx, 'Wherever you are in your journey, we&rsquo;ll meet you there.')}
+{cta_band(ctx, 'Wherever you are in your journey, we&rsquo;ll meet you there')}
 '''
     page('about', 'About',
          'Mada means reach. Founded by Hani Abi Khalil, a consultant and official Oliver Wyman interviewer, to help ambitious people get into consulting and keep rising once they are in.',
@@ -813,7 +815,7 @@ def about():
 def cv_review():
     ctx = Ctx('cv-review')
     u = ctx.url
-    book = book_href('cv-review', 'CV Review (no meeting)')
+    book = book_href('cv-review', 'CV Review (No Meeting)')
     scores = [('Structure &amp; formatting', 7), ('Impact &amp; quantification', 5), ('Clarity &amp; readability', 8),
               ('Positioning &amp; narrative', 6), ('Relevance to target role', 6)]
     score_html = ''.join(f'<span>{n}</span><b>{v}/10</b><span class="bar"><i style="width:{v*10}%"></i></span>' for n, v in scores)
@@ -828,9 +830,9 @@ def cv_review():
 <section>
   <div class="wrap">
     <div class="grid g2" style="gap:56px">
-      <div class="reveal"><p class="eyebrow">What you send</p><h2>Six things, nothing to schedule.</h2>
+      <div class="reveal"><p class="eyebrow">What you send</p><h2>Six things, nothing to schedule</h2>
         <ul class="checks" style="margin-top:24px"><li>Your current CV</li><li>The role you&rsquo;re targeting</li><li>Target firms</li><li>Your experience level</li><li>Any job descriptions (optional)</li><li>Specific concerns or questions</li></ul></div>
-      <div class="reveal"><p class="eyebrow">What you get back</p><h2>Four deliverables in 48 hours.</h2>
+      <div class="reveal"><p class="eyebrow">What you get back</p><h2>Four deliverables in 48 hours</h2>
         <div class="grid" style="gap:14px;margin-top:24px">
           <div><h4>Personalised video review</h4><p class="muted">A recorded 10&ndash;15 minute walkthrough in which a Mada coach talks through strengths, weaknesses and the specific changes to make.</p></div>
           <div><h4>Annotated CV</h4><p class="muted">Comments written directly onto your CV, each anchored to the line it refers to.</p></div>
@@ -843,7 +845,7 @@ def cv_review():
 
 <section class="bg-mist">
   <div class="wrap">
-    <div class="section-head reveal"><p class="eyebrow">Example</p><h2>What a review looks like.</h2><p class="lede">An illustrative example built to show the format. The candidate and firms are fictional.</p></div>
+    <div class="section-head reveal"><p class="eyebrow">Example</p><h2>What a review looks like</h2><p class="lede">An illustrative example built to show the format. The candidate and firms are fictional.</p></div>
     <div class="grid cvx">
       <div class="cv-mock reveal">
         <div class="name">Layla Haddad</div>
@@ -906,7 +908,7 @@ def resources():
     body = f'''
 <header class="subhero"><div class="wrap">
   <p class="eyebrow">Resources</p>
-  <h1>Free guides to consulting recruiting, written from the hiring side.</h1>
+  <h1>Free guides to consulting recruiting, written from the hiring side</h1>
   <p class="lede">CVs, cases, fit, networking, Middle East offices, offers and your first months in the job. No sign-up.</p>
 </div></header>
 
@@ -917,7 +919,7 @@ def resources():
   </div>
 </section>
 <section class="tight" style="padding-top:0">
-  <div class="wrap"><p class="muted">From reading to doing: practice with <a href="{u('ai')}">Mada AI</a> (coming soon), or work 1:1 with an <a href="{u('services')}">expert coach</a>.</p></div>
+  <div class="wrap"><p class="muted">From reading to doing: practice with <a href="{u('ai')}">Mada AI</a>, or work 1:1 with a <a href="{u('services')}">Mada Expert coach</a>.</p></div>
 </section>
 {cta_band(ctx, 'Want this applied to your own situation?', 'A free 20-minute intro call is the quickest way to find out where to focus.')}
 '''
@@ -927,6 +929,16 @@ def resources():
 
 
 # ---------------------------------------------------------------- book
+def price_of(key):
+    """Price of a service from the data file, as plain text (so the FAQ cards never drift from the services page)."""
+    import re as _re
+    for st in STAGES:
+        for sv in st['services']:
+            if sv['key'] == key:
+                return _re.sub(r'<small>(.*?)</small>', r'\1', sv['expert'])
+    raise KeyError(key)
+
+
 def book():
     ctx = Ctx('book')
     u = ctx.url
@@ -962,10 +974,11 @@ def book():
         <h3>Already know what you need?</h3>
         <p class="muted">Every service can be booked directly.</p>
         <div class="grid" style="gap:12px;margin-top:20px">
-          <a class="card" style="text-decoration:none;padding:20px 24px" href="{u('services#full-journey')}"><b style="color:var(--ink)">The Full Journey</b> <span class="muted">&middot; $750</span><br><span class="small muted">Position to Land as one engagement</span></a>
-          <a class="card" style="text-decoration:none;padding:20px 24px" href="{u('services#mock')}"><b style="color:var(--ink)">Mock interview + feedback</b> <span class="muted">&middot; $200</span><br><span class="small muted">Case and fit, in real conditions</span></a>
-          <a class="card" style="text-decoration:none;padding:20px 24px" href="{u('cv-review')}"><b style="color:var(--ink)">CV Review</b> <span class="muted">&middot; $50</span><br><span class="small muted">Video review in 48 hours, no meeting</span></a>
-          <a class="card" style="text-decoration:none;padding:20px 24px" href="{u('services#membership')}"><b style="color:var(--ink)">Mentorship membership</b> <span class="muted">&middot; $50/month</span><br><span class="small muted">For consultants already in role</span></a>
+          <a class="card" style="text-decoration:none;padding:20px 24px" href="{u('services#full-journey')}"><b style="color:var(--ink)">The Full Journey</b> <span class="muted">&middot; {FULL_JOURNEY['expert']}</span><br><span class="small muted">Position to Land as one engagement</span></a>
+          <a class="card" style="text-decoration:none;padding:20px 24px" href="{u('services#mock')}"><b style="color:var(--ink)">Mock Interview + Feedback</b> <span class="muted">&middot; {price_of('mock')}</span><br><span class="small muted">Case and fit, in real conditions</span></a>
+          <a class="card" style="text-decoration:none;padding:20px 24px" href="{u('cv-review')}"><b style="color:var(--ink)">CV Review</b> <span class="muted">&middot; {price_of('cv-review')}</span><br><span class="small muted">Video review in 48 hours, no meeting</span></a>
+          <a class="card" style="text-decoration:none;padding:20px 24px" href="{u('services#progress-session')}"><b style="color:var(--ink)">Exit Consulting Session</b> <span class="muted">&middot; {price_of('progress-session')}</span><br><span class="small muted">For consultants planning a move beyond consulting</span></a>
+          <a class="card" style="text-decoration:none;padding:20px 24px" href="{u('services#membership')}"><b style="color:var(--ink)">Consulting Career Mentorship</b> <span class="muted">&middot; {price_of('membership')}</span><br><span class="small muted">Ongoing guidance to grow within consulting</span></a>
         </div>
       </div>
     </div>
@@ -974,7 +987,7 @@ def book():
 
 <section class="bg-mist" id="faq">
   <div class="wrap narrow">
-    <div class="section-head reveal"><p class="eyebrow">FAQ</p><h2>Everything else, answered.</h2></div>
+    <div class="section-head reveal"><p class="eyebrow">FAQ</p><h2>Everything else, answered</h2></div>
     {faq(faq_full(u))}
     <p class="muted" style="margin-top:24px">Something else? Email <a href="mailto:{C.EMAIL}">{C.EMAIL}</a>.</p>
   </div>
@@ -1015,7 +1028,7 @@ def legal_pages():
         ('Who we share it with', '<p>We share personal information only with the coach matched to you and the service providers we need to operate: scheduling, payment, email, file storage, analytics and AI providers, and professional advisers where required. Every Mada coach is bound to keep what you share confidential. We do not sell your personal information, and we do not share your CV, materials or session content with employers, recruiters or any third party without your explicit instruction.</p>'),
         ('Confidentiality of your job search', '<p>What you tell us about your current employer, your search, your compensation or your offers stays between you, your coach and Mada. We will never contact an employer about you, disclose that you are looking, or use your name or materials in marketing without your written permission.</p>'),
         ('International transfers', '<p>We work with candidates, coaches and providers in several countries, so your information may be processed outside your country of residence. Where that happens we rely on the safeguards offered by those providers, including standard contractual clauses where applicable.</p>'),
-        ('Mada AI voice interviews', f'<p>When you use AI case practice, you speak with an AI interviewer (Tatiana, Faisal, Alex, Layal, Joe or Mona). We collect your email address, a recording of your voice during the call that is turned into a transcript, and the scores and report generated from it. You accept a recording and scoring notice before every call.</p><ul><li><strong>Why</strong>: to run the interview, assess it and send you your report. We rely on your consent and on providing the service you chose.</li><li><strong>Automated scoring</strong>: an AI scores the transcript against Mada&rsquo;s rubric. The report is developmental feedback, not official employer scoring, and it is not used to make decisions about you with legal or similar effect. A Mada coach checks a small number of reports. Ask us at <a href="mailto:{E}">{E}</a> for a human review of yours.</li><li><strong>Who processes it</strong>: ElevenLabs runs the voice call, Anthropic scores the transcript, Supabase stores the data (in Frankfurt, Germany) and our email provider sends your report link. We store the transcript, not the audio; our voice provider may hold the conversation for a limited period under its own settings and terms.</li><li><strong>How long</strong>: we delete the transcript 90 days after your call. We keep your scores and report so you can come back to them until you ask us to delete them.</li><li><strong>Who sees it</strong>: you, and Mada staff where needed to run, check and improve the service. We never share it with employers or recruiters.</li></ul>'),
+        ('Mada AI voice interviews', f'<p>When you use AI case practice, you speak with an AI interviewer (Tatiana, Faisal, Arthur, Layal, Joe or Mona). We collect your email address, a recording of your voice during the call that is turned into a transcript, and the scores and report generated from it. You accept a recording and scoring notice before every call.</p><ul><li><strong>Why</strong>: to run the interview, assess it and send you your report. We rely on your consent and on providing the service you chose.</li><li><strong>Automated scoring</strong>: an AI scores the transcript against Mada&rsquo;s rubric. The report is developmental feedback, not official employer scoring, and it is not used to make decisions about you with legal or similar effect. A Mada coach checks a small number of reports. Ask us at <a href="mailto:{E}">{E}</a> for a human review of yours.</li><li><strong>Who processes it</strong>: ElevenLabs runs the voice call, Anthropic scores the transcript, Supabase stores the data (in Frankfurt, Germany) and our email provider sends your report link. We store the transcript, not the audio; our voice provider may hold the conversation for a limited period under its own settings and terms.</li><li><strong>How long</strong>: we delete the transcript 90 days after your call. We keep your scores and report so you can come back to them until you ask us to delete them.</li><li><strong>Who sees it</strong>: you, and Mada staff where needed to run, check and improve the service. We never share it with employers or recruiters.</li></ul>'),
         ('AI-generated reviews', '<p>Your CV review score and findings are generated by an AI model. Mada coaches review a sample of AI-generated reviews to check their quality. If you would like a coach to look at your CV directly, you can book a CV Review with a Mada coach.</p>'),
         ('Payments and deleting your account', f'<p>Payments are processed by Stripe. We do not receive or store your full card number.</p><p>When you delete your Mada account, we cancel any active subscription straight away and delete your account data, apart from records we must keep (for example, payment records for accounting and tax).</p><p>Stripe keeps its own records of your payments, and it may keep your customer record, including your email address and saved card details, as needed for payment processing, tax, and fraud prevention. These are held under Stripe&rsquo;s own privacy policy. If you want your Stripe customer record erased as well, contact <a href="mailto:{E}">{E}</a>.</p>'),
         ('How long we keep it', '<p>We keep booking and payment records for as long as required for tax and accounting purposes. We keep coaching materials and session notes for up to 24 months after your last session so we can pick up where we left off, unless you ask us to delete them sooner.</p>'),
@@ -1029,9 +1042,9 @@ def legal_pages():
         ('What we provide', '<p>We provide 1:1 career and interview coaching for consulting: advice, structured preparation, feedback on your materials, mock interviews and guidance through the stages of a job search and the early years of a consulting career. Sessions are delivered remotely by video call unless we agree otherwise. Sessions may be delivered by the founder or by a coach from the Mada bench, matched to you by Mada.</p>'),
         ('Mada AI tools', '<p>Mada AI tools are self-serve products that run on Mada&rsquo;s own tools rather than in a live session. AI-generated feedback can be wrong or incomplete; use it as one input to your own judgement. Specific terms for each tool will be shown before you buy or use it.</p>'),
         ('AI-generated reviews', '<p>AI-generated CV scores and feedback are guidance, not a guarantee of any hiring outcome. Mada coaches review a sample of them for quality.</p>'),
-        ('Deleting your account', f'<p>You can delete your account at any time. When you do:</p><ul><li>any active subscription (Unlimited Interviews or Math Drills) is cancelled immediately;</li><li>we do not refund amounts you have already paid, including the unused part of a billing period;</li><li>you cannot delete your account while an AI interview call is in progress (up to 20 minutes). Finish or end the call, then try again.</li></ul><p>If you make a one-off purchase and your account is deleted before the credit is applied, contact <a href="mailto:{E}">{E}</a>.</p>'),
+        ('Deleting your account', f'<p>You can delete your account at any time. When you do:</p><ul><li>any active subscription (Unlimited AI Interviews or Case Math Mastery) is cancelled immediately;</li><li>we do not refund amounts you have already paid, including the unused part of a billing period;</li><li>you cannot delete your account while an AI interview call is in progress (up to 20 minutes). Finish or end the call, then try again.</li></ul><p>If you make a one-off purchase and your account is deleted before the credit is applied, contact <a href="mailto:{E}">{E}</a>.</p>'),
         ('What we do not provide', '<p>We are not a recruitment agency and we do not place candidates into jobs. We have no role in any employer&rsquo;s hiring decision, and we cannot and do not guarantee an interview, an offer, a salary level, a promotion or any other outcome. Nothing on this website or in a session should be read as a promise of employment. We do not provide legal, immigration, tax or financial advice, and any commentary on an offer is general information for your own decision-making, not professional advice in those fields.</p>'),
-        ('Booking and payment', '<p>Sessions are paid in advance unless agreed otherwise. Prices are shown in US dollars on the Services page. Where a multi-session package is purchased, sessions must be scheduled within 6 months of purchase. Memberships and the maths drills subscription are billed monthly and renew automatically; they can be cancelled before the next billing date. We may change our prices at any time, but never for a session you have already paid for.</p>'),
+        ('Booking and payment', '<p>Sessions are paid in advance unless agreed otherwise. Prices are shown in US dollars on the Services page. Where a multi-session package is purchased, sessions must be scheduled within 6 months of purchase. Memberships and the Math Drills subscription are billed monthly and renew automatically; they can be cancelled before the next billing date. We may change our prices at any time, but never for a session you have already paid for.</p>'),
         ('Rescheduling, cancellation and refunds', '<p>Our <a href="{{refunds}}">Cancellation &amp; Refund Policy</a> forms part of these terms.</p>'),
         ('Your responsibilities', '<p>Coaching works when you take part. You agree to provide accurate information about your experience and situation, to arrive for sessions on time and prepared, and to do the agreed work between sessions. You are responsible for every decision you make about your career, your applications and any offer you accept or decline.</p>'),
         ('Honesty in applications', '<p>We help you present your genuine experience as clearly and compellingly as possible. We will not help you fabricate experience, qualifications, employment dates or results, and we may end an engagement without refund if asked to.</p>'),
@@ -1049,8 +1062,8 @@ def legal_pages():
         ('Rescheduling', '<p>You can reschedule free of charge up to <strong>24 hours</strong> before your session. Inside 24 hours we will always try to accommodate a move where we can, but a session moved at short notice may be treated as used.</p>'),
         ('Cancellation and refunds', '<ul><li><strong>More than 24 hours before the session:</strong> cancel for a full refund, or keep the credit for a later date.</li><li><strong>Less than 24 hours before the session:</strong> the session is charged in full, because the slot can no longer be offered to anyone else.</li><li><strong>No-show:</strong> if you do not attend and do not tell us, the session is charged in full. If something went wrong, write to us; we will listen.</li><li><strong>If we cancel:</strong> you choose a full refund or a rescheduled session at no cost. If we ever cancel at short notice, we will also offer your next session at no charge.</li></ul>'),
         ('Packages and the Full Journey', '<p>Multi-session packages, including the 4-mock package and the Full Journey, can be refunded pro rata at any time: we refund the sessions you have not yet taken, charging the sessions you have taken at the standard single-session rate. Package sessions should be used within 6 months of purchase.</p>'),
-        ('Mentorship membership', '<p>You can cancel your membership at any time before your next billing date, and you will not be charged again. Months already started are not refunded.</p>'),
-        ('Maths drills subscription', '<p>You can cancel your subscription at any time before your next billing date, and you will not be charged again. Cancel from the billing page linked on the maths drills page. Months already started are not refunded.</p>'),
+        ('Mentorship Membership', '<p>You can cancel your membership at any time before your next billing date, and you will not be charged again. Months already started are not refunded.</p>'),
+        ('Case Math Mastery Subscription', '<p>You can cancel your subscription at any time before your next billing date, and you will not be charged again. Cancel from the billing page linked on the Math Drills page. Months already started are not refunded.</p>'),
         ('CV Review', '<p>Once your recorded review has been delivered, CV Review is not refundable, but if it did not deliver what we said it would, see below.</p>'),
         ('The free intro call', '<p>The introductory call is free and carries no obligation. Cancel or reschedule it whenever you need to.</p>'),
         ('If you are not satisfied', '<p>If a session did not deliver what we said it would, tell us within 7 days and we will either redo it at no cost or refund it. We would rather fix it than keep money we did not earn.</p>'),
@@ -1091,7 +1104,7 @@ def not_found():
     body = f'''
 <header class="subhero" style="padding:120px 0"><div class="wrap">
   <p class="eyebrow">404</p>
-  <h1>This page is beyond the horizon.</h1>
+  <h1>This page is beyond the horizon</h1>
   <p class="lede">The page you&rsquo;re looking for doesn&rsquo;t exist or has moved.</p>
   <div class="btn-row"><a class="btn btn-primary" href="/">Go to the homepage</a><a class="btn btn-ghost" href="/services/">See services</a></div>
 </div></header>'''

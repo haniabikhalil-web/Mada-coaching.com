@@ -50,10 +50,14 @@
   function say(msg) { clear(); app.appendChild(el('p', 'muted', msg)); }
   function ready() { return API && KEY && API.indexOf('https://') === 0 && window.MadaVoice; }
 
-  function post(path, body, bearer) {
+  function post(path, body, bearer, timeoutMs) {
     var h = { 'content-type': 'application/json', apikey: KEY };
     if (bearer) h.authorization = 'Bearer ' + bearer;
-    return fetch(API.replace(/\/+$/, '') + path, { method: 'POST', headers: h, body: JSON.stringify(body) });
+    var ctl = timeoutMs && window.AbortController ? new AbortController() : null;
+    var t = ctl ? setTimeout(function () { ctl.abort(); }, timeoutMs) : null;
+    var done = function () { if (t) clearTimeout(t); };
+    return fetch(API.replace(/\/+$/, '') + path, { method: 'POST', headers: h, body: JSON.stringify(body), signal: ctl ? ctl.signal : undefined })
+      .then(function (r) { done(); return r; }, function (e) { done(); throw e; });
   }
 
   // ---------------------------------------------------------------- 1. sign in
@@ -134,37 +138,75 @@
     }, function () { btn.disabled = false; msgEl.textContent = 'Could not reach the service. Please try again.'; });
   }
 
+  // The purchase page: the same two-card layout as the homepage pricing (white single card, navy unlimited card).
   function payScreen(msg) {
     clear();
     var wrapEl = el('div', 'call-pay');
     if (msg) wrapEl.appendChild(el('p', 'rp-notice', msg));
     var grid = el('div', 'call-pay-grid');
-    var note = el('p', 'muted small');
+    var note = el('p', 'call-note');
+    note.setAttribute('role', 'status');
 
-    var single = el('div', 'rp-form card');
-    single.appendChild(el('h3', null, 'Single interview: $' + PRICE));
-    var ul = el('ul');
-    ['One spoken case interview, about 25 minutes.', 'You choose the interviewer and case after paying.', 'A structured report at the end, also emailed to you.'].forEach(function (t) { ul.appendChild(el('li', null, t)); });
-    single.appendChild(ul);
-    var b1 = el('button', 'btn btn-ghost', 'Pay $' + PRICE + ' and continue'); b1.type = 'button';
+    function priceLine(amount, per) {
+      var p = el('p', 'pp-price', '$' + amount);
+      p.appendChild(el('small', null, per));
+      return p;
+    }
+    function list(items) {
+      var ul = el('ul', 'checks');
+      items.forEach(function (t) { ul.appendChild(el('li', null, t)); });
+      return ul;
+    }
+
+    var single = el('div', 'card');
+    single.appendChild(el('h3', null, 'Single AI Interview'));
+    single.appendChild(el('p', 'pp-sub', 'Pay once, practice once.'));
+    single.appendChild(priceLine(PRICE, '/ interview'));
+    single.appendChild(list(['One spoken case interview, about 25 minutes.', 'You choose the interviewer and case after paying.', 'A structured report at the end, also emailed to you.']));
+    var b1 = el('button', 'btn btn-outline', 'Pay $' + PRICE + ' and continue'); b1.type = 'button';
     b1.addEventListener('click', function () { pay('/functions/v1/interview-checkout', b1, note); });
     single.appendChild(b1);
 
-    var pass = el('div', 'rp-form card call-pay-best');
-    pass.appendChild(el('span', 'badge rise', 'Best value'));
-    pass.appendChild(el('h3', null, 'Unlimited interviews: $' + PASS_PRICE + ' a month'));
-    var ul2 = el('ul');
-    ['Practice as much as you need, subject to fair use.', 'Every interviewer and case type.', 'A report after every call. Cancel any time.'].forEach(function (t) { ul2.appendChild(el('li', null, t)); });
-    pass.appendChild(ul2);
+    var pass = el('div', 'card call-pay-best');
+    pass.appendChild(el('span', 'badge rise', 'Best Value'));
+    pass.appendChild(el('h3', null, 'Unlimited AI Interviews'));
+    pass.appendChild(el('p', 'pp-sub', 'Practice as much as you need.'));
+    pass.appendChild(priceLine(PASS_PRICE, '/ month'));
+    pass.appendChild(list(['Unlimited interviews, subject to fair use.', 'Every interviewer and case type.', 'A report after every interview. Cancel any time.']));
     var b2 = el('button', 'btn btn-primary', 'Subscribe for $' + PASS_PRICE + '/month'); b2.type = 'button';
     b2.addEventListener('click', function () { pay('/functions/v1/pass-access', b2, note); });
     pass.appendChild(b2);
 
     grid.appendChild(single); if (PASS_LIVE) grid.appendChild(pass);
     wrapEl.appendChild(grid);
-    wrapEl.appendChild(el('p', 'muted small', 'Secure payment by card on Stripe\u2019s page. We never see your card details. ' + (PASS_LIVE ? 'The subscription renews monthly until you cancel it from My Mada.' : '')));
+    wrapEl.appendChild(el('p', 'call-note', 'Secure payment by card on Stripe\u2019s page. We never see your card details.' + (PASS_LIVE ? ' The subscription renews monthly until you cancel it from My Mada.' : '')));
     wrapEl.appendChild(note);
     app.appendChild(wrapEl);
+  }
+
+  // Loading state shown at once (no artificial delay) while the interview is being set up.
+  function loader(title, text) {
+    clear();
+    var box = el('div', 'mada-loader');
+    box.setAttribute('role', 'status');
+    box.appendChild(el('div', 'mada-loader-ring'));
+    box.lastChild.setAttribute('aria-hidden', 'true');
+    box.appendChild(el('h2', null, title));
+    if (text) box.appendChild(el('p', null, text));
+    app.appendChild(box);
+    return box;
+  }
+  function loaderFailed(text, retry, back) {
+    clear();
+    var box = el('div', 'mada-loader');
+    box.setAttribute('role', 'alert');
+    box.appendChild(el('h2', null, 'That took longer than expected'));
+    box.appendChild(el('p', null, text));
+    var row = el('div', 'btn-row'); row.style.justifyContent = 'center';
+    var r = el('button', 'btn btn-primary', 'Try again'); r.type = 'button'; r.addEventListener('click', retry);
+    var c = el('button', 'btn btn-ghost', 'Back'); c.type = 'button'; c.addEventListener('click', back);
+    row.appendChild(r); row.appendChild(c); box.appendChild(row);
+    app.appendChild(box);
   }
 
 
@@ -173,14 +215,15 @@
   // the server accepts nothing else either (interview-start validates interviewer and case type).
   // All six interviewers are open on the same start page.
   var interviewer = 'victoria';
-  function who() { return interviewer === 'alex' ? 'Alex' : interviewer === 'faisal' ? 'Faisal' : interviewer === 'layal' ? 'Layal' : interviewer === 'joe' ? 'Joe' : interviewer === 'mona' ? 'Mona' : 'Tatiana'; }
+  function who() { return interviewer === 'alex' ? 'Arthur' : interviewer === 'faisal' ? 'Faisal' : interviewer === 'layal' ? 'Layal' : interviewer === 'joe' ? 'Joe' : interviewer === 'mona' ? 'Mona' : 'Tatiana'; }
   var INTERVIEWERS = [
     { id: 'victoria', name: 'Tatiana', title: 'Partner', desc: 'Executive-level mock interviewer. Calm, direct and demanding, with sharp follow-ups that push clear top-down thinking and confident recommendations.', img: 'tatiana', open: true },
-    { id: 'alex', name: 'Alex', title: 'Senior Manager', desc: 'Analytical drill specialist. Fast-paced and numbers-first, he pushes quantitative accuracy, exhibit reading and data-backed insights.', img: 'alex', open: true },
-    { id: 'faisal', name: 'Faisal', title: 'Principal', desc: 'Challenge-focused interviewer. Tests how well you structure ambiguity, defend your logic and synthesize clearly under pressure.', img: 'faisal', open: true },
-    { id: 'layal', name: 'Layal', title: 'Senior Manager', desc: 'Strategic thought partner. Curious and probing, she keeps asking \u2018so what?\u2019 to sharpen implications, trade-offs and recommendations.', img: 'layal', open: true },
-    { id: 'joe', name: 'Joe', title: 'Junior Manager', desc: 'Approachable practice interviewer. Relaxed and conversational, ideal for building confidence, sharpening structure and improving core case habits.', img: 'joe', open: true },
-    { id: 'mona', name: 'Mona', title: 'Principal', desc: 'Precision-focused evaluator. Expects crisp communication, disciplined problem solving and strong case execution with minimal hand-holding.', img: 'mona', open: true }
+    { id: 'faisal', name: 'Faisal', title: 'Partner', desc: 'Challenge-focused interviewer. Tests how well you structure ambiguity, defend your logic and synthesize clearly under pressure.', img: 'faisal', open: true },
+    // id stays 'alex' (the server and the voice agent know him by it); only the name shown to candidates is Arthur.
+    { id: 'alex', name: 'Arthur', title: 'Principal', desc: 'Analytical drill specialist. Fast-paced and numbers-first, he pushes quantitative accuracy, exhibit reading and data-backed insights.', img: 'alex', open: true },
+    { id: 'layal', name: 'Layal', title: 'Principal', desc: 'Strategic thought partner. Curious and probing, she keeps asking \u2018so what?\u2019 to sharpen implications, trade-offs and recommendations.', img: 'layal', open: true },
+    { id: 'mona', name: 'Mona', title: 'Manager', desc: 'Precision-focused evaluator. Expects crisp communication, disciplined problem solving and strong case execution with minimal hand-holding.', img: 'mona', open: true },
+    { id: 'joe', name: 'Joe', title: 'Manager', desc: 'Approachable practice interviewer. Relaxed and conversational, ideal for building confidence, sharpening structure and improving core case habits.', img: 'joe', open: true }
   ];
   var CASE_TYPES = [
     { id: 'random', name: 'Random', desc: 'Surprise me: a random case type, like the real thing.', open: true },
@@ -318,8 +361,8 @@
 
   // ---------------------------------------------------------------- 4. the call
   function start(caseType, difficulty) {
-    say('Starting your call…');
-    post('/functions/v1/interview-start', { interviewer: interviewer, case_type: caseType, difficulty: difficulty || 'standard', consent: true, consent_version: CONSENT_VERSION }, token).then(function (r) {
+    loader('Getting your interviewer ready\u2026', who() + ' is preparing your case. This usually takes a few seconds.');
+    post('/functions/v1/interview-start', { interviewer: interviewer, case_type: caseType, difficulty: difficulty || 'standard', consent: true, consent_version: CONSENT_VERSION }, token, 30000).then(function (r) {
       if (r.status === 401) return expire('Your session expired. Sign in again.');
       return r.json().then(function (j) {
         if (!r.ok) {
@@ -332,7 +375,10 @@
         }
         connect(j);
       });
-    }, function () { setup('Could not reach the service. Please try again.'); });
+    }, function (e) {
+      loaderFailed('We could not start the interview. Check your connection and try again. If it keeps happening, wait a minute first.',
+        function () { start(caseType, difficulty); }, function () { setup(); });
+    });
   }
 
   function connect(s) {

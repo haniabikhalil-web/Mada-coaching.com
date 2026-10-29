@@ -126,14 +126,14 @@ def cta_band(ctx, title='Tell us where you are. We&rsquo;ll help you find the ne
   <div class="cta-band reveal">
     <h2>{title}</h2>
     <p>{text}</p>
-    <div class="btn-row">{intro_btn(ctx, 'btn-light')}<a class="btn btn-ghost" href="{ctx.url('services')}">See services</a></div>
+    <div class="btn-row">{intro_btn(ctx, 'btn-light')}<a class="btn btn-ghost" href="{ctx.url('services')}">See Mada Expert</a></div>
     <span class="sun" aria-hidden="true"></span>
   </div>
 </div></section>'''
 
 
 # ---------------------------------------------------------------- layout
-NAV = [('services', 'Services'), ('ai', 'Mada AI'),
+NAV = [('services', 'Mada Expert'), ('ai', 'Mada AI'),
        ('coaches', 'Coaches'), ('resources', 'Resources'), ('about', 'About')]
 
 def header(ctx):
@@ -176,13 +176,13 @@ def footer(ctx):
         <p><a href="mailto:{C.EMAIL}">{C.EMAIL}</a></p>
       </div>
       <div>
-        <h4>Services</h4>
+        <h4>Mada Expert</h4>
         <ul>
           <li><a href="{u('services#position')}">Position</a></li>
           <li><a href="{u('services#connect')}">Connect</a></li>
           <li><a href="{u('services#land')}">Land</a></li>
           <li><a href="{u('services#progress')}">Progress</a></li>
-          <li><a href="{u('services#full-journey')}">Full Journey</a></li>
+          <li><a href="{u('services#full-journey')}">The Full Journey</a></li>
           <li><a href="{u('cv-review')}">CV Review</a></li>
         </ul>
       </div>
@@ -195,7 +195,7 @@ def footer(ctx):
           <li><a href="{u('coaches')}">Coaches</a></li>
           <li><a href="{u('about')}">About</a></li>
           <li><a href="{u('resources')}">Resources</a></li>
-          <li><a href="{u('book')}">Book &amp; FAQ</a></li>
+          <li><a href="{u('book#faq')}">FAQ</a></li>
         </ul>
       </div>
       <div>
