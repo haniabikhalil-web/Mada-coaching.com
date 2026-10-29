@@ -75,7 +75,7 @@
       clearTimeout(timer);
       if (!r.ok) throw new Error('status ' + r.status);
       say('You are on the list. We will email ' + v + ' when ' + toolName + ' opens.');
-      submit.hidden = true;
+      submit.textContent = 'Saved \u2713'; submit.disabled = true;
     }).catch(function () {
       clearTimeout(timer);
       submit.disabled = false; submit.textContent = 'Try again';
