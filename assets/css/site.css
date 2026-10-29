@@ -98,7 +98,7 @@ a:hover .arrow{transform:translateX(3px)}
 .hero h1{color:#fff;max-width:860px}
 .hero .lede{color:var(--on-navy);margin-top:24px}
 .hero .btn-row{margin-top:36px}
-.hero-ar,.subhero::before{position:absolute;right:max(24px,4vw);direction:rtl;unicode-bidi:isolate;white-space:nowrap;font-family:var(--arabic);font-weight:700;letter-spacing:0;word-spacing:0;font-kerning:normal;text-rendering:optimizeLegibility;line-height:1.25;color:#fff;opacity:.04;pointer-events:none;user-select:none;z-index:0}
+.hero-ar,.subhero::before{position:absolute;right:max(24px,4vw);direction:rtl;unicode-bidi:isolate;white-space:nowrap;font-family:var(--arabic);font-weight:700;letter-spacing:0;word-spacing:0;font-kerning:normal;text-rendering:optimizeLegibility;line-height:1.25;color:var(--cobalt);opacity:.28;pointer-events:none;user-select:none;z-index:0}
 .hero-ar{top:24px;font-size:clamp(150px,22vw,320px)}
 .subhero::before{content:"\0645\062F\0649" / "";top:50%;transform:translateY(-50%);font-size:clamp(110px,15vw,220px)}
 .hero>.wrap,.subhero>.wrap{position:relative;z-index:1}
