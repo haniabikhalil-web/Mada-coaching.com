@@ -10,7 +10,7 @@ def journey_block(ctx, link=True):
     for s in STAGES:
         rise = ' rise' if s['phase'] == 'rise' else ''
         lis = ''.join(f'<li>{b}</li>' for b in s['bullets'])
-        cards.append(f'''<a class="step{rise} reveal" href="{ctx.url('services#' + s['id'])}" style="text-decoration:none;color:inherit">
+        cards.append(f'''<a class="step{rise} reveal" href="{ctx.url('expert#' + s['id'])}" style="text-decoration:none;color:inherit">
   <div class="step-top">{icon(s['icon'])}<span class="num">{s['num']}</span></div>
   <h3>{s['name']}</h3><p>{s['line']}</p><ul>{lis}</ul></a>''' if link else
                      f'''<div class="step{rise} reveal">
@@ -123,7 +123,7 @@ def home():
     <h1>Get into consulting.<br>Then get ahead in it.</h1>
     <p class="lede lede-short">Expert Coaching. AI-Powered Preparation.</p>
     <p class="brand-line">Reach the room. Rise in it.</p>
-    <div class="btn-row">{intro_btn(ctx)}<a class="btn btn-ghost" href="{u('services')}">See Mada Expert and prices</a></div>
+    <div class="btn-row">{intro_btn(ctx)}<a class="btn btn-ghost" href="{u('expert')}">See Mada Expert and prices</a></div>
     {HORIZON}
     <div class="stats two">
       <div class="stat"><b>1,000+</b><span>candidates coached by our coaches</span></div>
@@ -139,12 +139,12 @@ def home():
       <h2>Wherever you are in your journey, start here</h2>
     </div>
     <div class="grid g4">
-      <a class="card pick reveal" href="{u('services#position')}"><span class="tag">Applying</span><h3>I&rsquo;m applying, or about to</h3><p>Decide where to aim, sharpen your CV and LinkedIn, and plan your outreach.</p><span class="pick-go">Position and Connect <span class="arrow" aria-hidden="true">&rarr;</span></span></a>
-      <a class="card pick reveal" href="{u('services#mock')}"><span class="tag">Interview booked</span><h3>I have an interview coming up</h3><p>Realistic case and fit mocks with someone who has interviewed for real.</p><span class="pick-go">Mock interviews <span class="arrow" aria-hidden="true">&rarr;</span></span></a>
-      <a class="card pick reveal" href="{u('services#offer')}"><span class="tag">Offer received</span><h3>I have an offer</h3><p>Understand the level and package, then negotiate the right things.</p><span class="pick-go">Offer and negotiation <span class="arrow" aria-hidden="true">&rarr;</span></span></a>
-      <a class="card pick reveal" href="{u('services#progress')}"><span class="tag">Already consulting</span><h3>I&rsquo;m already a consultant</h3><p>Onboarding, reviews and promotion, with someone outside the problem.</p><span class="pick-go">Progress <span class="arrow" aria-hidden="true">&rarr;</span></span></a>
+      <a class="card pick reveal" href="{u('expert#position')}"><span class="tag">Applying</span><h3>I&rsquo;m applying, or about to</h3><p>Decide where to aim, sharpen your CV and LinkedIn, and plan your outreach.</p><span class="pick-go">Position and Connect <span class="arrow" aria-hidden="true">&rarr;</span></span></a>
+      <a class="card pick reveal" href="{u('expert#mock')}"><span class="tag">Interview booked</span><h3>I have an interview coming up</h3><p>Realistic case and fit mocks with someone who has interviewed for real.</p><span class="pick-go">Mock interviews <span class="arrow" aria-hidden="true">&rarr;</span></span></a>
+      <a class="card pick reveal" href="{u('expert#offer')}"><span class="tag">Offer received</span><h3>I have an offer</h3><p>Understand the level and package, then negotiate the right things.</p><span class="pick-go">Offer and negotiation <span class="arrow" aria-hidden="true">&rarr;</span></span></a>
+      <a class="card pick reveal" href="{u('expert#progress')}"><span class="tag">Already consulting</span><h3>I&rsquo;m already a consultant</h3><p>Onboarding, reviews and promotion, with someone outside the problem.</p><span class="pick-go">Progress <span class="arrow" aria-hidden="true">&rarr;</span></span></a>
     </div>
-    <p class="muted" style="margin-top:24px">Not sure? <a href="{u('services#full-journey')}">The Full Journey</a> covers the whole process as one engagement.</p>
+    <p class="muted" style="margin-top:24px">Not sure? <a href="{u('expert#full-journey')}">The Full Journey</a> covers the whole process as one engagement.</p>
   </div>
 </section>
 
@@ -235,7 +235,7 @@ def how_it_works():
   <div><span class="badge {'rise' if rise else 'get'}">{'Rise' if rise else 'Get in'} &middot; Step {s['num']}</span>
     <h2 style="margin-top:16px">{s['name']}</h2><p class="lede" style="margin-top:12px">{s['line']}</p></div>
   <div><p>{intro}</p><ul class="checks">{lis}</ul>
-    <p style="margin-top:20px"><a href="{u('services#' + s['id'])}">{s['name']} services and prices <span class="arrow" aria-hidden="true">&rarr;</span></a></p></div>
+    <p style="margin-top:20px"><a href="{u('expert#' + s['id'])}">{s['name']} services and prices <span class="arrow" aria-hidden="true">&rarr;</span></a></p></div>
 </div>''')
 
     body = f'''
@@ -330,7 +330,7 @@ def svc_row(ctx, svc, rise=False):
 
 
 def services():
-    ctx = Ctx('services')
+    ctx = Ctx('expert')
     u = ctx.url
     groups = []
     for s in STAGES:
@@ -395,7 +395,7 @@ def services():
 </section>
 {cta_band(ctx, 'Not sure which service you need?', 'Tell us where you are on a free 20-minute call and we&rsquo;ll point you to the right starting step.')}
 '''
-    page('services', 'Mada Expert: coaching & prices',
+    page('expert', 'Mada Expert: coaching & prices',
          'Expert 1:1 coaching from experienced consultants and interviewers: career strategy, CV and LinkedIn, applications and networking, mock interviews, offer negotiation and support once you are in. From $50.',
          body, ctx)
 
@@ -501,7 +501,7 @@ def ai():
   <div class="wrap narrow center" style="text-align:center">
     <h2>AI practice. Human expertise. Better together.</h2>
     <p class="lede center" style="margin-top:16px">Complement your AI preparation with personalized sessions from experienced Mada coaches.</p>
-    <div class="btn-row" style="justify-content:center;margin-top:28px"><a class="btn btn-light" href="{u('services')}">Explore Mada Expert</a></div>
+    <div class="btn-row" style="justify-content:center;margin-top:28px"><a class="btn btn-light" href="{u('expert')}">Explore Mada Expert</a></div>
   </div>
 </section>
 <div id="waitlist-cfg" hidden data-api="{C.SUPABASE_URL}" data-key="{C.SUPABASE_PUBLISHABLE_KEY}"></div>
@@ -559,7 +559,7 @@ def ai_report():
       <noscript><p>This page needs JavaScript to show your report.</p></noscript>
       <p class="muted" id="report-status">Loading&hellip;</p>
     </div>
-    <p class="muted" style="margin-top:32px">Questions about your report? <a href="mailto:{C.EMAIL}">{C.EMAIL}</a> or <a href="{u('services')}">book a coach</a>.</p>
+    <p class="muted" style="margin-top:32px">Questions about your report? <a href="mailto:{C.EMAIL}">{C.EMAIL}</a> or <a href="{u('expert')}">book a coach</a>.</p>
   </div>
 </section>
 '''
@@ -590,7 +590,7 @@ def ai_maths():
   <div class="wrap">
     <div id="maths-account"></div>
     <div id="maths-app"{attrs}><noscript><p>This page needs JavaScript.</p></noscript></div>
-    <p class="muted" style="margin-top:32px;text-align:center">Want to talk it through with a person? <a href="{u('services')}">Work with a Mada coach</a>. Manage your subscription in <a href="{u('ai/account')}">My Mada</a>.</p>
+    <p class="muted" style="margin-top:32px;text-align:center">Want to talk it through with a person? <a href="{u('expert')}">Work with a Mada coach</a>. Manage your subscription in <a href="{u('ai/account')}">My Mada</a>.</p>
   </div>
 </section>
 '''
@@ -615,7 +615,7 @@ def ai_account():
 <section>
   <div class="wrap narrow">
     <div id="account-app" data-api="{cfg_url}" data-key="{cfg_key}" data-maths="{maths}"
-         data-maths-url="{u('ai/maths')}" data-start="{u('ai/case-practice/start')}" data-reports="{u('ai/reports')}" data-book="{u('services')}" aria-live="polite">
+         data-maths-url="{u('ai/maths')}" data-start="{u('ai/case-practice/start')}" data-reports="{u('ai/reports')}" data-book="{u('expert')}" aria-live="polite">
       <noscript><p>This page needs JavaScript.</p></noscript>
       <p class="muted">Loading&hellip;</p>
     </div>
@@ -646,7 +646,7 @@ def ai_reports():
       <noscript><p>This page needs JavaScript to show your reports.</p></noscript>
       <p class="muted">Loading&hellip;</p>
     </div>
-    <p class="muted" style="margin-top:32px">Questions about a report? <a href="mailto:{C.EMAIL}">{C.EMAIL}</a> or <a href="{u('services')}">book a coach</a>. Everything you have with Mada is in <a href="{u('ai/account')}">My Mada</a>.</p>
+    <p class="muted" style="margin-top:32px">Questions about a report? <a href="mailto:{C.EMAIL}">{C.EMAIL}</a> or <a href="{u('expert')}">book a coach</a>. Everything you have with Mada is in <a href="{u('ai/account')}">My Mada</a>.</p>
   </div>
 </section>
 '''
@@ -824,7 +824,7 @@ def cv_review():
   <p class="eyebrow">Position &middot; Mada CV Review</p>
   <h1>Expert feedback on your CV. No meeting required.</h1>
   <p class="lede">Send your CV and target role. Within 48 hours you get a recorded video review, an annotated CV, a scorecard and five priority fixes.</p>
-  <div class="btn-row"><a class="btn btn-primary" href="{book}">Request a CV Review &middot; $50 <span class="arrow" aria-hidden="true">&rarr;</span></a><a class="btn btn-ghost" href="{u('services#position')}">All Position services</a></div>
+  <div class="btn-row"><a class="btn btn-primary" href="{book}">Request a CV Review &middot; $50 <span class="arrow" aria-hidden="true">&rarr;</span></a><a class="btn btn-ghost" href="{u('expert#position')}">All Position services</a></div>
 </div></header>
 
 <section>
@@ -878,7 +878,7 @@ def cv_review():
       <div class="reveal"><p class="eyebrow">After the review</p><h2>Want help applying the feedback?</h2></div>
       <div class="reveal"><p>A review tells you what to change. If you&rsquo;d rather work through the rewrite with a coach, and build the story that goes with it, book a live CV &amp; LinkedIn session.</p>
         <p>A self-serve AI CV review is coming soon on <a href="{u('ai')}">Mada AI</a>.</p>
-        <div class="btn-row" style="margin-top:20px"><a class="btn btn-primary" href="{book}">Request a CV Review</a><a class="btn btn-ghost" href="{u('services#cv-linkedin')}">Live CV &amp; LinkedIn session</a></div></div>
+        <div class="btn-row" style="margin-top:20px"><a class="btn btn-primary" href="{book}">Request a CV Review</a><a class="btn btn-ghost" href="{u('expert#cv-linkedin')}">Live CV &amp; LinkedIn session</a></div></div>
     </div>
   </div>
 </section>
@@ -919,7 +919,7 @@ def resources():
   </div>
 </section>
 <section class="tight" style="padding-top:0">
-  <div class="wrap"><p class="muted">From reading to doing: practice with <a href="{u('ai')}">Mada AI</a>, or work 1:1 with a <a href="{u('services')}">Mada Expert coach</a>.</p></div>
+  <div class="wrap"><p class="muted">From reading to doing: practice with <a href="{u('ai')}">Mada AI</a>, or work 1:1 with a <a href="{u('expert')}">Mada Expert coach</a>.</p></div>
 </section>
 {cta_band(ctx, 'Want this applied to your own situation?', 'A free 20-minute intro call is the quickest way to find out where to focus.')}
 '''
@@ -974,11 +974,11 @@ def book():
         <h3>Already know what you need?</h3>
         <p class="muted">Every service can be booked directly.</p>
         <div class="grid" style="gap:12px;margin-top:20px">
-          <a class="card" style="text-decoration:none;padding:20px 24px" href="{u('services#full-journey')}"><b style="color:var(--ink)">The Full Journey</b> <span class="muted">&middot; {FULL_JOURNEY['expert']}</span><br><span class="small muted">Position to Land as one engagement</span></a>
-          <a class="card" style="text-decoration:none;padding:20px 24px" href="{u('services#mock')}"><b style="color:var(--ink)">Mock Interview + Feedback</b> <span class="muted">&middot; {price_of('mock')}</span><br><span class="small muted">Case and fit, in real conditions</span></a>
+          <a class="card" style="text-decoration:none;padding:20px 24px" href="{u('expert#full-journey')}"><b style="color:var(--ink)">The Full Journey</b> <span class="muted">&middot; {FULL_JOURNEY['expert']}</span><br><span class="small muted">Position to Land as one engagement</span></a>
+          <a class="card" style="text-decoration:none;padding:20px 24px" href="{u('expert#mock')}"><b style="color:var(--ink)">Mock Interview + Feedback</b> <span class="muted">&middot; {price_of('mock')}</span><br><span class="small muted">Case and fit, in real conditions</span></a>
           <a class="card" style="text-decoration:none;padding:20px 24px" href="{u('cv-review')}"><b style="color:var(--ink)">CV Review</b> <span class="muted">&middot; {price_of('cv-review')}</span><br><span class="small muted">Video review in 48 hours, no meeting</span></a>
-          <a class="card" style="text-decoration:none;padding:20px 24px" href="{u('services#progress-session')}"><b style="color:var(--ink)">Exit Consulting Session</b> <span class="muted">&middot; {price_of('progress-session')}</span><br><span class="small muted">For consultants planning a move beyond consulting</span></a>
-          <a class="card" style="text-decoration:none;padding:20px 24px" href="{u('services#membership')}"><b style="color:var(--ink)">Consulting Career Mentorship</b> <span class="muted">&middot; {price_of('membership')}</span><br><span class="small muted">Ongoing guidance to grow within consulting</span></a>
+          <a class="card" style="text-decoration:none;padding:20px 24px" href="{u('expert#progress-session')}"><b style="color:var(--ink)">Exit Consulting Session</b> <span class="muted">&middot; {price_of('progress-session')}</span><br><span class="small muted">For consultants planning a move beyond consulting</span></a>
+          <a class="card" style="text-decoration:none;padding:20px 24px" href="{u('expert#membership')}"><b style="color:var(--ink)">Consulting Career Mentorship</b> <span class="muted">&middot; {price_of('membership')}</span><br><span class="small muted">Ongoing guidance to grow within consulting</span></a>
         </div>
       </div>
     </div>
@@ -1044,7 +1044,7 @@ def legal_pages():
         ('AI-generated reviews', '<p>AI-generated CV scores and feedback are guidance, not a guarantee of any hiring outcome. Mada coaches review a sample of them for quality.</p>'),
         ('Deleting your account', f'<p>You can delete your account at any time. When you do:</p><ul><li>any active subscription (Unlimited AI Interviews or Case Math Mastery) is cancelled immediately;</li><li>we do not refund amounts you have already paid, including the unused part of a billing period;</li><li>you cannot delete your account while an AI interview call is in progress (up to 20 minutes). Finish or end the call, then try again.</li></ul><p>If you make a one-off purchase and your account is deleted before the credit is applied, contact <a href="mailto:{E}">{E}</a>.</p>'),
         ('What we do not provide', '<p>We are not a recruitment agency and we do not place candidates into jobs. We have no role in any employer&rsquo;s hiring decision, and we cannot and do not guarantee an interview, an offer, a salary level, a promotion or any other outcome. Nothing on this website or in a session should be read as a promise of employment. We do not provide legal, immigration, tax or financial advice, and any commentary on an offer is general information for your own decision-making, not professional advice in those fields.</p>'),
-        ('Booking and payment', '<p>Sessions are paid in advance unless agreed otherwise. Prices are shown in US dollars on the Services page. Where a multi-session package is purchased, sessions must be scheduled within 6 months of purchase. Memberships and the Math Drills subscription are billed monthly and renew automatically; they can be cancelled before the next billing date. We may change our prices at any time, but never for a session you have already paid for.</p>'),
+        ('Booking and payment', '<p>Sessions are paid in advance unless agreed otherwise. Prices are shown in US dollars on the Mada Expert page. Where a multi-session package is purchased, sessions must be scheduled within 6 months of purchase. Memberships and the Math Drills subscription are billed monthly and renew automatically; they can be cancelled before the next billing date. We may change our prices at any time, but never for a session you have already paid for.</p>'),
         ('Rescheduling, cancellation and refunds', '<p>Our <a href="{{refunds}}">Cancellation &amp; Refund Policy</a> forms part of these terms.</p>'),
         ('Your responsibilities', '<p>Coaching works when you take part. You agree to provide accurate information about your experience and situation, to arrive for sessions on time and prepared, and to do the agreed work between sessions. You are responsible for every decision you make about your career, your applications and any offer you accept or decline.</p>'),
         ('Honesty in applications', '<p>We help you present your genuine experience as clearly and compellingly as possible. We will not help you fabricate experience, qualifications, employment dates or results, and we may end an engagement without refund if asked to.</p>'),
@@ -1106,7 +1106,7 @@ def not_found():
   <p class="eyebrow">404</p>
   <h1>This page is beyond the horizon</h1>
   <p class="lede">The page you&rsquo;re looking for doesn&rsquo;t exist or has moved.</p>
-  <div class="btn-row"><a class="btn btn-primary" href="/">Go to the homepage</a><a class="btn btn-ghost" href="/services/">See services</a></div>
+  <div class="btn-row"><a class="btn btn-primary" href="/">Go to the homepage</a><a class="btn btn-ghost" href="/expert/">See Mada Expert</a></div>
 </div></header>'''
     page('', 'Page not found | Mada Coaching', 'Page not found.', body, ctx)
     # page() wrote to ROOT/index.html; move it to 404.html and rebuild home after
@@ -1117,14 +1117,14 @@ def build_all():
     not_found()
     home(); how_it_works(); services(); ai(); ai_case_practice(); ai_start(); ai_report(); ai_reports(); ai_account(); ai_maths(); coaches(); about(); cv_review(); resources(); book(); legal_pages(); thank_you()
     root_files()
-    return ['', 'how-it-works', 'services', 'ai', 'ai/case-practice', 'ai/case-practice/start', 'ai/report', 'ai/reports', 'ai/account', 'coaches', 'about', 'cv-review', 'resources', 'book',
+    return ['', 'how-it-works', 'expert', 'ai', 'ai/case-practice', 'ai/case-practice/start', 'ai/report', 'ai/reports', 'ai/account', 'coaches', 'about', 'cv-review', 'resources', 'book',
             'privacy', 'terms', 'refunds', 'cookies', 'thank-you', '404']
 
 
 def root_files():
     import os
     from build import ROOT
-    pages_ = ['', 'how-it-works/', 'services/', 'ai/', 'coaches/', 'about/', 'cv-review/', 'resources/', 'book/',
+    pages_ = ['', 'how-it-works/', 'expert/', 'ai/', 'coaches/', 'about/', 'cv-review/', 'resources/', 'book/',
               'privacy/', 'terms/', 'refunds/', 'cookies/']
     urls = ''.join(f'  <url><loc>https://{C.DOMAIN}/{p}</loc><lastmod>2026-10-02</lastmod></url>\n' for p in pages_)
     files = {
@@ -1136,3 +1136,15 @@ def root_files():
     for name, content in files.items():
         with open(os.path.join(ROOT, name), 'w', encoding='utf-8') as f:
             f.write(content)
+    # The old /services/ address keeps working: a real 301 on Cloudflare Pages (_redirects) and, as a fallback on any other
+    # host, a small page that forwards to /expert/ and keeps the #section in the link.
+    with open(os.path.join(ROOT, '_redirects'), 'w', encoding='utf-8') as f:
+        f.write('/services /expert/ 301\n/services/ /expert/ 301\n')
+    os.makedirs(os.path.join(ROOT, 'services'), exist_ok=True)
+    with open(os.path.join(ROOT, 'services', 'index.html'), 'w', encoding='utf-8') as f:
+        f.write(f'''<!doctype html><html lang="en"><head><meta charset="utf-8"><title>Mada Expert | Mada Coaching</title>
+<meta name="robots" content="noindex"><link rel="canonical" href="https://{C.DOMAIN}/expert/">
+<meta http-equiv="refresh" content="0; url=/expert/">
+<script>location.replace('/expert/' + location.search + location.hash)</script></head>
+<body><p>This page has moved to <a href="/expert/">Mada Expert</a>.</p></body></html>
+''')

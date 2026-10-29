@@ -58,14 +58,14 @@ STAGES = [
         'bullets': ['Onboarding', 'Performance and reviews', 'Promotion'],
         'icon': 'chart',
         'services': [
-            {'key': 'progress-session', 'outcome': 'Plan your next career move beyond consulting.', 'format': '1 &times; 60-min 1:1 session', 'best': 'Consultants considering leaving consulting or evaluating their next career move.', 'name': 'Exit Consulting Session',
-             'desc': 'Explore exit opportunities, identify transferable skills, position your experience, and prepare for a transition into industry, corporate strategy, or other roles.',
-             'includes': ['60-minute 1:1 career transition session'],
-             'expert': '$100', 'ai': None},
             {'key': 'membership', 'outcome': 'Navigate consulting, perform better, and progress in your career.', 'format': '1 &times; 60-min session per month', 'best': 'Consultants who want ongoing guidance to succeed and grow within consulting.', 'name': 'Consulting Career Mentorship',
              'desc': 'Get an independent perspective on staffing opportunities, project challenges, performance reviews, feedback, promotions, and longer-term career decisions.',
              'includes': ['One 60-minute mentor session each month', 'Staffing and project check-ins', 'Performance review preparation', 'Promotion guidance'],
              'expert': '$50<small>/month</small>', 'ai': None, 'cta': 'Enroll now'},
+            {'key': 'progress-session', 'outcome': 'Plan your next career move beyond consulting.', 'format': '1 &times; 60-min 1:1 session', 'best': 'Consultants considering leaving consulting or evaluating their next career move.', 'name': 'Exit Consulting Session',
+             'desc': 'Explore exit opportunities, identify transferable skills, position your experience, and prepare for a transition into industry, corporate strategy, or other roles.',
+             'includes': ['60-minute 1:1 career transition session'],
+             'expert': '$100', 'ai': None},
         ],
     },
 ]
