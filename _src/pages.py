@@ -641,6 +641,30 @@ def ai_account():
          body, ctx, noindex=True, extra_js=('js/ai-session.js', 'js/my-profile.js', 'js/my-mada.js'))
 
 
+# ---------------------------------------------------------------- Mada team dashboard (coach accounts only; the database refuses everyone else)
+def ai_admin():
+    ctx = Ctx('ai/admin')
+    u = ctx.url
+    cfg_url = C.SUPABASE_URL if C.SUPABASE_PUBLISHABLE_KEY else ''
+    cfg_key = C.SUPABASE_PUBLISHABLE_KEY or ''
+    body = f'''
+<header class="subhero"><div class="wrap">
+  <p class="eyebrow">Mada team</p>
+  <h1>Dashboard</h1>
+  <p class="lede">Sign-ups, purchases, interviews and who is applying. Only coach accounts can open this.</p>
+</div></header>
+<section>
+  <div class="wrap">
+    <div id="admin-app" data-api="{cfg_url}" data-key="{cfg_key}" data-home="{u('ai/account')}" aria-live="polite">
+      <noscript><p>This page needs JavaScript.</p></noscript>
+      <p class="muted">Loading&hellip;</p>
+    </div>
+  </div>
+</section>
+'''
+    page('ai/admin', 'Dashboard', 'Mada team dashboard.', body, ctx, noindex=True, extra_js=('js/ai-session.js', 'js/admin.js'))
+
+
 # ---------------------------------------------------------------- Mada AI "My reports" (signed-in list of all released reports)
 def ai_reports():
     ctx = Ctx('ai/reports')
@@ -1036,7 +1060,7 @@ def legal_pages():
     E = C.EMAIL
     legal('privacy', 'Privacy Policy', [
         ('Who we are', f'<p>Mada Coaching (&ldquo;Mada&rdquo;, &ldquo;we&rdquo;, &ldquo;us&rdquo;) provides 1:1 career and interview coaching for consulting. This policy explains what personal information we collect when you use {C.DOMAIN} or book a session with us, why we collect it, and what rights you have over it. {ENTITY} For any question about this policy, or to exercise any of the rights below, contact us at <a href="mailto:{E}">{E}</a>.</p>'),
-        ('What we collect', '<ul><li><strong>Booking information</strong>: your name, email address, time zone and any notes you give us when you book a session, by email or through our scheduling provider once online booking is live.</li><li><strong>Coaching materials</strong>: documents you choose to share with us, such as a CV, cover letter, LinkedIn profile, job descriptions or offer details.</li><li><strong>Session notes</strong>: our own working notes, so we can prepare for and follow up on your sessions.</li><li><strong>Payment information</strong>: payments are processed by our payment provider. We receive confirmation that a payment was made; we do not receive or store your full card details.</li><li><strong>Correspondence</strong>: emails and messages you send us.</li><li><strong>AI tools</strong>: when Mada AI tools open, the content you submit to them (for example a CV or practice answers) is processed to give you feedback. We will describe this in more detail here before any tool goes live.</li><li><strong>Usage data</strong>: when you browse this site, our analytics provider collects the pages you visit, how you arrived, your approximate location from your IP address, and your device and browser. See the Cookies and analytics section below.</li></ul>'),
+        ('What we collect', '<ul><li><strong>Booking information</strong>: your name, email address, time zone and any notes you give us when you book a session, by email or through our scheduling provider once online booking is live.</li><li><strong>Coaching materials</strong>: documents you choose to share with us, such as a CV, cover letter, LinkedIn profile, job descriptions or offer details.</li><li><strong>Session notes</strong>: our own working notes, so we can prepare for and follow up on your sessions.</li><li><strong>Payment information</strong>: payments are processed by our payment provider. We receive confirmation that a payment was made; we do not receive or store your full card details.</li><li><strong>Correspondence</strong>: emails and messages you send us.</li><li><strong>Your Mada AI profile</strong>: if you complete the profile in My Mada, we store what you enter (name, email, date of birth, city, country, nationality, education, experience, universities, target firms and offices, and when you expect to interview). We use it to personalize your experience and to understand and support our candidates. The Mada team can see it; the AI interviewers do not read it. You can edit or delete it at any time in My Mada.</li><li><strong>AI tools</strong>: when Mada AI tools open, the content you submit to them (for example a CV or practice answers) is processed to give you feedback. We will describe this in more detail here before any tool goes live.</li><li><strong>Usage data</strong>: when you browse this site, our analytics provider collects the pages you visit, how you arrived, your approximate location from your IP address, and your device and browser. See the Cookies and analytics section below.</li></ul>'),
         ('Why we use it', '<p>We use this information to deliver the coaching you have booked, to prepare tailored feedback on your materials, to match you with a coach, to manage payments and scheduling, and to respond to your enquiries. We rely on the performance of our agreement with you as the basis for most of this processing, and on our legitimate interest in running and improving the service for the rest. Where we send you optional updates, such as waitlist emails, we rely on your consent, and you can withdraw it at any time.</p>'),
         ('Who we share it with', '<p>We share personal information only with the coach matched to you and the service providers we need to operate: scheduling, payment, email, file storage, analytics and AI providers, and professional advisers where required. Every Mada coach is bound to keep what you share confidential. We do not sell your personal information, and we do not share your CV, materials or session content with employers, recruiters or any third party without your explicit instruction.</p>'),
         ('Confidentiality of your job search', '<p>What you tell us about your current employer, your search, your compensation or your offers stays between you, your coach and Mada. We will never contact an employer about you, disclose that you are looking, or use your name or materials in marketing without your written permission.</p>'),
@@ -1128,7 +1152,7 @@ def not_found():
 
 def build_all():
     not_found()
-    home(); how_it_works(); services(); ai(); ai_case_practice(); ai_start(); ai_report(); ai_reports(); ai_account(); ai_maths(); coaches(); about(); cv_review(); resources(); book(); legal_pages(); thank_you()
+    home(); how_it_works(); services(); ai(); ai_case_practice(); ai_start(); ai_report(); ai_reports(); ai_account(); ai_admin(); ai_maths(); coaches(); about(); cv_review(); resources(); book(); legal_pages(); thank_you()
     root_files()
     return ['', 'how-it-works', 'expert', 'ai', 'ai/case-practice', 'ai/case-practice/start', 'ai/report', 'ai/reports', 'ai/account', 'coaches', 'about', 'cv-review', 'resources', 'book',
             'privacy', 'terms', 'refunds', 'cookies', 'thank-you', '404']

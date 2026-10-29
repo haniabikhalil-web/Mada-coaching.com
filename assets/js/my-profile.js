@@ -2,7 +2,7 @@
 // Stored in Supabase table candidate_profiles through PostgREST with the candidate's own access token; row level security
 // lets a candidate see only their own row, and coaches and the AI interviewers never read it. Every string is written with textContent.
 (function () {
-  var CONSENT_VERSION = 'profile-2026-10';
+  var CONSENT_VERSION = 'profile-2026-11';
   var COUNTRIES = ['Afghanistan','Albania','Algeria','Argentina','Armenia','Australia','Austria','Azerbaijan','Bahrain','Bangladesh','Belgium','Brazil','Bulgaria','Canada','Chile','China','Colombia','Croatia','Cyprus','Czechia','Denmark','Egypt','Estonia','Finland','France','Georgia','Germany','Ghana','Greece','Hungary','India','Indonesia','Iran','Iraq','Ireland','Italy','Japan','Jordan','Kazakhstan','Kenya','Kuwait','Lebanon','Libya','Lithuania','Luxembourg','Malaysia','Mexico','Morocco','Netherlands','New Zealand','Nigeria','Norway','Oman','Pakistan','Palestine','Peru','Philippines','Poland','Portugal','Qatar','Romania','Russia','Saudi Arabia','Serbia','Singapore','Slovakia','Slovenia','South Africa','South Korea','Spain','Sri Lanka','Sudan','Sweden','Switzerland','Syria','Tunisia','Turkey','Ukraine','United Arab Emirates','United Kingdom','United States','Venezuela','Vietnam','Yemen'];
   var SUGGEST = {
     experience: ['McKinsey & Company','Boston Consulting Group','Bain & Company','Oliver Wyman','Roland Berger','Strategy&','Kearney','L.E.K. Consulting','EY-Parthenon','Deloitte','PwC','KPMG','Accenture','Arthur D. Little','Simon-Kucher','Alvarez & Marsal','Google','Amazon','Microsoft','Aramco','PIF','ADNOC','Emirates','Careem'],
@@ -103,7 +103,7 @@
     closeBtn.addEventListener('click', function () { dlg.close(); });
     var h = el('h2', null, 'My Profile'); h.id = 'pf-title';
     sec.appendChild(closeBtn); sec.appendChild(h);
-    sec.appendChild(el('p', 'muted', 'Tell us a little about you so Mada can personalize your experience. Your profile is private: only you can see it. Mada coaches and the AI interviewers do not read it, and you can change or delete it at any time.'));
+    sec.appendChild(el('p', 'muted', 'Tell us a little about you so Mada can personalize your experience. The Mada team can see it, the AI interviewers do not read it, and you can change or delete it at any time. See our privacy policy.'));
     var body = el('div', 'pf-body'); sec.appendChild(body); dlg.appendChild(sec); document.body.appendChild(dlg);
     dlg.addEventListener('click', function (e) { if (e.target === dlg) dlg.close(); });
 
@@ -168,7 +168,7 @@
       var cw = el('label', 'wl-consent');
       var cb = el('input'); cb.type = 'checkbox'; cb.id = 'pf-consent'; cb.checked = !!p;
       cw.appendChild(cb);
-      cw.appendChild(el('span', null, 'I agree that Mada Coaching may store this information to personalize my experience. It is private to me, and I can edit or delete it at any time.'));
+      cw.appendChild(el('span', null, 'I agree that Mada Coaching may store this information to personalize my experience and to understand and support its candidates, as described in the privacy policy. I can edit or delete it at any time.'));
       f.appendChild(cw);
       var msg = el('p', 'wl-msg'); msg.setAttribute('role', 'status'); msg.setAttribute('aria-live', 'polite'); f.appendChild(msg);
       var row = el('div', 'btn-row');
