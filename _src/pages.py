@@ -451,14 +451,27 @@ def ai():
     product_cards = f'<div class="ai-prods top">{"".join(cards[:3])}</div><div class="ai-prods bottom">{"".join(cards[3:])}</div>'
 
     # ---- 2. How an AI interview works (replaces the old pricing section; pricing lives on the purchase page).
-    formats = [('Case Interview', True), ('Fit Interview', False), ('Full Mock Interview', False)]
+    formats = [('Case', True), ('Fit', False), ('Full Mock', False)]
     fmt_chips = ''.join(
         f'<li><span>{n}</span><span class="ai-pill {"live" if live else "soon"}">{"Available now" if live else "Coming soon"}</span></li>' for n, live in formats)
+    def visual(num):
+        """Small decorative illustration per step (aria-hidden, except the format list which carries real availability)."""
+        if num == '01':
+            return f'<ul class="ai-formats" aria-label="Interview formats and availability">{fmt_chips}</ul>'
+        if num == '02':
+            faces = ''.join(f'<img src="{ctx.asset("img/interviewers/" + n + ".jpg")}" alt="" width="44" height="44" loading="lazy">' for n in ('tatiana', 'faisal', 'alex', 'layal'))
+            return (f'<div class="ai-vis" aria-hidden="true"><div class="ai-faces">{faces}<span class="ai-more">+2</span></div>'
+                    '<div class="ai-seg"><span>Easier</span><span class="on">Standard</span><span>Harder</span></div></div>')
+        if num == '03':
+            bars = ''.join(f'<i style="--d:{i * 0.12:.2f}s;--h:{h}%"></i>' for i, h in enumerate((30, 62, 44, 85, 55, 96, 48, 72, 36, 64, 28, 52)))
+            return (f'<div class="ai-vis ai-live" aria-hidden="true"><span class="ai-rec"><b></b>Live</span><div class="ai-wave">{bars}</div></div>')
+        return ('<div class="ai-vis ai-report" aria-hidden="true"><span class="ai-eg">Example report</span>'
+                '<div><em>Structure</em><u style="--w:82%"></u></div><div><em>Quantitative</em><u style="--w:64%"></u></div>'
+                '<div><em>Communication</em><u style="--w:90%"></u></div></div>')
     steps = []
     for num, title, text, ic in AI_STEPS:
-        extra = f'<ul class="ai-formats" aria-label="Interview formats and availability">{fmt_chips}</ul>' if num == '01' else ''
         steps.append(f'''<li class="ai-step reveal"><div class="ai-step-top">{icon(ic)}<span class="ai-num">{num}</span></div>
-<h3>{title}</h3><p>{text}</p>{extra}</li>''')
+<h3>{title}</h3><p>{text}</p><div class="ai-step-vis">{visual(num)}</div></li>''')
     how = f'<ol class="ai-steps">{"".join(steps)}</ol>'
 
     # ---- 3. Interviewers: one data list, any number of profiles.
