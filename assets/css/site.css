@@ -916,3 +916,16 @@ section.mm-sec{padding-top:40px}
 .ai-formats li:first-child{border-top:0;padding-top:0}
 @media (max-width:1060px){.ai-step-vis{padding-top:16px}}
 .ai-formats li{flex-wrap:nowrap}.ai-formats li span:first-child{white-space:nowrap}.ai-formats .ai-pill{padding:5px 9px;letter-spacing:.04em}
+/* My Profile as a dialog */
+.pf-dialog{max-width:min(760px,calc(100vw - 24px));max-height:calc(100vh - 32px);overflow:auto}
+.pf-dialog .pf{border:0;border-radius:0;margin:0;padding:32px 32px 28px;position:relative}
+.pf-dialog .pf h2{font-size:26px;margin:0 44px 10px 0}
+.pf-prompt{display:flex;align-items:center;justify-content:space-between;gap:20px;flex-wrap:wrap;background:var(--cobalt-tint);border-radius:20px;padding:20px 24px;margin:0 0 28px}
+.pf-prompt h3{margin:0 0 4px;font-size:19px}
+.pf-prompt p{margin:0;max-width:520px}
+.pf-host:empty{display:none}
+.mm-actions{display:inline-flex;align-items:center;gap:20px}
+@media (max-width:700px){.pf-dialog .pf{padding:24px 18px}}
+
+.pf-prompt[hidden],.mm-manage[hidden]{display:none}
+.pf-field .mm-manage{align-self:flex-start}
