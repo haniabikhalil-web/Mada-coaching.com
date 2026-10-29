@@ -9,7 +9,7 @@
   var MATHS_URL = app.getAttribute('data-maths-url') || '../maths/';
   var START = app.getAttribute('data-start') || '../case-practice/start/';
   var REPORTS = app.getAttribute('data-reports') || '../reports/';
-  var BOOK = app.getAttribute('data-book') || '../../services/';
+  var BOOK = app.getAttribute('data-book') || '../../expert/';
   var S = window.MadaSession;
   var token = null, email = '';
 
