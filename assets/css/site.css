@@ -98,11 +98,10 @@ a:hover .arrow{transform:translateX(3px)}
 .hero h1{color:#fff;max-width:860px}
 .hero .lede{color:var(--on-navy);margin-top:24px}
 .hero .btn-row{margin-top:36px}
-.hero-ar,.subhero::before{position:absolute;right:max(24px,4vw);direction:rtl;unicode-bidi:isolate;white-space:nowrap;font-family:var(--arabic);font-weight:700;letter-spacing:0;word-spacing:0;font-kerning:normal;text-rendering:optimizeLegibility;line-height:1.25;color:#fff;opacity:.04;pointer-events:none;user-select:none;z-index:0}
-.hero-ar{top:24px;font-size:clamp(150px,22vw,320px)}
-.subhero::before{content:"\0645\062F\0649" / "";top:50%;transform:translateY(-50%);font-size:clamp(110px,15vw,220px)}
+.hero-ar,.subhero::before{position:absolute;top:24px;right:max(24px,4vw);direction:rtl;unicode-bidi:isolate;white-space:nowrap;font-family:var(--arabic);font-weight:700;letter-spacing:0;word-spacing:0;font-kerning:normal;text-rendering:optimizeLegibility;line-height:1.25;font-size:clamp(110px,15vw,192px);color:var(--cobalt);opacity:.28;pointer-events:none;user-select:none;z-index:0}
+.subhero::before{content:"\0645\062F\0649" / ""}
 .hero>.wrap,.subhero>.wrap{position:relative;z-index:1}
-@media (max-width:680px){.hero-ar{font-size:140px;top:80px}.subhero::before{font-size:100px}}
+@media (max-width:680px){.hero-ar,.subhero::before{font-size:100px;top:16px}}
 .horizon{position:relative;margin-top:72px;height:68px}
 .h-line{position:absolute;left:0;right:0;bottom:0;height:3px;background:#fff;border-radius:2px}
 .h-sun{position:absolute;bottom:3px;left:72%;width:128px;height:64px;border-radius:128px 128px 0 0;background:var(--dawn)}
