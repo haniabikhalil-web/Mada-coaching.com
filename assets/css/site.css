@@ -655,7 +655,7 @@ a:hover .arrow{transform:translateX(3px)}
 @media (max-width:520px){.rp-cov{grid-template-columns:100px 1fr 20px}.rp-axlabel{font-size:14px}}
 
 /* Mada AI page */
-.ai-hero{background:radial-gradient(900px 420px at 85% -10%,rgba(43,75,238,.55),transparent 60%),radial-gradient(600px 300px at 5% 110%,rgba(255,122,69,.18),transparent 60%),var(--navy)}
+.ai-hero{background:radial-gradient(600px 300px at 5% 110%,rgba(255,122,69,.18),transparent 60%),var(--navy)}
 .ai-prods{display:grid;gap:22px}
 .ai-prods.top{grid-template-columns:repeat(3,1fr)}
 .ai-prods.bottom{grid-template-columns:repeat(3,1fr);margin-top:22px}
