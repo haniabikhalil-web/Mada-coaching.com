@@ -929,3 +929,29 @@ section.mm-sec{padding-top:40px}
 @media (prefers-reduced-motion:no-preference){.call-warn:not([hidden]){animation:call-warn-in .4s ease-out}}
 @keyframes call-warn-in{from{transform:translateY(-6px);opacity:0}to{transform:none;opacity:1}}
 .call-warn[hidden]{display:none}
+
+/* Mada team dashboard (/ai/admin/) */
+.ad-tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:12px;margin:8px 0 20px}
+.ad-tile{background:#fff;border:1px solid var(--line,#dfe4f0);border-radius:14px;padding:16px;display:flex;flex-direction:column;gap:4px}
+.ad-tile b{font-size:28px;line-height:1.1;color:var(--navy)}
+.ad-tile span{font-weight:600;color:var(--navy)}
+.ad-tile small{color:#5b6478;font-size:12.5px}
+.ad-card{background:#fff;border:1px solid var(--line,#dfe4f0);border-radius:14px;padding:20px;margin:0 0 20px}
+.ad-card h3{margin:0 0 8px}
+.ad-card h4{margin:0 0 8px;font-size:15px}
+.ad-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:24px;margin-top:12px}
+.ad-bar{display:grid;grid-template-columns:minmax(90px,38%) 1fr 28px;gap:8px;align-items:center;margin:6px 0;font-size:14px}
+.ad-bar-t{background:var(--cobalt-tint,#e8ecfd);border-radius:6px;height:10px;overflow:hidden;display:block}
+.ad-bar-t i{display:block;height:100%;background:var(--cobalt);border-radius:6px}
+.ad-bar-n{text-align:right;font-weight:600}
+.ad-spark{width:100%;height:80px;display:block}
+.ad-spark rect{fill:var(--cobalt)}
+.ad-tabs{display:flex;gap:8px;flex-wrap:wrap;margin:8px 0 12px}
+.ad-tab{border:1px solid var(--line,#dfe4f0);background:#fff;border-radius:999px;padding:8px 14px;font:inherit;font-weight:600;cursor:pointer;color:var(--navy)}
+.ad-tab.is-on{background:var(--navy);color:#fff;border-color:var(--navy)}
+.ad-row{display:flex;gap:10px;flex-wrap:wrap;margin:0 0 12px}
+.ad-row input{flex:1;min-width:200px;padding:10px 12px;border:1px solid var(--line,#dfe4f0);border-radius:10px;font:inherit}
+.ad-table{overflow-x:auto;margin-bottom:24px}
+.ad-table table{border-collapse:collapse;width:100%;font-size:14px;background:#fff}
+.ad-table th,.ad-table td{text-align:left;padding:9px 12px;border-bottom:1px solid var(--line,#dfe4f0);white-space:nowrap}
+.ad-table th{font-size:12px;text-transform:uppercase;letter-spacing:.04em;color:#5b6478}

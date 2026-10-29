@@ -641,6 +641,30 @@ def ai_account():
          body, ctx, noindex=True, extra_js=('js/ai-session.js', 'js/my-profile.js', 'js/my-mada.js'))
 
 
+# ---------------------------------------------------------------- Mada team dashboard (coach accounts only; the database refuses everyone else)
+def ai_admin():
+    ctx = Ctx('ai/admin')
+    u = ctx.url
+    cfg_url = C.SUPABASE_URL if C.SUPABASE_PUBLISHABLE_KEY else ''
+    cfg_key = C.SUPABASE_PUBLISHABLE_KEY or ''
+    body = f'''
+<header class="subhero"><div class="wrap">
+  <p class="eyebrow">Mada team</p>
+  <h1>Dashboard</h1>
+  <p class="lede">Sign-ups, purchases, interviews and who is applying. Only coach accounts can open this.</p>
+</div></header>
+<section>
+  <div class="wrap">
+    <div id="admin-app" data-api="{cfg_url}" data-key="{cfg_key}" data-home="{u('ai/account')}" aria-live="polite">
+      <noscript><p>This page needs JavaScript.</p></noscript>
+      <p class="muted">Loading&hellip;</p>
+    </div>
+  </div>
+</section>
+'''
+    page('ai/admin', 'Dashboard', 'Mada team dashboard.', body, ctx, noindex=True, extra_js=('js/ai-session.js', 'js/admin.js'))
+
+
 # ---------------------------------------------------------------- Mada AI "My reports" (signed-in list of all released reports)
 def ai_reports():
     ctx = Ctx('ai/reports')
@@ -1128,7 +1152,7 @@ def not_found():
 
 def build_all():
     not_found()
-    home(); how_it_works(); services(); ai(); ai_case_practice(); ai_start(); ai_report(); ai_reports(); ai_account(); ai_maths(); coaches(); about(); cv_review(); resources(); book(); legal_pages(); thank_you()
+    home(); how_it_works(); services(); ai(); ai_case_practice(); ai_start(); ai_report(); ai_reports(); ai_account(); ai_admin(); ai_maths(); coaches(); about(); cv_review(); resources(); book(); legal_pages(); thank_you()
     root_files()
     return ['', 'how-it-works', 'expert', 'ai', 'ai/case-practice', 'ai/case-practice/start', 'ai/report', 'ai/reports', 'ai/account', 'coaches', 'about', 'cv-review', 'resources', 'book',
             'privacy', 'terms', 'refunds', 'cookies', 'thank-you', '404']
