@@ -809,6 +809,8 @@ section.mm-sec{padding-top:40px}
 .wl-msg{min-height:1.4em;margin:0 0 12px;font-size:14px}
 .wl-msg.bad{color:#B42318}.wl-msg.ok{color:#166534;font-weight:600}
 .wl-submit{width:100%;justify-content:center}
+.wl-submit[hidden]{display:none}
+.wl-submit:disabled{cursor:default}
 /* Purchase page: same premium card pair as the homepage pricing */
 .call-pay{max-width:880px;margin:0 auto}
 .call-pay-grid{gap:24px}
