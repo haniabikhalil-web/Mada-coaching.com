@@ -20,6 +20,7 @@
   var KEY = app.getAttribute('data-key');
   var PRICE = app.getAttribute('data-price') || '50';
   var PASS_PRICE = app.getAttribute('data-pass-price') || '100';
+  var CAP_MIN = 20, CAP_SECS = CAP_MIN * 60; // matches the Max conversation duration on every ElevenLabs interviewer
   var PASS_LIVE = app.getAttribute('data-pass-live') === '1';
   var passReturn = /[?&]pass=1/.test(location.search);
   var paidReturn = /[?&]paid=1/.test(location.search) || passReturn;
@@ -162,7 +163,7 @@
     single.appendChild(el('h3', null, 'Single AI Interview'));
     single.appendChild(el('p', 'pp-sub', 'Pay once, practice once.'));
     single.appendChild(priceLine(PRICE, '/ interview'));
-    single.appendChild(list(['One spoken case interview, about 25 minutes.', 'You choose the interviewer and case after paying.', 'A structured report at the end, also emailed to you.']));
+    single.appendChild(list(['One spoken case interview, about 20 minutes.', 'You choose the interviewer and case after paying.', 'A structured report at the end, also emailed to you.']));
     var b1 = el('button', 'btn btn-outline', 'Pay $' + PRICE + ' and continue'); b1.type = 'button';
     b1.addEventListener('click', function () { pay('/functions/v1/interview-checkout', b1, note); });
     single.appendChild(b1);
@@ -329,7 +330,7 @@
     }
     draw();
     form.appendChild(slotI); form.appendChild(slotC); form.appendChild(slotD);
-    form.appendChild(el('p', 'muted', 'You will get a case of this type at random. You need a quiet place, a microphone and about 25 minutes. The interview ends automatically at 25 minutes.'));
+    form.appendChild(el('p', 'muted', 'You will get a case of this type at random. You need a quiet place, a microphone and about 20 minutes. The interview ends automatically at 20 minutes.'));
 
     var box = el('div', 'rp-consent');
     box.appendChild(el('strong', null, 'Before you start'));
@@ -391,7 +392,7 @@
     var name = el('p', 'call-name', who());
     var stat = el('p', 'call-status', 'Connecting… allow the microphone when your browser asks.');
     var clock = el('p', 'call-clock', '0:00');
-    var left = el('p', 'call-left', 'Ends automatically at 25:00');
+    var left = el('p', 'call-left', 'Ends automatically at 20:00');
     var warn = el('p', 'call-warn'); warn.setAttribute('role', 'alert'); warn.hidden = true;
     var tr = el('div', 'call-transcript');
     tr.setAttribute('aria-live', 'off');
@@ -409,13 +410,13 @@
     stage.appendChild(side); stage.appendChild(main);
     app.appendChild(stage);
 
-    var done = false, mode = 'listening', raf = null, muted = false;
+    var done = false, mode = 'listening', raf = null, muted = false, t0 = 0;
     function finish() {
       if (done) return;
       done = true;
       if (timer) { clearInterval(timer); timer = null; }
       if (raf) cancelAnimationFrame(raf);
-      waitForReport(s.session_id);
+      waitForReport(s.session_id, t0 && (Date.now() - t0) / 1000 >= CAP_SECS - 5 ? 'cap' : '', t0 ? Math.round((Date.now() - t0) / 1000) : 0);
     }
     function setMode(m) {
       mode = m;
@@ -448,15 +449,15 @@
       onConnect: function () {
         setMode('listening');
         end.disabled = false; mute.disabled = false;
-        var t0 = Date.now();
-        // The call ends by itself at 25 minutes. Warn the candidate on screen and tell the interviewer, so they say it out loud too.
-        var LIMIT = 25 * 60, fired = {};
+        t0 = Date.now();
+        // The call ends by itself at 20 minutes (the cap set on every interviewer). Warn the candidate on screen and tell the interviewer, so they say it out loud too.
+        var LIMIT = CAP_SECS, fired = {};
         var CHECKS = [
           { at: 300, text: 'About 5 minutes left. Start moving toward your recommendation.',
-            tell: 'TIME CHECK: about five minutes remain; the call ends automatically at 25 minutes. At your next natural pause, tell the candidate in one short sentence that you are close to time, and steer them towards their final recommendation.' },
+            tell: 'TIME CHECK: about five minutes remain; the call ends automatically at 20 minutes. At your next natural pause, tell the candidate in one short sentence that you are close to time, and steer them towards their final recommendation.' },
           { at: 120, text: '2 minutes left. Wrap up with your recommendation.',
             tell: 'TIME CHECK: two minutes remain. Ask the candidate to give their final recommendation now, then close the case briefly.' },
-          { at: 60, text: '1 minute left. The interview ends automatically at 25:00.',
+          { at: 60, text: '1 minute left. The interview ends automatically at 20:00.',
             tell: 'TIME CHECK: one minute remains. Thank the candidate and close the interview now; the call will end automatically.' }
         ];
         function mmss(n) { n = Math.max(0, n); return Math.floor(n / 60) + ':' + ('0' + (n % 60)).slice(-2); }
@@ -495,14 +496,15 @@
   }
 
   // ---------------------------------------------------------------- 5. the report
-  function waitForReport(sessionId) {
+  function waitForReport(sessionId, reason, secs) {
     clear();
     var card = el('div', 'call-stage call-wait');
     var orbWrap = el('div', 'orb-wrap');
     orbWrap.appendChild(el('div', 'orb-ring'));
     orbWrap.appendChild(el('div', 'orb is-thinking'));
     card.appendChild(orbWrap);
-    card.appendChild(el('h3', 'call-name', 'Preparing your report'));
+    card.appendChild(el('h3', 'call-name', reason === 'cap' ? 'Your interview has ended' : 'Preparing your report'));
+    if (reason === 'cap') card.appendChild(el('p', 'call-status', 'The interview reached its ' + CAP_MIN + '-minute limit, so the call ended automatically. Your report is on its way.'));
     var stat = el('p', 'call-status', who() + '’s notes are being scored. This usually takes about a minute. Keep this page open.');
     card.appendChild(stat);
     app.appendChild(card);
