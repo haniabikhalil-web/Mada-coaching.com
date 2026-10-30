@@ -422,7 +422,7 @@ def ai():
 
     # ---- 1. The six products: what you practice.
     products = [
-        ('compass', 'Introduction to Case Solving', 'An AI guide that teaches you how to approach a case, build a structured framework and solve with confidence.', None),
+        ('compass', 'Introduction to Case Solving', 'An AI guide that teaches you how to approach a case, build a structured framework and solve with confidence.', 'ai/learn'),
         ('chat', 'Case Interviews', 'Solve realistic business problems, test your quantitative skills and deliver a recommendation in an interactive AI-led case.', 'ai/case-practice/start'),
         ('mic', 'Fit Interviews', 'Practice your personal stories, consulting motivation, leadership and behavioral questions with realistic AI interviewers.', None),
         ('target', 'Full Mock Interviews', 'A complete case and fit simulation in one sitting, followed by consolidated feedback on your performance.', None),
@@ -431,7 +431,7 @@ def ai():
     ]
     def product_card(n, p):
         ic, t, d, page = p
-        live = bool(page) and (drills_live if page == 'ai/maths' else bool(C.AI_PRACTICE_LIVE))
+        live = bool(page) and (drills_live if page == 'ai/maths' else bool(C.LEARN_LIVE) if page == 'ai/learn' else bool(C.AI_PRACTICE_LIVE))
         pill = ('<span class="ai-pill live">Open now</span>' if live else '<span class="ai-pill soon">Coming soon</span>')
         price = ''
         if page == 'ai/maths':
@@ -439,9 +439,11 @@ def ai():
         if page == 'ai/case-practice/start':
             price = (f'<p class="ai-prod-price"><b>${C.AI_PRACTICE_PRICE_USD}</b> / interview <span>&middot; Single AI Interview</span></p>'
                      f'<p class="ai-prod-price"><b>${C.AI_PASS_PRICE_USD}</b> / month <span>&middot; Unlimited AI Interviews{"" if C.AI_PASS_LIVE else ", coming soon"}</span></p>')
-        cta = (f'<a class="btn btn-primary btn-sm" href="{u(page)}">{"Start practicing" if page == "ai/maths" else "Start a case"} <span class="arrow" aria-hidden="true">&rarr;</span></a>' if live
+        cta = (f'<a class="btn btn-primary btn-sm" href="{u(page)}">{"Start practicing" if page == "ai/maths" else "Start learning" if page == "ai/learn" else "Start a case"} <span class="arrow" aria-hidden="true">&rarr;</span></a>' if live
                else waitlist_btn(t))
-        if t in ('Introduction to Case Solving', 'AI CV Review'):
+        if page == 'ai/learn' and live:
+            price = '<p class="ai-prod-price"><b>Free</b> <span>&middot; modules 1 and 2. Full course included with Unlimited AI Interviews</span></p>'
+        elif t in ('Introduction to Case Solving', 'AI CV Review'):
             price = '<p class="ai-prod-price"><span>Pricing announced when it opens</span></p>'
         return f'''<article class="ai-prod{' is-live' if live else ''} reveal">
 <div class="ai-prod-top">{icon(ic)}<span class="ai-num">{n:02d}</span></div>
@@ -610,6 +612,34 @@ def ai_maths():
     page('ai/maths', 'Case Math Mastery',
          'Practice consulting case math with timed questions at three difficulty levels and worked solutions.',
          body, ctx, noindex=True, extra_js=js)
+
+
+# ---------------------------------------------------------------- Mada AI Introduction to Case Solving
+def ai_learn():
+    ctx = Ctx('ai/learn')
+    u = ctx.url
+    if not (C.LEARN_LIVE and C.SUPABASE_PUBLISHABLE_KEY):
+        app = '<p class="muted">The course opens soon.</p>'
+    else:
+        app = (f'<div id="learn-app" data-api="{C.SUPABASE_URL}" data-key="{C.SUPABASE_PUBLISHABLE_KEY}" data-start="{u("ai/case-practice/start")}"'
+               f' data-maths="{u("ai/maths")}" data-terms="{u("terms")}" data-refunds="{u("refunds")}" data-pass-price="{C.AI_PASS_PRICE_USD}">'
+               '<noscript><p>This page needs JavaScript.</p></noscript></div>')
+    body = f'''
+<header class="subhero"><div class="wrap">
+  <p class="eyebrow">Mada AI &middot; Introduction to Case Solving</p>
+  <h1>Learn How to Solve a Case</h1>
+  <p class="lede">Six short modules on how case interviews work, how to open a case, build a structure, handle the numbers, use business judgment and deliver a recommendation. Each one explains, shows, lets you practise and gives you specific feedback from an AI tutor. Finish with a Mini Case Challenge and get your Case Readiness Score.</p>
+</div></header>
+<section>
+  <div class="wrap">
+    {app}
+    <p class="muted" style="margin-top:32px;text-align:center">Prefer to learn with a person? <a href="{u('expert')}">Work with a Mada coach</a>. Manage your subscription in <a href="{u('ai/account')}">My Mada</a>.</p>
+  </div>
+</section>
+'''
+    page('ai/learn', 'Introduction to Case Solving',
+         'A guided course on case interviews: structure, numbers, judgment and recommendations, with AI feedback and a Case Readiness Score.',
+         body, ctx, noindex=True, extra_js=('js/ai-session.js', 'js/learn.js'))
 
 
 # ---------------------------------------------------------------- Mada AI "My Mada" (one sign-in; everything the candidate has, in one place)
@@ -1152,7 +1182,7 @@ def not_found():
 
 def build_all():
     not_found()
-    home(); how_it_works(); services(); ai(); ai_case_practice(); ai_start(); ai_report(); ai_reports(); ai_account(); ai_admin(); ai_maths(); coaches(); about(); cv_review(); resources(); book(); legal_pages(); thank_you()
+    home(); how_it_works(); services(); ai(); ai_case_practice(); ai_start(); ai_report(); ai_reports(); ai_account(); ai_admin(); ai_maths(); ai_learn(); coaches(); about(); cv_review(); resources(); book(); legal_pages(); thank_you()
     root_files()
     return ['', 'how-it-works', 'expert', 'ai', 'ai/case-practice', 'ai/case-practice/start', 'ai/report', 'ai/reports', 'ai/account', 'coaches', 'about', 'cv-review', 'resources', 'book',
             'privacy', 'terms', 'refunds', 'cookies', 'thank-you', '404']

@@ -2,7 +2,7 @@
 
 DOMAIN = 'mada-coaching.com'
 EMAIL = 'hello@mada-coaching.com'
-VERSION = '100'   # bump to force browsers to reload CSS/JS after changes
+VERSION = '101'   # bump to force browsers to reload CSS/JS after changes
 
 GA_ID = 'G-0JW66CX0T1'   # Google Analytics 4 measurement ID
 
@@ -38,6 +38,10 @@ AI_PASS_PRICE_USD = 100      # Practice Pass: unlimited interviews a month, subj
 # customer portal are set up and tested: then visitors sign in and subscribe for MATHS_PRICE_USD a month.
 MATHS_PAID_LIVE = True
 MATHS_PRICE_USD = 20
+
+# Mada AI Introduction to Case Solving (ai/learn/). Modules 1 and 2 are free with sign-in; the rest is included with the Practice Pass.
+# Flip to True only after the learn-state and learn-tutor functions and the learn_* migration are deployed.
+LEARN_LIVE = False
 
 # Mada AI interview reports (ai/report/). Both values are public by design (the publishable key is
 # meant for browsers). Leave the key as None until the Phase A functions are deployed: the report
