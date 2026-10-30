@@ -454,9 +454,9 @@
         var LIMIT = CAP_SECS, fired = {};
         var CHECKS = [
           { at: 300, text: 'About 5 minutes left. Start moving toward your recommendation.',
-            tell: 'TIME CHECK: about five minutes remain; the call ends automatically at 25 minutes. At your next natural pause, tell the candidate in one short sentence that you are close to time, and steer them towards their final recommendation.' },
+            tell: 'TIME CHECK: about five minutes remain; the call ends automatically at 25 minutes. At your next natural pause, tell the candidate in one short sentence that you are close to time, then carry on with the case (pose the extension if you have not yet, or go to the standard closing). Do not ask for a recommendation now: the standard closing asks for it once, and if the candidate has already given a complete recommendation you do not ask again.' },
           { at: 120, text: '2 minutes left. Wrap up with your recommendation.',
-            tell: 'TIME CHECK: two minutes remain. Ask the candidate to give their final recommendation now, then close the case briefly.' },
+            tell: 'TIME CHECK: two minutes remain. Go to the standard closing now. If the candidate has already given a recommendation with its rationale, key risks and next steps, do not ask for it again: say "Thank you, that covers it." and close. If one element is missing, ask only for that element, once.' },
           { at: 60, text: '1 minute left. The interview ends automatically at 25:00.',
             tell: 'TIME CHECK: one minute remains. Thank the candidate and close the interview now; the call will end automatically.' }
         ];
