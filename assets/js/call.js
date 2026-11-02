@@ -7,6 +7,9 @@
 //      (mada-ai supabase/functions/_shared/interview/policy.ts); the server refuses any other.
 //   4. interview-start returns a short-lived voice token. The browser connects to ElevenLabs with it.
 //      No API key is ever in this file or this page.
+//      The microphone is requested before interview-start (which reserves the paid call), so a blocked mic costs nothing.
+//      If the call never connects (start fails, error or drop before connecting, or no connection after ~45 s),
+//      the page calls interview-abort. The server checks with ElevenLabs and returns the credit only if the call never opened.
 //   5. After the call, poll interview-status until the report is ready, then draw it.
 //
 // Every string from the server is written with textContent, never innerHTML.
@@ -361,7 +364,47 @@
   }
 
   // ---------------------------------------------------------------- 4. the call
+  // The microphone is checked BEFORE the interview is started on the server, because starting reserves your paid call.
+  // If the browser has not been given access yet this makes it ask now; if access is blocked we say how to fix it and
+  // nothing is used.
+  function micScreen(title, text, retry) {
+    clear();
+    var box = el('div', 'mada-loader');
+    box.setAttribute('role', 'alert');
+    box.appendChild(el('h2', null, title));
+    box.appendChild(el('p', null, text));
+    var row = el('div', 'btn-row'); row.style.justifyContent = 'center';
+    var r = el('button', 'btn btn-primary', 'Try again'); r.type = 'button'; r.addEventListener('click', retry);
+    var c = el('button', 'btn btn-ghost', 'Back'); c.type = 'button'; c.addEventListener('click', function () { setup(); });
+    row.appendChild(r); row.appendChild(c); box.appendChild(row);
+    app.appendChild(box);
+  }
+  function checkMic(onReady) {
+    var md = navigator.mediaDevices;
+    if (!md || !md.getUserMedia) {
+      return micScreen('This browser cannot use a microphone', 'Open this page in an up-to-date Chrome, Safari, Edge or Firefox, on https. Nothing has been used.', function () { checkMic(onReady); });
+    }
+    loader('Allow your microphone', 'Your browser will ask to use your microphone. Click Allow, then we will start your interview. Nothing is used until you do.');
+    md.getUserMedia({ audio: true }).then(function (stream) {
+      try { stream.getTracks().forEach(function (t) { t.stop(); }); } catch (e) {}
+      onReady();
+    }, function (err) {
+      var n = err && err.name;
+      if (n === 'NotFoundError' || n === 'OverconstrainedError') {
+        return micScreen('No microphone found', 'Plug in or turn on a microphone, then try again. Nothing has been used.', function () { checkMic(onReady); });
+      }
+      if (n === 'NotReadableError' || n === 'AbortError') {
+        return micScreen('Your microphone is busy', 'Another app or tab may be using it. Close it, then try again. Nothing has been used.', function () { checkMic(onReady); });
+      }
+      micScreen('Microphone access is blocked', 'Click the lock or microphone icon next to the address bar, set Microphone to Allow, then press Try again. On a phone, also check the browser\u2019s microphone permission in Settings. Nothing has been used.', function () { checkMic(onReady); });
+    });
+  }
+
   function start(caseType, difficulty) {
+    checkMic(function () { begin(caseType, difficulty); });
+  }
+
+  function begin(caseType, difficulty) {
     loader('Getting your interviewer ready\u2026', who() + ' is preparing your case. This usually takes a few seconds.');
     post('/functions/v1/interview-start', { interviewer: interviewer, case_type: caseType, difficulty: difficulty || 'standard', consent: true, consent_version: CONSENT_VERSION }, token, 30000).then(function (r) {
       if (r.status === 401) return expire('Your session expired. Sign in again.');
@@ -378,7 +421,7 @@
       });
     }, function (e) {
       loaderFailed('We could not start the interview. Check your connection and try again. If it keeps happening, wait a minute first.',
-        function () { start(caseType, difficulty); }, function () { setup(); });
+        function () { begin(caseType, difficulty); }, function () { setup(); });
     });
   }
 
@@ -411,6 +454,54 @@
     app.appendChild(stage);
 
     var done = false, mode = 'listening', raf = null, muted = false, t0 = 0;
+    var connected = false, aborted = false, stall = null;
+    // The call never connected (start failed, an error or a drop before the first connect, or nothing happened for a long time).
+    // The server checks with ElevenLabs and, only if the call really never opened, gives the credit back.
+    function giveUp() {
+      if (done || connected || aborted) return;
+      aborted = true; done = true;
+      if (stall) { clearTimeout(stall); stall = null; }
+      if (timer) { clearInterval(timer); timer = null; }
+      if (raf) cancelAnimationFrame(raf);
+      try { if (conv && conv.endSession) conv.endSession().catch(function () {}); } catch (e) {}
+      loader('Checking your call\u2026', 'The call did not connect. We are making sure nothing was used.');
+      var tries = 0;
+      (function ask() {
+        tries++;
+        post('/functions/v1/interview-abort', { session_id: s.session_id }, token, 20000).then(function (r) {
+          if (r.status === 401) return expire('Your session expired. Sign in again.');
+          return r.json().catch(function () { return {}; }).then(function (j) {
+            var code = j && j.error && j.error.code;
+            if (r.ok && j && j.released) {
+              return setup('The call could not connect, so nothing was used and you can try again. Check that the browser can use your microphone, turn off any VPN or ad blocker for this page, then start again.');
+            }
+            if (r.ok) return waitForReport(s.session_id, '', 0);
+            if (code === 'call_started') return waitForReport(s.session_id, '', 0);
+            if (code === 'credit_not_restored') return setup('The call could not connect, but we could not return your credit automatically. Email hello@mada-coaching.com and we will restore it straight away.');
+            if ((code === 'too_early' || r.status >= 500) && tries < 3) return setTimeout(ask, code === 'too_early' ? 12000 : 4000);
+            setup('The call could not connect. We could not confirm your credit just now, so please try again in a minute. If it is still missing, email hello@mada-coaching.com.');
+          });
+        }, function () {
+          if (tries < 3) return setTimeout(ask, 4000);
+          setup('The call could not connect and we could not reach our server to confirm your credit. Check your connection and try again in a minute. If it is still missing, email hello@mada-coaching.com.');
+        });
+      })();
+    }
+    function armStall(ms, again) {
+      stall = setTimeout(function () {
+        stall = null;
+        if (connected || done) return;
+        // Still waiting for the person to answer the microphone prompt: give them longer, once.
+        if (again) {
+          try {
+            navigator.permissions.query({ name: 'microphone' }).then(function (p) { if (p.state === 'prompt') armStall(75000, false); else giveUp(); }, giveUp);
+            return;
+          } catch (e) {}
+        }
+        giveUp();
+      }, ms);
+    }
+    armStall(45000, true);
     function finish() {
       if (done) return;
       done = true;
@@ -447,6 +538,9 @@
       connectionType: 'webrtc',
       dynamicVariables: s.dynamic_variables,
       onConnect: function () {
+        if (aborted) { try { if (conv && conv.endSession) conv.endSession(); } catch (e) {} return; }
+        connected = true;
+        if (stall) { clearTimeout(stall); stall = null; }
         setMode('listening');
         end.disabled = false; mute.disabled = false;
         t0 = Date.now();
@@ -478,10 +572,11 @@
       },
       onModeChange: function (m) { setMode(m && m.mode === 'speaking' ? 'speaking' : 'listening'); },
       onMessage: function (m) { if (m && m.message) addLine(m.source === 'user' ? 'user' : 'ai', String(m.message)); },
-      onDisconnect: finish,
-      onError: function () { stat.textContent = 'There was a connection problem.'; }
+      onDisconnect: function () { if (connected) finish(); else giveUp(); },
+      onError: function () { if (!connected) giveUp(); else stat.textContent = 'There was a connection problem.'; }
     }).then(function (c) {
       conv = c;
+      if (aborted) { try { c.endSession().catch(function () {}); } catch (e) {} return; }
       mute.addEventListener('click', function () {
         muted = !muted;
         try { c.setMicMuted(muted); } catch (e) { muted = !muted; return; }
@@ -490,8 +585,7 @@
       });
       end.addEventListener('click', function () { end.disabled = true; c.endSession().then(finish, finish); });
     }, function () {
-      done = true;
-      setup('We could not start the call. Check that your browser can use the microphone, then try again.');
+      giveUp();
     });
   }
 
