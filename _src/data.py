@@ -244,6 +244,11 @@ for _c in COACHES:
 # Most sessions first (stable: ties keep the order above)
 COACHES.sort(key=lambda c: -int(c['count'].rstrip('+')))
 
+# Temporarily hidden coaches (kept in the data above). Delete the name to bring them back.
+# Karim Chamesddine: hidden 3 Nov 2026, to be added back on 18 Dec 2026.
+HIDDEN_COACHES = {'Karim Chamesddine'}
+COACHES = [c for c in COACHES if c['name'] not in HIDDEN_COACHES]
+
 # ---------------------------------------------------------------- proof
 TESTIMONIALS = [
     ('Preparing with Hani was one of the best learning experiences I&rsquo;ve ever had. His knowledge of recruiting, case interviews and the consulting industry as a whole is exceptional, and he pairs it with a very pragmatic approach that cuts straight to what matters. No time wasted. What truly set him apart, though, is how much he cares. It never felt transactional. He understands that coaching is an investment, and he goes above and beyond to make sure you get the most out of it, tailoring everything to your actual needs. He genuinely wants you to succeed, and that made all the difference. I couldn&rsquo;t have felt more supported throughout the process, and I can&rsquo;t recommend him highly enough. He also connected me with other coaches to give me diversity in my preparation which was so much appreciated',

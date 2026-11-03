@@ -20,7 +20,7 @@ def journey_block(ctx, link=True):
 <div class="journey">{''.join(cards)}</div>'''
 
 
-HOME_COACHES = ['Hani Abi Khalil', 'Ana Bonilla', 'Alberto Sinibaldi', 'Samer Rayess', 'Karim Chamesddine']
+HOME_COACHES = ['Hani Abi Khalil', 'Ana Bonilla', 'Alberto Sinibaldi', 'Samer Rayess', 'Christian Whaibe']  # Karim Chamesddine was the fifth until hidden on 3 Nov 2026 (back 18 Dec)
 
 
 def more_coaches_card(ctx, n):
