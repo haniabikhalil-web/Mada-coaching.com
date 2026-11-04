@@ -118,11 +118,11 @@
   // After Stripe sends the candidate back, the credit or subscription arrives a few seconds later via the webhook.
   function gate(tries) {
     tries = tries || 0;
-    if (!tries) say('Checking your account\u2026');
+    if (!tries) loader('Checking your account\u2026'); // the shared ring stays until the next screen replaces it
     balance().then(function (b) {
       if (!b) return signInForm('Your session expired. Sign in again.');
       if (b.pass || b.credits > 0) return setup(paidReturn ? (passReturn ? 'Subscription active. You are ready to start.' : 'Payment received. You are ready to start.') : undefined);
-      if (paidReturn && tries < 10) { say('Confirming your payment\u2026'); return setTimeout(function () { gate(tries + 1); }, 3000); }
+      if (paidReturn && tries < 10) { loader('Confirming your payment\u2026'); return setTimeout(function () { gate(tries + 1); }, 3000); }
       payScreen(paidReturn ? 'We have not received your payment yet. If you were charged, email us and we will sort it out.' : undefined);
     }, function () { payScreen('Could not reach the service. Please try again.'); });
   }
