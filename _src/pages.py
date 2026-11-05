@@ -496,8 +496,6 @@ def ai():
     ]
     cmp_body = ''.join(
         f'<tr class="{k}"><th scope="row">{d}</th><td class="cmp-mada">{m}</td><td>{g}</td><td>{h}</td></tr>' for d, m, g, h, k in compare_rows)
-    def per(n):  # illustrative effective cost: monthly price spread over n interviews
-        return f'{C.AI_PASS_PRICE_USD / n:g}'
     compare = f'''<div class="cmp-scroll" role="region" aria-label="Comparison of Mada AI, general AI tools and human expert coaches" tabindex="0">
 <table class="cmp">
 <thead><tr><th scope="col"><span class="sr-only">Category</span></th>
@@ -505,16 +503,7 @@ def ai():
 <th scope="col"><span class="cmp-ico">{HEAD_IC['sparkle']}</span><span class="cmp-name">General AI Tools</span><span class="cmp-sub">Best for general preparation</span></th>
 <th scope="col"><span class="cmp-ico">{HEAD_IC['people']}</span><span class="cmp-name">Human Expert Coaches</span><span class="cmp-sub">Best for personalized refinement</span></th></tr></thead>
 <tbody>{cmp_body}</tbody></table></div>
-<p class="cmp-note">Capabilities and pricing may vary by provider, subscription plan, and individual coach.</p>
-<div class="cmp-value">
-  <h3>The more you practice, the more value you get.</h3>
-  <ul class="cmp-metrics">
-    <li><b>${C.AI_PASS_PRICE_USD}<small>/month</small></b><span>Unlimited AI interviews</span></li>
-    <li><b>${per(10)}<small>/interview</small></b><span>If you complete 10 interviews in a month</span></li>
-    <li><b>${per(20)}<small>/interview</small></b><span>If you complete 20 interviews in a month</span></li>
-  </ul>
-  <p class="cmp-value-note">Illustrative cost per interview based on the ${C.AI_PASS_PRICE_USD}/month unlimited plan.</p>
-</div>'''
+<p class="cmp-note">Capabilities and pricing may vary by provider, subscription plan, and individual coach.</p>'''
 
     body = f'''
 <header class="subhero ai-hero"><div class="wrap">
@@ -547,7 +536,7 @@ def ai():
   </div>
 </section>
 
-<section class="bg-mist" id="compare">
+<section class="cmp-section" id="compare">
   <div class="wrap">
     <div class="section-head reveal"><p class="eyebrow">Compare your options</p><h2>The right preparation at every stage.</h2>
       <p class="lede">Practice consistently with Mada AI. Explore ideas with general AI tools. Perfect your performance with expert coaches.</p></div>
