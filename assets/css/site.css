@@ -992,25 +992,30 @@ section.mm-sec{padding-top:40px}
 .ad-table th,.ad-table td{text-align:left;padding:9px 12px;border-bottom:1px solid var(--line,#dfe4f0);white-space:nowrap}
 .ad-table th{font-size:12px;text-transform:uppercase;letter-spacing:.04em;color:#5b6478}
 
-/* Mada AI comparison table */
+/* Mada AI comparison table (simple, six rows) */
 .sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
-.cmp-scroll{overflow-x:auto;-webkit-overflow-scrolling:touch;border:1px solid var(--line);border-radius:var(--radius);background:#fff;box-shadow:var(--shadow)}
-.cmp{width:100%;min-width:820px;border-collapse:separate;border-spacing:0;text-align:left;font-size:15px}
-.cmp th,.cmp td{padding:16px 20px;vertical-align:top;border-bottom:1px solid var(--line);color:var(--stone);line-height:1.45}
+.cmp-scroll{position:relative;overflow-x:auto;-webkit-overflow-scrolling:touch;border:1px solid var(--line);border-radius:var(--radius);background:#fff;box-shadow:var(--shadow)}
+.cmp{width:100%;min-width:760px;border-collapse:separate;border-spacing:0;text-align:left;font-size:16px;table-layout:fixed}
+.cmp th,.cmp td{padding:15px 28px;vertical-align:middle;border-bottom:1px solid var(--line);color:var(--stone);line-height:1.4;background:#fff}
 .cmp tbody tr:last-child th,.cmp tbody tr:last-child td{border-bottom:0}
-.cmp thead th{vertical-align:bottom;background:#fff;color:var(--navy);padding-top:24px;padding-bottom:20px}
-.cmp-name{display:block;font-family:var(--display);font-weight:700;font-size:18px;color:var(--navy)}
-.cmp-sub{display:block;margin-top:6px;font-size:13px;font-weight:400;color:var(--stone)}
-.cmp tbody th{font-weight:700;color:var(--navy);width:19%;background:#fff;position:sticky;left:0;z-index:1;box-shadow:1px 0 0 var(--line)}
+.cmp thead th{vertical-align:bottom;color:var(--navy);padding-top:22px;padding-bottom:20px}
+.cmp thead th:first-child,.cmp tbody th{width:20%}
+.cmp-name{display:block;font-family:var(--display);font-weight:700;font-size:19px;color:var(--navy)}
+.cmp-sub{display:block;margin-top:4px;font-size:14px;font-weight:500;color:var(--stone)}
+.cmp-rec{display:inline-block;margin-bottom:10px;font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;padding:4px 10px;border-radius:999px;background:var(--dawn);color:var(--navy)}
+.cmp tbody th{font-weight:700;color:var(--navy);position:sticky;left:0;z-index:1;box-shadow:1px 0 0 var(--line)}
 .cmp thead th:first-child{position:sticky;left:0;z-index:2;box-shadow:1px 0 0 var(--line)}
-.cmp .cmp-mada{background:var(--cobalt-tint);color:var(--navy);font-weight:500;border-left:2px solid var(--cobalt);border-right:2px solid var(--cobalt)}
-.cmp thead .cmp-mada{background:var(--navy);color:#fff;border-color:var(--navy)}
+.cmp .cmp-mada{background:var(--cobalt-tint);color:var(--navy);font-weight:600}
+.cmp thead .cmp-mada{background:var(--navy)}
 .cmp thead .cmp-mada .cmp-name{color:#fff}
 .cmp thead .cmp-mada .cmp-sub{color:var(--on-navy)}
-.cmp tbody tr:last-child .cmp-mada{border-bottom:2px solid var(--cobalt)}
+.cmp-cell{display:flex;align-items:center;gap:10px}
+.cmp-ic{flex:none}
+.cmp-ic.ok{color:var(--cobalt)}
+.cmp-ic.dash,.cmp-ic.cal{color:#8B91A8}
+.cmp-price{font-family:var(--display);font-size:18px;color:var(--navy)}
+.cmp tr.cmp-key th,.cmp tr.cmp-key td{padding-top:22px;padding-bottom:22px;font-size:17px;font-weight:700;color:var(--navy)}
 .cmp tbody tr:hover td,.cmp tbody tr:hover th{background-color:#F7F8FC}
 .cmp tbody tr:hover .cmp-mada{background-color:#DCE2FD}
 .cmp-note{margin:14px 4px 0;font-size:13px;color:var(--stone)}
-.cmp-blend{max-width:640px;margin:28px auto 0;color:var(--on-navy);font-size:17px;line-height:1.55}
-.cmp-blend b{color:#fff;display:block;margin-bottom:4px}
-@media (max-width:680px){.cmp th,.cmp td{padding:14px 16px}.cmp tbody th{width:150px;min-width:150px}.cmp-blend{font-size:16px}}
+@media (max-width:680px){.cmp{min-width:700px;font-size:15px}.cmp th,.cmp td{padding:13px 16px}.cmp thead th:first-child,.cmp tbody th{width:116px;min-width:116px;padding-left:14px;padding-right:10px;font-size:14px}.cmp tr.cmp-key th,.cmp tr.cmp-key td{font-size:16px}}
