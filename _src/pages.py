@@ -476,27 +476,28 @@ def ai():
     minis = ''.join(f'''<div class="mini-persona reveal"><img src="{ctx.asset("img/interviewers/" + i["img"] + ".jpg")}" alt="{i["name"]}, {i["title"]}" width="160" height="160" loading="lazy">
 <h3>{i['name']}</h3><span class="tag">{i['title']}</span><p>{i['traits']}</p></div>''' for i in INTERVIEWER_PROFILES)
 
-    # ---- 4. Comparison: Mada AI vs general AI tools vs human coaches (statements reflect what is live today).
+    # ---- 4. Comparison: simple, six rows. Statements reflect what is live today.
+    CHK = '<svg class="cmp-ic ok" viewBox="0 0 20 20" width="18" height="18" aria-hidden="true"><circle cx="10" cy="10" r="10" fill="currentColor" opacity=".14"/><path d="M5.8 10.4l2.8 2.8 5.6-6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><span class="sr-only">Yes: </span>'
+    DASH = '<svg class="cmp-ic dash" viewBox="0 0 20 20" width="18" height="18" aria-hidden="true"><path d="M5.5 10h9" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>'
+    CAL = '<svg class="cmp-ic cal" viewBox="0 0 20 20" width="18" height="18" aria-hidden="true"><rect x="3" y="4.5" width="14" height="12.5" rx="2.5" fill="none" stroke="currentColor" stroke-width="1.7"/><path d="M3.5 8.5h13M7 3v3M13 3v3" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg>'
+    def cell(text, icon=''):
+        return f'<span class="cmp-cell">{icon}<span>{text}</span></span>'
     compare_rows = [
-        ('Consulting specialization', 'Built specifically for consulting recruitment', 'General-purpose capabilities', 'Strong, depending on the coach'),
-        ('Interview realism', 'Six interviewer personas with distinct styles and seniority', 'Depends on prompts and setup', 'Authentic human interaction'),
-        ('Structured evaluation', 'Consulting-specific competency scorecards', 'Requires appropriate prompting', 'Personalized expert assessment'),
-        ('Actionable feedback', 'Case-specific feedback and improvement opportunities', 'Depends on prompts and context', 'Tailored, nuanced recommendations'),
-        ('Availability', 'On demand, 24/7', 'On demand, 24/7', 'Requires scheduling'),
-        ('Practice frequency', 'Unlimited with subscription', 'Subject to plan and usage limits', 'Limited by session bookings and cost'),
-        ('Quantitative practice', 'Dedicated Case Math Mastery', 'General quantitative assistance', 'Depends on coach and session focus'),
-        ('Convenience', 'Ready-to-use interview practice', 'Requires setup and prompting', 'Requires booking and coordination'),
-        ('Cost', f'${C.AI_PRACTICE_PRICE_USD}/interview or ${C.AI_PASS_PRICE_USD}/month unlimited', 'Free and paid plans', 'Typically priced per session'),
-        ('Human mentorship', 'AI-powered guidance', 'AI-generated guidance', 'Direct human mentorship'),
+        ('Focus', cell('Consulting-specific'), cell('General-purpose'), cell('Consulting expertise'), ''),
+        ('Time &amp; availability', cell('Anytime, 24/7', CHK), cell('Anytime, 24/7', CHK), cell('By appointment', CAL), ''),
+        ('Format', cell('Interactive case simulations'), cell('Prompt-based conversations'), cell('Live 1:1 sessions'), ''),
+        ('Best for', cell('Repetition &amp; skill building'), cell('Basic preparation &amp; brainstorming'), cell('Fine-tuning &amp; mentorship'), ' cmp-key'),
+        ('Personalized feedback', cell('Structured, case-specific', CHK), cell('Depends on prompting', DASH), cell('Deep, human-led', CHK), ''),
+        ('Cost', f'<span class="cmp-cell"><span><b class="cmp-price">${C.AI_PRACTICE_PRICE_USD}</b> / interview<br><b class="cmp-price">${C.AI_PASS_PRICE_USD}</b> / month unlimited</span></span>', cell('Free or paid subscriptions'), cell('Higher cost per session'), ''),
     ]
     cmp_body = ''.join(
-        f'<tr><th scope="row">{d}</th><td class="cmp-mada">{m}</td><td>{g}</td><td>{h}</td></tr>' for d, m, g, h in compare_rows)
+        f'<tr class="{k.strip()}"><th scope="row">{d}</th><td class="cmp-mada">{m}</td><td>{g}</td><td>{h}</td></tr>' for d, m, g, h, k in compare_rows)
     compare = f'''<div class="cmp-scroll" role="region" aria-label="Comparison of Mada AI, general AI tools and human expert coaches" tabindex="0">
 <table class="cmp">
-<thead><tr><th scope="col"><span class="sr-only">Dimension</span></th>
-<th scope="col" class="cmp-mada"><span class="cmp-name">Mada AI</span><span class="cmp-sub">Purpose-built AI for consulting interview preparation</span></th>
-<th scope="col"><span class="cmp-name">General AI Tools</span><span class="cmp-sub">General-purpose LLMs such as ChatGPT, Claude and Gemini</span></th>
-<th scope="col"><span class="cmp-name">Human Expert Coaches</span><span class="cmp-sub">One-on-one coaching with experienced professionals</span></th></tr></thead>
+<thead><tr><th scope="col"><span class="sr-only">Category</span></th>
+<th scope="col" class="cmp-mada"><span class="cmp-rec">Recommended for practice</span><span class="cmp-name">Mada AI</span><span class="cmp-sub">Best for everyday practice</span></th>
+<th scope="col"><span class="cmp-name">General AI Tools</span><span class="cmp-sub">Best for general preparation</span></th>
+<th scope="col"><span class="cmp-name">Human Expert Coaches</span><span class="cmp-sub">Best for personalized refinement</span></th></tr></thead>
 <tbody>{cmp_body}</tbody></table></div>
 <p class="cmp-note">Capabilities and pricing may vary by provider, subscription plan, and individual coach.</p>'''
 
@@ -533,18 +534,17 @@ def ai():
 
 <section class="bg-mist" id="compare">
   <div class="wrap">
-    <div class="section-head reveal"><p class="eyebrow">Compare your options</p><h2>The expertise you need. The flexibility you want.</h2>
-      <p class="lede">Discover how Mada AI combines consulting-specific interview preparation with the convenience and affordability of AI.</p></div>
+    <div class="section-head reveal"><p class="eyebrow">Compare your options</p><h2>Different tools. Different strengths.</h2>
+      <p class="lede">Build your skills with Mada AI, explore ideas with general AI tools, and perfect your performance with expert coaches.</p></div>
     <div class="reveal">{compare}</div>
   </div>
 </section>
 
 <section class="bg-navy">
   <div class="wrap narrow center" style="text-align:center">
-    <h2>Practice smarter. Improve faster. Interview with confidence.</h2>
-    <p class="lede center" style="margin-top:16px">Practice with realistic AI interviewers, strengthen your quantitative skills, and receive structured feedback whenever you need it. Combine Mada AI with expert human coaching for even deeper preparation.</p>
-    <div class="cmp-blend"><b>AI practice meets human expertise.</b> The best preparation combines both: practice anytime with Mada AI, then refine your performance with Mada&rsquo;s expert coaches.</div>
-    <div class="btn-row" style="justify-content:center;margin-top:28px"><a class="btn btn-primary" href="{u('ai/case-practice/start')}">Start practicing <span class="arrow" aria-hidden="true">&rarr;</span></a><a class="btn btn-ghost" href="{u('expert')}">Explore expert coaching <span class="arrow" aria-hidden="true">&rarr;</span></a></div>
+    <h2>The smartest preparation combines AI and human expertise.</h2>
+    <p class="lede center" style="margin-top:16px">Use Mada AI to practice consistently and affordably. Work with an expert coach to refine the final details that make a difference.</p>
+    <div class="btn-row" style="justify-content:center;margin-top:28px"><a class="btn btn-primary" href="{u('ai/case-practice/start')}">Start practicing with AI <span class="arrow" aria-hidden="true">&rarr;</span></a><a class="btn btn-ghost" href="{u('expert')}">Explore expert coaching <span class="arrow" aria-hidden="true">&rarr;</span></a></div>
   </div>
 </section>
 <div id="waitlist-cfg" hidden data-api="{C.SUPABASE_URL}" data-key="{C.SUPABASE_PUBLISHABLE_KEY}"></div>
