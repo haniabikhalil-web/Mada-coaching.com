@@ -476,30 +476,45 @@ def ai():
     minis = ''.join(f'''<div class="mini-persona reveal"><img src="{ctx.asset("img/interviewers/" + i["img"] + ".jpg")}" alt="{i["name"]}, {i["title"]}" width="160" height="160" loading="lazy">
 <h3>{i['name']}</h3><span class="tag">{i['title']}</span><p>{i['traits']}</p></div>''' for i in INTERVIEWER_PROFILES)
 
-    # ---- 4. Comparison: simple, six rows. Statements reflect what is live today.
+    # ---- 4. Comparison: six rows, then an illustrative value strip. Statements reflect what is live today.
     CHK = '<svg class="cmp-ic ok" viewBox="0 0 20 20" width="18" height="18" aria-hidden="true"><circle cx="10" cy="10" r="10" fill="currentColor" opacity=".14"/><path d="M5.8 10.4l2.8 2.8 5.6-6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><span class="sr-only">Yes: </span>'
-    DASH = '<svg class="cmp-ic dash" viewBox="0 0 20 20" width="18" height="18" aria-hidden="true"><path d="M5.5 10h9" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>'
     CAL = '<svg class="cmp-ic cal" viewBox="0 0 20 20" width="18" height="18" aria-hidden="true"><rect x="3" y="4.5" width="14" height="12.5" rx="2.5" fill="none" stroke="currentColor" stroke-width="1.7"/><path d="M3.5 8.5h13M7 3v3M13 3v3" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg>'
+    HEAD_IC = {
+        'repeat': '<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M17 2l3 3-3 3"/><path d="M4 11V9a4 4 0 0 1 4-4h12"/><path d="M7 22l-3-3 3-3"/><path d="M20 13v2a4 4 0 0 1-4 4H4"/></svg>',
+        'sparkle': '<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8z"/><path d="M19 15l.7 2.3L22 18l-2.3.7L19 21l-.7-2.3L16 18l2.3-.7z"/></svg>',
+        'people': '<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="8" r="3.2"/><path d="M3 20c0-3.3 2.7-6 6-6s6 2.7 6 6"/><circle cx="17" cy="9" r="2.4"/><path d="M16.5 14.2c2.6.2 4.5 2.3 4.5 5"/></svg>',
+    }
     def cell(text, icon=''):
         return f'<span class="cmp-cell">{icon}<span>{text}</span></span>'
     compare_rows = [
-        ('Focus', cell('Consulting-specific'), cell('General-purpose'), cell('Consulting expertise'), ''),
-        ('Time &amp; availability', cell('Anytime, 24/7', CHK), cell('Anytime, 24/7', CHK), cell('By appointment', CAL), ''),
-        ('Format', cell('Interactive case simulations'), cell('Prompt-based conversations'), cell('Live 1:1 sessions'), ''),
-        ('Best for', cell('Repetition &amp; skill building'), cell('Basic preparation &amp; brainstorming'), cell('Fine-tuning &amp; mentorship'), ' cmp-key'),
-        ('Personalized feedback', cell('Structured, case-specific', CHK), cell('Depends on prompting', DASH), cell('Deep, human-led', CHK), ''),
-        ('Cost', f'<span class="cmp-cell"><span><b class="cmp-price">${C.AI_PRACTICE_PRICE_USD}</b> / interview<br><b class="cmp-price">${C.AI_PASS_PRICE_USD}</b> / month unlimited</span></span>', cell('Free or paid subscriptions'), cell('Higher cost per session'), ''),
+        ('Specialization', cell('Consulting interviews'), cell('General-purpose'), cell('Consulting expertise'), ''),
+        ('Availability', cell('Anytime, 24/7', CHK), cell('Anytime, 24/7', CHK), cell('By appointment', CAL), ''),
+        ('Experience', cell('Realistic AI interviews'), cell('Prompt-driven practice'), cell('Live 1:1 coaching'), ''),
+        ('Ideal use', cell('Repetition &amp; skill building'), cell('Exploration &amp; fundamentals'), cell('Refinement &amp; mentorship'), 'cmp-key'),
+        ('Feedback', cell('Structured &amp; case-specific'), cell('Prompt-dependent'), cell('Deep &amp; personalized'), ''),
+        ('Pricing', cell(f'${C.AI_PRACTICE_PRICE_USD}/interview or ${C.AI_PASS_PRICE_USD}/month unlimited'), cell('Free &amp; paid plans'), cell('Per-session fees'), ''),
     ]
     cmp_body = ''.join(
-        f'<tr class="{k.strip()}"><th scope="row">{d}</th><td class="cmp-mada">{m}</td><td>{g}</td><td>{h}</td></tr>' for d, m, g, h, k in compare_rows)
+        f'<tr class="{k}"><th scope="row">{d}</th><td class="cmp-mada">{m}</td><td>{g}</td><td>{h}</td></tr>' for d, m, g, h, k in compare_rows)
+    def per(n):  # illustrative effective cost: monthly price spread over n interviews
+        return f'{C.AI_PASS_PRICE_USD / n:g}'
     compare = f'''<div class="cmp-scroll" role="region" aria-label="Comparison of Mada AI, general AI tools and human expert coaches" tabindex="0">
 <table class="cmp">
 <thead><tr><th scope="col"><span class="sr-only">Category</span></th>
-<th scope="col" class="cmp-mada"><span class="cmp-rec">Recommended for practice</span><span class="cmp-name">Mada AI</span><span class="cmp-sub">Best for everyday practice</span></th>
-<th scope="col"><span class="cmp-name">General AI Tools</span><span class="cmp-sub">Best for general preparation</span></th>
-<th scope="col"><span class="cmp-name">Human Expert Coaches</span><span class="cmp-sub">Best for personalized refinement</span></th></tr></thead>
+<th scope="col" class="cmp-mada"><span class="cmp-ico">{HEAD_IC['repeat']}</span><span class="cmp-badge">Best for practice</span><span class="cmp-name">Mada AI</span><span class="cmp-sub">Best for everyday practice</span></th>
+<th scope="col"><span class="cmp-ico">{HEAD_IC['sparkle']}</span><span class="cmp-name">General AI Tools</span><span class="cmp-sub">Best for general preparation</span></th>
+<th scope="col"><span class="cmp-ico">{HEAD_IC['people']}</span><span class="cmp-name">Human Expert Coaches</span><span class="cmp-sub">Best for personalized refinement</span></th></tr></thead>
 <tbody>{cmp_body}</tbody></table></div>
-<p class="cmp-note">Capabilities and pricing may vary by provider, subscription plan, and individual coach.</p>'''
+<p class="cmp-note">Capabilities and pricing may vary by provider, subscription plan, and individual coach.</p>
+<div class="cmp-value">
+  <h3>The more you practice, the more value you get.</h3>
+  <ul class="cmp-metrics">
+    <li><b>${C.AI_PASS_PRICE_USD}<small>/month</small></b><span>Unlimited AI interviews</span></li>
+    <li><b>${per(10)}<small>/interview</small></b><span>If you complete 10 interviews in a month</span></li>
+    <li><b>${per(20)}<small>/interview</small></b><span>If you complete 20 interviews in a month</span></li>
+  </ul>
+  <p class="cmp-value-note">Illustrative cost per interview based on the ${C.AI_PASS_PRICE_USD}/month unlimited plan.</p>
+</div>'''
 
     body = f'''
 <header class="subhero ai-hero"><div class="wrap">
@@ -534,17 +549,17 @@ def ai():
 
 <section class="bg-mist" id="compare">
   <div class="wrap">
-    <div class="section-head reveal"><p class="eyebrow">Compare your options</p><h2>Different tools. Different strengths.</h2>
-      <p class="lede">Build your skills with Mada AI, explore ideas with general AI tools, and perfect your performance with expert coaches.</p></div>
+    <div class="section-head reveal"><p class="eyebrow">Compare your options</p><h2>The right preparation at every stage.</h2>
+      <p class="lede">Practice consistently with Mada AI. Explore ideas with general AI tools. Perfect your performance with expert coaches.</p></div>
     <div class="reveal">{compare}</div>
   </div>
 </section>
 
 <section class="bg-navy">
   <div class="wrap narrow center" style="text-align:center">
-    <h2>The smartest preparation combines AI and human expertise.</h2>
-    <p class="lede center" style="margin-top:16px">Use Mada AI to practice consistently and affordably. Work with an expert coach to refine the final details that make a difference.</p>
-    <div class="btn-row" style="justify-content:center;margin-top:28px"><a class="btn btn-primary" href="{u('ai/case-practice/start')}">Start practicing with AI <span class="arrow" aria-hidden="true">&rarr;</span></a><a class="btn btn-ghost" href="{u('expert')}">Explore expert coaching <span class="arrow" aria-hidden="true">&rarr;</span></a></div>
+    <h2>Practice more with AI. Go further with experts.</h2>
+    <p class="lede center" style="margin-top:16px">Build your skills through consistent AI practice, then refine your performance with personalized coaching from experienced consultants.</p>
+    <div class="btn-row" style="justify-content:center;margin-top:28px"><a class="btn btn-primary" href="{u('ai/case-practice/start')}">Practice with Mada AI <span class="arrow" aria-hidden="true">&rarr;</span></a><a class="btn btn-ghost" href="{u('expert')}">Explore Expert Coaching <span class="arrow" aria-hidden="true">&rarr;</span></a></div>
   </div>
 </section>
 <div id="waitlist-cfg" hidden data-api="{C.SUPABASE_URL}" data-key="{C.SUPABASE_PUBLISHABLE_KEY}"></div>
