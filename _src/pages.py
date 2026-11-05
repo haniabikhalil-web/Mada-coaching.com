@@ -441,8 +441,6 @@ def ai():
                      f'<p class="ai-prod-price"><b>${C.AI_PASS_PRICE_USD}</b> / month <span>&middot; Unlimited AI Interviews{"" if C.AI_PASS_LIVE else ", coming soon"}</span></p>')
         cta = (f'<a class="btn btn-primary btn-sm" href="{u(page)}">{"Start practicing" if page == "ai/maths" else "Start a case"} <span class="arrow" aria-hidden="true">&rarr;</span></a>' if live
                else waitlist_btn(t))
-        if t in ('Introduction to Case Solving', 'AI CV Review'):
-            price = '<p class="ai-prod-price"><span>Pricing announced when it opens</span></p>'
         return f'''<article class="ai-prod{' is-live' if live else ''} reveal">
 <div class="ai-prod-top">{icon(ic)}<span class="ai-num">{n:02d}</span></div>
 <h3>{t}</h3><p class="ai-prod-desc">{d}</p>{price}
@@ -477,7 +475,31 @@ def ai():
     # ---- 3. Interviewers: one data list, any number of profiles.
     minis = ''.join(f'''<div class="mini-persona reveal"><img src="{ctx.asset("img/interviewers/" + i["img"] + ".jpg")}" alt="{i["name"]}, {i["title"]}" width="160" height="160" loading="lazy">
 <h3>{i['name']}</h3><span class="tag">{i['title']}</span><p>{i['traits']}</p></div>''' for i in INTERVIEWER_PROFILES)
-    intro_mail = f'<a href="mailto:{C.EMAIL}">Get in touch</a>'
+
+    # ---- 4. Comparison: Mada AI vs general AI tools vs human coaches (statements reflect what is live today).
+    compare_rows = [
+        ('Consulting specialization', 'Built specifically for consulting recruitment', 'General-purpose capabilities', 'Strong, depending on the coach'),
+        ('Interview realism', 'Six interviewer personas with distinct styles and seniority', 'Depends on prompts and setup', 'Authentic human interaction'),
+        ('Structured evaluation', 'Consulting-specific competency scorecards', 'Requires appropriate prompting', 'Personalized expert assessment'),
+        ('Actionable feedback', 'Case-specific feedback and improvement opportunities', 'Depends on prompts and context', 'Tailored, nuanced recommendations'),
+        ('Availability', 'On demand, 24/7', 'On demand, 24/7', 'Requires scheduling'),
+        ('Practice frequency', 'Unlimited with subscription', 'Subject to plan and usage limits', 'Limited by session bookings and cost'),
+        ('Quantitative practice', 'Dedicated Case Math Mastery', 'General quantitative assistance', 'Depends on coach and session focus'),
+        ('Convenience', 'Ready-to-use interview practice', 'Requires setup and prompting', 'Requires booking and coordination'),
+        ('Cost', f'${C.AI_PRACTICE_PRICE_USD}/interview or ${C.AI_PASS_PRICE_USD}/month unlimited', 'Free and paid plans', 'Typically priced per session'),
+        ('Human mentorship', 'AI-powered guidance', 'AI-generated guidance', 'Direct human mentorship'),
+    ]
+    cmp_body = ''.join(
+        f'<tr><th scope="row">{d}</th><td class="cmp-mada">{m}</td><td>{g}</td><td>{h}</td></tr>' for d, m, g, h in compare_rows)
+    compare = f'''<div class="cmp-scroll" role="region" aria-label="Comparison of Mada AI, general AI tools and human expert coaches" tabindex="0">
+<table class="cmp">
+<thead><tr><th scope="col"><span class="sr-only">Dimension</span></th>
+<th scope="col" class="cmp-mada"><span class="cmp-name">Mada AI</span><span class="cmp-sub">Purpose-built AI for consulting interview preparation</span></th>
+<th scope="col"><span class="cmp-name">General AI Tools</span><span class="cmp-sub">General-purpose LLMs such as ChatGPT, Claude and Gemini</span></th>
+<th scope="col"><span class="cmp-name">Human Expert Coaches</span><span class="cmp-sub">One-on-one coaching with experienced professionals</span></th></tr></thead>
+<tbody>{cmp_body}</tbody></table></div>
+<p class="cmp-note">Capabilities and pricing may vary by provider, subscription plan, and individual coach.</p>'''
+
     body = f'''
 <header class="subhero ai-hero"><div class="wrap">
   <p class="eyebrow">Mada AI</p>
@@ -488,8 +510,7 @@ def ai():
 
 <section id="products">
   <div class="wrap">
-    <div class="section-head reveal"><p class="eyebrow">What you can practice</p><h2>Six ways to prepare</h2>
-      <p class="lede">Case Math Mastery and Case Interviews are available now. More AI tools are coming soon. Interested? {intro_mail}.</p></div>
+    <div class="section-head reveal"><p class="eyebrow">What you can practice</p><h2>Six ways to prepare</h2></div>
     {product_cards}
   </div>
 </section>
@@ -510,11 +531,20 @@ def ai():
   </div>
 </section>
 
+<section class="bg-mist" id="compare">
+  <div class="wrap">
+    <div class="section-head reveal"><p class="eyebrow">Compare your options</p><h2>The expertise you need. The flexibility you want.</h2>
+      <p class="lede">Discover how Mada AI combines consulting-specific interview preparation with the convenience and affordability of AI.</p></div>
+    <div class="reveal">{compare}</div>
+  </div>
+</section>
+
 <section class="bg-navy">
   <div class="wrap narrow center" style="text-align:center">
-    <h2>AI practice. Human expertise. Better together.</h2>
-    <p class="lede center" style="margin-top:16px">Complement your AI preparation with personalized sessions from experienced Mada coaches.</p>
-    <div class="btn-row" style="justify-content:center;margin-top:28px"><a class="btn btn-light" href="{u('expert')}">Explore Mada Expert</a></div>
+    <h2>Practice smarter. Improve faster. Interview with confidence.</h2>
+    <p class="lede center" style="margin-top:16px">Practice with realistic AI interviewers, strengthen your quantitative skills, and receive structured feedback whenever you need it. Combine Mada AI with expert human coaching for even deeper preparation.</p>
+    <div class="cmp-blend"><b>AI practice meets human expertise.</b> The best preparation combines both: practice anytime with Mada AI, then refine your performance with Mada&rsquo;s expert coaches.</div>
+    <div class="btn-row" style="justify-content:center;margin-top:28px"><a class="btn btn-primary" href="{u('ai/case-practice/start')}">Start practicing <span class="arrow" aria-hidden="true">&rarr;</span></a><a class="btn btn-ghost" href="{u('expert')}">Explore expert coaching <span class="arrow" aria-hidden="true">&rarr;</span></a></div>
   </div>
 </section>
 <div id="waitlist-cfg" hidden data-api="{C.SUPABASE_URL}" data-key="{C.SUPABASE_PUBLISHABLE_KEY}"></div>
