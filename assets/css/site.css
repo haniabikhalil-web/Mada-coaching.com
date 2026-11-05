@@ -1013,4 +1013,4 @@ section.mm-sec{padding-top:40px}
 .cmp-note{margin:14px 4px 0;font-size:13px;color:var(--stone)}
 .cmp-blend{max-width:640px;margin:28px auto 0;color:var(--on-navy);font-size:17px;line-height:1.55}
 .cmp-blend b{color:#fff;display:block;margin-bottom:4px}
-@media (max-width:680px){.cmp th,.cmp td{padding:14px 16px}.cmp tbody th{width:150px;min-width:150px}.cmp-blend{font-size:16px}}
+@media (max-width:680px){.cmp th,.cmp td{padding:14px 16px}.cmp{min-width:760px}.cmp th,.cmp td{font-size:14px}.cmp tbody th{width:112px;min-width:112px;padding-left:12px;padding-right:10px}.cmp thead .cmp-mada,.cmp .cmp-mada{min-width:230px}.cmp-blend{font-size:16px}}
