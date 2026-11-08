@@ -431,7 +431,7 @@ def ai():
     ]
     def product_card(n, p):
         ic, t, d, page = p
-        live = bool(page) and (drills_live if page == 'ai/maths' else bool(C.LEARN_LIVE) if page == 'ai/learn' else bool(C.AI_PRACTICE_LIVE))
+        live = bool(page) and (drills_live if page == 'ai/maths' else bool(C.LEARN_LISTED) if page == 'ai/learn' else bool(C.AI_PRACTICE_LIVE))
         pill = ('<span class="ai-pill live">Open now</span>' if live else '<span class="ai-pill soon">Coming soon</span>')
         price = ''
         if page == 'ai/maths':
