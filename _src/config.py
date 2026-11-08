@@ -41,7 +41,8 @@ MATHS_PRICE_USD = 20
 
 # Mada AI Introduction to Case Solving (ai/learn/). Modules 1 and 2 are free with sign-in; the rest is included with the Practice Pass.
 # Flip to True only after the learn-state and learn-tutor functions and the learn_* migration are deployed.
-LEARN_LIVE = False
+LEARN_LIVE = True      # the course works at /ai/learn/ (noindex, not in the sitemap)
+LEARN_LISTED = False   # True adds the card and link on /ai/ and elsewhere; keep False until launch
 
 # Mada AI interview reports (ai/report/). Both values are public by design (the publishable key is
 # meant for browsers). Leave the key as None until the Phase A functions are deployed: the report
