@@ -2,7 +2,7 @@
 
 DOMAIN = 'mada-coaching.com'
 EMAIL = 'hello@mada-coaching.com'
-VERSION = '111'   # bump to force browsers to reload CSS/JS after changes
+VERSION = '115'   # bump to force browsers to reload CSS/JS after changes
 
 GA_ID = 'G-0JW66CX0T1'   # Google Analytics 4 measurement ID
 
@@ -43,6 +43,10 @@ MATHS_PRICE_USD = 20
 # Flip to True only after the learn-state and learn-tutor functions and the learn_* migration are deployed.
 LEARN_LIVE = True      # the course works at /ai/learn/ (noindex, not in the sitemap)
 LEARN_LISTED = False   # True adds the card and link on /ai/ and elsewhere; keep False until launch
+# The voice coach on each module ("Talk it through"). Needs the learn-voice and learn-voice-lesson functions deployed, the coach agent created in
+# ElevenLabs with ELEVENLABS_LEARN_COACH_AGENT_ID set, and the recording notice added to the Privacy page. Keep False until all three are done.
+LEARN_VOICE_LIVE = True
+LEARN_VOICE_PUBLIC = False  # False: the coach card only shows on the private link /ai/learn/?coach=nour (kept for the session). True shows it to everyone.
 
 # Mada AI interview reports (ai/report/). Both values are public by design (the publishable key is
 # meant for browsers). Leave the key as None until the Phase A functions are deployed: the report
