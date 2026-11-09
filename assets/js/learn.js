@@ -348,7 +348,7 @@
   // here touches the Case Readiness Score. The server (learn-voice) decides access, the module level and the daily limit; this only asks and
   // shows. The voice library is large, so it loads only when the candidate starts a call. Off unless the build sets data-voice-src.
   var VOICE_SRC = app.getAttribute('data-voice-src') || '';
-  var COACH = 'Noor';
+  var COACH = 'Nour';
   var COACH_CONSENT_VERSION = '2026-11-coach-v1'; // must match VOICE_CONSENT_VERSION on the server
   var COACH_CAP_SECS = 30 * 60;                   // matches the maximum conversation duration on the coach agent in ElevenLabs
   var COACH_NOTICE = 'This is a voice call with an AI coach. Your voice is recorded and transcribed to run the conversation, and kept for up to 90 days. It is a teaching conversation: nothing you say is scored. You must be 18 or over.';
