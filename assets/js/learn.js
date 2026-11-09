@@ -751,10 +751,16 @@
         if (!r.ok) { save.disabled = false; note.textContent = errText(r); return; }
         mini.saved[stage] = data; fields.forEach(function (f) { draftSet('mini.' + stage + '.' + f.id, ''); });
         if (!last) { save.disabled = false; return miniNext(); }
-        note.textContent = 'Your tutor is assessing the whole case. This usually takes 30 to 60 seconds…';
+        spin('Your tutor is assessing the whole case. This usually takes 30 to 60 seconds…'); // the shared ring, replaced by the result
         fn('learn-tutor', { action: 'mini_finish' }, 120000).then(function (f) {
           if (f.status === 401) return expired();
-          if (!f.ok) { save.disabled = false; note.textContent = errText(f, 'The tutor could not finish just now. Your answers are saved; try again.'); return; }
+          if (!f.ok) {
+            // put the last step back (answers are restored from mini.saved) and show the error under it
+            var msg = errText(f, 'The tutor could not finish just now. Your answers are saved; try again.');
+            miniStage();
+            var st = app.querySelector('.ln-status'); if (st) st.textContent = msg;
+            return;
+          }
           fn('learn-state', { action: 'get' }).then(function (g) { if (g.ok) dash = g.json; miniResult(f.json.result, false); });
         });
       });
