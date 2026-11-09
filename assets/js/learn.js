@@ -573,7 +573,12 @@
         raf = requestAnimationFrame(animate);
       },
       onModeChange: function (m) { setMode(m && m.mode === 'speaking' ? 'speaking' : 'listening'); },
-      onMessage: function (m) { if (m && m.message) addLine(m.source === 'user' ? 'user' : 'ai', String(m.message)); },
+      onMessage: function (m) {
+        if (!m || !m.message) return;
+        // The voice model may add delivery tags such as [warm] or [slow]. They steer the voice, so they are not shown in the transcript.
+        var t = String(m.message).replace(/\[[A-Za-z][A-Za-z ,'-]{0,30}\]\s*/g, '').trim();
+        if (t) addLine(m.source === 'user' ? 'user' : 'ai', t);
+      },
       onDisconnect: function () { if (connected) finish(); else giveUp(); },
       onError: function () { if (!connected) giveUp(); else stat.textContent = 'There was a connection problem.'; }
     }).then(function (c) {
