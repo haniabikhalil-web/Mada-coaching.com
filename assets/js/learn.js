@@ -348,6 +348,12 @@
   // here touches the Case Readiness Score. The server (learn-voice) decides access, the module level and the daily limit; this only asks and
   // shows. The voice library is large, so it loads only when the candidate starts a call. Off unless the build sets data-voice-src.
   var VOICE_SRC = app.getAttribute('data-voice-src') || '';
+  // While the coach is private it only shows for someone who opened the page from the private link (?coach=nour), remembered for the session.
+  if (VOICE_SRC && app.getAttribute('data-voice-private')) {
+    var coachOk = false;
+    try { if (/[?&]coach=nour\b/.test(location.search)) sessionStorage.setItem('mada_coach', '1'); coachOk = sessionStorage.getItem('mada_coach') === '1'; } catch (e) { coachOk = /[?&]coach=nour\b/.test(location.search); }
+    if (!coachOk) VOICE_SRC = '';
+  }
   var COACH = 'Nour';
   var COACH_CONSENT_VERSION = '2026-11-coach-v1'; // must match VOICE_CONSENT_VERSION on the server
   var COACH_CAP_SECS = 30 * 60;                   // matches the maximum conversation duration on the coach agent in ElevenLabs
