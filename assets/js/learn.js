@@ -316,7 +316,7 @@
     add(nav, btn('← All modules', 'btn btn-ghost btn-sm', function () { load(); }), el('span', 'muted small', 'About ' + m.minutes + ' minutes'));
     app.appendChild(nav);
     add(app, el('h2', 'ln-title', m.title), el('p', 'lede', m.objective));
-    if (VOICE_SRC) app.appendChild(coachCard(key));
+    if (VOICE_SRC) { app.appendChild(coachCard(key)); var sums = el('div', 'ln-sums-holder'); app.appendChild(sums); savedSummaries(key, sums); }
 
     var body = el('div', 'ln-body');
     m.blocks.forEach(function (b) { var n = block(b); if (n) body.appendChild(n); });
@@ -463,6 +463,61 @@
     });
   }
 
+  // ---- summary cards: a written reminder of each coach call (what was covered, takeaways, what to revisit, one next step)
+  function summaryCard(sum) {
+    var card = el('div', 'ln-sum');
+    function section(title, items, ordered) {
+      if (!items || !items.length) return;
+      var h = el('h4', null, title), ul = el(ordered ? 'ol' : 'ul');
+      items.forEach(function (t) { ul.appendChild(el('li', null, String(t))); });
+      add(card, h, ul);
+    }
+    section('What we covered', sum.covered);
+    section('Key takeaways', sum.takeaways);
+    section('Worth another look', sum.revisit);
+    if (sum.next_step) add(card, el('h4', null, 'Next step'), el('p', null, String(sum.next_step)));
+    return card;
+  }
+
+  // Waits for the card of a finished call. ElevenLabs needs a short while to finish the transcript, so this polls (every 5 s, about a minute).
+  function loadSummary(slot, sid, tries) {
+    tries = tries || 0;
+    function say(msg, retry) {
+      clear(slot);
+      add(slot, el('p', 'muted small', msg));
+      if (retry) slot.appendChild(btn('Try again', 'btn btn-ghost btn-sm', function () { loadSummary(slot, sid, 0); }));
+    }
+    if (!tries) { clear(slot); add(slot, el('p', 'muted small', 'Writing your summary…')); }
+    setTimeout(function () {
+      if (!slot.isConnected) return;
+      fn('learn-voice', { action: 'summary', session_id: sid }, 60000).then(function (r) {
+        if (!slot.isConnected) return;
+        var st = r.ok && r.json && r.json.status;
+        if (st === 'ready' && r.json.summary) { clear(slot); add(slot, el('h3', null, 'Your summary'), summaryCard(r.json.summary), el('p', 'muted small', 'Saved under this module, in “Your calls with ' + COACH + '”.')); return; }
+        if (st === 'none') return say('This call was too short for a summary.');
+        if (st === 'pending' && tries < 12) return loadSummary(slot, sid, tries + 1);
+        say('We could not write your summary just now.', true);
+      });
+    }, tries ? 5000 : 3000);
+  }
+
+  // The candidate's saved cards for one module, collapsed under the coach card.
+  function savedSummaries(key, holder) {
+    fn('learn-voice', { action: 'summaries', module: key }, 20000).then(function (r) {
+      var items = r.ok && r.json && r.json.items;
+      if (!items || !items.length || !holder.isConnected) return;
+      var d = el('details', 'ln-sums'), sm = el('summary', null, 'Your calls with ' + COACH + ' (' + items.length + ')');
+      d.appendChild(sm);
+      items.forEach(function (it) {
+        var when = '';
+        try { when = new Date(it.at).toLocaleDateString(undefined, { day: 'numeric', month: 'short', year: 'numeric' }); } catch (e) {}
+        var mins = it.duration_secs ? Math.max(1, Math.round(it.duration_secs / 60)) + ' min' : '';
+        add(d, el('h4', 'ln-sum-when', [when, mins].filter(Boolean).join(' · ')), summaryCard(it.summary));
+      });
+      holder.appendChild(d);
+    });
+  }
+
   function coachConnect(key, s) {
     clear(app);
     var stage = el('div', 'call-stage call-grid');
@@ -513,6 +568,10 @@
       coachScreen(key, capped ? 'Your session has ended' : 'Call ended',
         (capped ? 'The session reached its 30-minute limit. ' : '') + 'When you are ready, write up the exercise on the page for written feedback, or move on to the next module.',
         { label: 'Talk again', go: function () { coachIntro(key); } });
+      if (secs >= 60) {
+        var slot = el('div', 'ln-sum-slot'), box = app.querySelector('.ln-coach-screen');
+        if (box) { box.insertBefore(slot, box.querySelector('.btn-row')); loadSummary(slot, s.session_id); }
+      }
     }
     function setMode(m) {
       mode = m;

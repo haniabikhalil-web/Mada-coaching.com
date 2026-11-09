@@ -1104,6 +1104,16 @@ section.mm-sec{padding-top:40px}
 .ln-coach-screen{max-width:640px;margin:0 auto 22px}
 .ln-coach-screen h2{margin:0 0 10px}
 .ln-coach-screen .btn-row{margin-top:16px}
+.ln-sum-slot{margin:16px 0 0}
+.ln-sum-slot h3{margin:0 0 8px}
+.ln-sum{border:1px solid var(--line,#e2e2e2);border-radius:12px;padding:14px 16px;margin:8px 0 14px;text-align:left}
+.ln-sum h4{margin:12px 0 4px;font-size:.95rem}
+.ln-sum h4:first-child{margin-top:0}
+.ln-sum ul,.ln-sum ol{margin:0 0 4px;padding-left:20px}
+.ln-sum p{margin:0}
+.ln-sums-holder{margin:0 0 22px}
+.ln-sums summary{cursor:pointer;font-weight:600;padding:6px 0}
+.ln-sum-when{margin:12px 0 0;font-size:.85rem;opacity:.75}
 .ln-complete h3{margin:0 0 10px}
 .ln-chat{margin:0 0 22px}
 .ln-chat-log{display:flex;flex-direction:column;gap:8px;max-height:360px;overflow-y:auto;margin:12px 0}
