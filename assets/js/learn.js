@@ -316,6 +316,7 @@
     add(nav, btn('← All modules', 'btn btn-ghost btn-sm', function () { load(); }), el('span', 'muted small', 'About ' + m.minutes + ' minutes'));
     app.appendChild(nav);
     add(app, el('h2', 'ln-title', m.title), el('p', 'lede', m.objective));
+    if (VOICE_SRC) app.appendChild(coachCard(key));
 
     var body = el('div', 'ln-body');
     m.blocks.forEach(function (b) { var n = block(b); if (n) body.appendChild(n); });
@@ -340,6 +341,225 @@
     add(foot, complete, note);
     app.appendChild(foot);
     app.appendChild(chatBox(key));
+  }
+
+  // ---------------------------------------------------------------- voice coach ("Talk it through"): teaches, never scores
+  // A second way to learn a module: a voice coach walks the candidate through it and takes any question. Nothing said is scored and nothing
+  // here touches the Case Readiness Score. The server (learn-voice) decides access, the module level and the daily limit; this only asks and
+  // shows. The voice library is large, so it loads only when the candidate starts a call. Off unless the build sets data-voice-src.
+  var VOICE_SRC = app.getAttribute('data-voice-src') || '';
+  var COACH = 'Noor';
+  var COACH_CONSENT_VERSION = '2026-11-coach-v1'; // must match VOICE_CONSENT_VERSION on the server
+  var COACH_CAP_SECS = 30 * 60;                   // matches the maximum conversation duration on the coach agent in ElevenLabs
+  var COACH_NOTICE = 'This is a voice call with an AI coach. Your voice is recorded and transcribed to run the conversation, and kept for up to 90 days. It is a teaching conversation: nothing you say is scored. You must be 18 or over.';
+
+  function coachCard(key) {
+    var c = el('div', 'card ln-coach');
+    add(c,
+      el('h3', null, 'Prefer to talk it through?'),
+      el('p', 'muted', COACH + ', your AI coach, walks you through this module out loud and answers any question, including the basic ones. Keep this page open and read along if you like. Nothing you say is scored.'),
+      btn('Talk it through with ' + COACH, 'btn btn-primary', function () { coachIntro(key); }));
+    return c;
+  }
+
+  function loadVoice() {
+    return new Promise(function (resolve, reject) {
+      if (window.MadaVoice && window.MadaVoice.Conversation) return resolve();
+      var s = document.createElement('script');
+      s.src = VOICE_SRC; s.async = true;
+      s.onload = function () { if (window.MadaVoice && window.MadaVoice.Conversation) resolve(); else reject(new Error('voice')); };
+      s.onerror = function () { reject(new Error('voice')); };
+      document.head.appendChild(s);
+    });
+  }
+
+  function coachScreen(key, title, text, primary) {
+    clear(app);
+    var box = el('div', 'card ln-coach-screen');
+    add(box, el('h2', null, title), el('p', 'lede', text));
+    var row = el('div', 'btn-row');
+    if (primary) row.appendChild(btn(primary.label, 'btn btn-primary', primary.go));
+    row.appendChild(btn('← Back to the module', 'btn btn-ghost', function () { showModule(key); top(); }));
+    box.appendChild(row);
+    app.appendChild(box);
+    top();
+  }
+
+  function coachIntro(key) {
+    coachKey = key;
+    var m = moduleCache[key];
+    coachScreen(key, 'Talk through "' + m.title + '" with ' + COACH,
+      COACH + ' teaches this module one idea at a time and asks you to answer the exercises out loud. Ask anything, as often as you like. Sessions run up to 30 minutes.',
+      { label: 'Agree and start the call', go: function () { coachMic(function () { coachBegin(key); }); } });
+    var notice = el('p', 'muted small'); notice.textContent = COACH_NOTICE;
+    var box = app.querySelector('.ln-coach-screen');
+    box.insertBefore(notice, box.querySelector('.btn-row'));
+  }
+
+  function coachMic(onReady) {
+    var md = navigator.mediaDevices;
+    if (!md || !md.getUserMedia) return coachBack('This browser cannot use a microphone', 'Open this page in an up-to-date Chrome, Safari, Edge or Firefox, on https. Nothing has been started.');
+    spin('Allow your microphone. Your browser will ask to use it. Nothing is used until you do.');
+    md.getUserMedia({ audio: true }).then(function (stream) {
+      try { stream.getTracks().forEach(function (t) { t.stop(); }); } catch (e) {}
+      onReady();
+    }, function (err) {
+      var n = err && err.name;
+      if (n === 'NotFoundError' || n === 'OverconstrainedError') return coachBack('No microphone found', 'Plug in or turn on a microphone, then try again.');
+      if (n === 'NotReadableError' || n === 'AbortError') return coachBack('Your microphone is busy', 'Another app or tab may be using it. Close it, then try again.');
+      coachBack('Microphone access is blocked', 'Click the lock or microphone icon next to the address bar, set Microphone to Allow, then try again. On a phone, also check the browser’s microphone permission in Settings.');
+    });
+  }
+
+  // A screen that returns to the module, with the module key found from the current module.
+  var coachKey = null;
+  function coachBack(title, text) { coachScreen(coachKey, title, text, { label: 'Try again', go: function () { coachIntro(coachKey); } }); }
+
+  function coachBegin(key) {
+    coachKey = key;
+    spin('Getting ' + COACH + ' ready…');
+    loadVoice().then(function () {
+      fn('learn-voice', { action: 'start', module: key, consent: true, consent_version: COACH_CONSENT_VERSION }, 30000).then(function (r) {
+        if (r.status === 401) return expired();
+        if (r.status === 0) return coachBack('We could not start the call', 'Check your connection and try again. If it keeps happening, wait a minute first.');
+        if (!r.ok) {
+          var code = r.json && r.json.error && r.json.error.code;
+          if (code === 'locked') return coachScreen(key, 'This module is part of Unlimited Interviews', 'Modules 1 and 2 are free. The rest are included with Unlimited Interviews.');
+          if (code === 'fair_use' || code === 'call_in_progress') return coachScreen(key, code === 'fair_use' ? 'That is enough talking for today' : 'A call is already in progress', errText(r), code === 'call_in_progress' ? { label: 'Try again', go: function () { coachBegin(key); } } : null);
+          if (code === 'not_configured') return coachScreen(key, COACH + ' is not available right now', 'Please try again later. You can still read the module and ask the written tutor your questions.');
+          return coachBack('We could not start the call', errText(r, 'Please try again shortly.'));
+        }
+        coachConnect(key, r.json);
+      });
+    }, function () {
+      coachBack('We could not load the voice call', 'Turn off any ad blocker or VPN for this page, check your connection, and try again.');
+    });
+  }
+
+  function coachConnect(key, s) {
+    clear(app);
+    var stage = el('div', 'call-stage call-grid');
+    var orbWrap = el('div', 'orb-wrap');
+    var orb = el('div', 'orb is-connecting');
+    orbWrap.appendChild(el('div', 'orb-ring'));
+    orbWrap.appendChild(orb);
+    var name = el('p', 'call-name', COACH);
+    var stat = el('p', 'call-status', 'Connecting… allow the microphone when your browser asks.');
+    var clock = el('p', 'call-clock', '0:00');
+    var left = el('p', 'call-left', 'Ends automatically at 30:00');
+    var warn = el('p', 'call-warn'); warn.setAttribute('role', 'alert'); warn.hidden = true;
+    var tr = el('div', 'call-transcript'); tr.setAttribute('aria-live', 'off');
+    tr.appendChild(el('p', 'call-tr-empty', 'The conversation will appear here as you speak.'));
+    var mute = el('button', 'call-btn', 'Mute'); mute.type = 'button'; mute.disabled = true;
+    var end = el('button', 'call-btn call-btn-end', 'End call'); end.type = 'button'; end.disabled = true;
+    var bar = el('div', 'call-bar'); add(bar, mute, end);
+    var side = el('div', 'call-side'); add(side, orbWrap, name, stat, clock, left, bar);
+    var main = el('div', 'call-main'); add(main, warn, el('p', 'call-tr-title', 'Live transcript'), tr);
+    add(stage, side, main);
+    app.appendChild(stage);
+    top();
+
+    var conv = null, connected = false, done = false, muted = false, mode = 'listening', t0 = 0, timer = null, raf = null, stall = null;
+
+    function stopTimers() {
+      if (timer) { clearInterval(timer); timer = null; }
+      if (stall) { clearTimeout(stall); stall = null; }
+      if (raf) { cancelAnimationFrame(raf); raf = null; }
+    }
+    function tellServer(secs) {
+      fn('learn-voice', { action: 'end', session_id: s.session_id, duration_secs: secs }, 15000);
+    }
+    // The call never connected: free the slot at once and say so. Nothing was used, so there is nothing to give back.
+    function giveUp() {
+      if (done || connected) return;
+      done = true; stopTimers();
+      try { if (conv && conv.endSession) conv.endSession().catch(function () {}); } catch (e) {}
+      tellServer(0);
+      coachBack('The call could not connect', 'Check that the browser can use your microphone, turn off any VPN or ad blocker for this page, then try again.');
+    }
+    function finish() {
+      if (done) return;
+      done = true; stopTimers();
+      var secs = t0 ? Math.round((Date.now() - t0) / 1000) : 0;
+      tellServer(secs);
+      var capped = secs >= COACH_CAP_SECS - 5;
+      coachScreen(key, capped ? 'Your session has ended' : 'Call ended',
+        (capped ? 'The session reached its 30-minute limit. ' : '') + 'When you are ready, write up the exercise on the page for written feedback, or move on to the next module.',
+        { label: 'Talk again', go: function () { coachIntro(key); } });
+    }
+    function setMode(m) {
+      mode = m;
+      orb.className = 'orb is-' + (m === 'speaking' ? 'speaking' : 'listening');
+      stat.textContent = m === 'speaking' ? COACH + ' is speaking' : 'Listening… your turn';
+    }
+    function addLine(source, text) {
+      if (!text) return;
+      var empty = tr.querySelector('.call-tr-empty');
+      if (empty) tr.removeChild(empty);
+      var line = el('p', 'call-line ' + (source === 'user' ? 'is-you' : 'is-coach'));
+      add(line, el('span', 'call-who', source === 'user' ? 'You' : COACH), el('span', 'call-text', text));
+      tr.appendChild(line);
+      tr.scrollTop = tr.scrollHeight;
+    }
+    function animate() {
+      if (done) return;
+      var v = 0;
+      try { v = conv ? (mode === 'speaking' ? conv.getOutputVolume() : conv.getInputVolume()) : 0; } catch (e) { v = 0; }
+      v = Math.min(1, Math.max(0, v || 0));
+      orbWrap.style.setProperty('--lvl', (1 + v * 0.45).toFixed(3));
+      raf = requestAnimationFrame(animate);
+    }
+    function mmss(n) { n = Math.max(0, n); return Math.floor(n / 60) + ':' + ('0' + (n % 60)).slice(-2); }
+
+    // Not connected after a while (a blocked microphone prompt gets longer, once): give up and say so.
+    stall = setTimeout(function () { stall = null; giveUp(); }, 60000);
+
+    window.MadaVoice.Conversation.startSession({
+      conversationToken: s.token,
+      connectionType: 'webrtc',
+      dynamicVariables: s.dynamic_variables,
+      onConnect: function () {
+        if (done) { try { if (conv && conv.endSession) conv.endSession(); } catch (e) {} return; }
+        connected = true;
+        if (stall) { clearTimeout(stall); stall = null; }
+        setMode('listening');
+        end.disabled = false; mute.disabled = false;
+        t0 = Date.now();
+        var fired = {};
+        var CHECKS = [
+          { at: 300, text: 'About 5 minutes left.', tell: 'TIME CHECK: about five minutes remain; the session ends automatically at thirty minutes. At your next natural pause, tell the candidate in one short sentence, then carry on.' },
+          { at: 60, text: '1 minute left. The session ends automatically at 30:00.', tell: 'TIME CHECK: one minute remains. Wrap up now: give three short takeaways and one next step.' }
+        ];
+        timer = setInterval(function () {
+          var sec = Math.floor((Date.now() - t0) / 1000), remain = COACH_CAP_SECS - sec;
+          clock.textContent = mmss(sec);
+          left.textContent = remain > 0 ? mmss(remain) + ' left' : 'Time is up';
+          left.classList.toggle('is-low', remain <= 300);
+          CHECKS.forEach(function (c) {
+            if (remain <= c.at && !fired[c.at]) {
+              fired[c.at] = true;
+              warn.textContent = c.text; warn.hidden = false;
+              try { if (conv && conv.sendContextualUpdate) conv.sendContextualUpdate(c.tell); } catch (e) {}
+            }
+          });
+        }, 1000);
+        raf = requestAnimationFrame(animate);
+      },
+      onModeChange: function (m) { setMode(m && m.mode === 'speaking' ? 'speaking' : 'listening'); },
+      onMessage: function (m) { if (m && m.message) addLine(m.source === 'user' ? 'user' : 'ai', String(m.message)); },
+      onDisconnect: function () { if (connected) finish(); else giveUp(); },
+      onError: function () { if (!connected) giveUp(); else stat.textContent = 'There was a connection problem.'; }
+    }).then(function (c) {
+      conv = c;
+      if (done) { try { c.endSession().catch(function () {}); } catch (e) {} return; }
+      mute.addEventListener('click', function () {
+        muted = !muted;
+        try { c.setMicMuted(muted); } catch (e) { muted = !muted; return; }
+        mute.textContent = muted ? 'Unmute' : 'Mute';
+        mute.classList.toggle('is-on', muted);
+      });
+      end.addEventListener('click', function () { end.disabled = true; c.endSession().then(finish, finish); });
+    }, function () { giveUp(); });
   }
 
   function block(b) {

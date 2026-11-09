@@ -658,7 +658,8 @@ def ai_learn():
         app = '<p class="muted">The course opens soon.</p>'
     else:
         app = (f'<div id="learn-app" data-api="{C.SUPABASE_URL}" data-key="{C.SUPABASE_PUBLISHABLE_KEY}" data-start="{u("ai/case-practice/start")}"'
-               f' data-maths="{u("ai/maths")}" data-terms="{u("terms")}" data-refunds="{u("refunds")}" data-pass-price="{C.AI_PASS_PRICE_USD}">'
+               f' data-maths="{u("ai/maths")}" data-terms="{u("terms")}" data-refunds="{u("refunds")}" data-pass-price="{C.AI_PASS_PRICE_USD}"'
+               + (f' data-voice-src="{ctx.asset("js/vendor/elevenlabs-client.js")}?v={C.VERSION}"' if C.LEARN_VOICE_LIVE else '') + '>'
                '<noscript><p>This page needs JavaScript.</p></noscript></div>')
     body = f'''
 <header class="subhero"><div class="wrap">
