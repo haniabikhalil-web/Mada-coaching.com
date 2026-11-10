@@ -182,7 +182,7 @@
     add(prog, el('h3', null, done + ' of ' + total + ' modules complete'));
     var track = el('div', 'ln-track'); track.setAttribute('role', 'progressbar'); track.setAttribute('aria-valuemin', '0'); track.setAttribute('aria-valuemax', String(total)); track.setAttribute('aria-valuenow', String(done));
     var fill = el('div', 'ln-fill'); fill.style.width = Math.round(done / total * 100) + '%'; track.appendChild(fill);
-    add(prog, track, el('p', 'muted small', 'Completing modules unlocks the Mini Case Challenge. Your Case Readiness Score comes from the quality of your work, not from how many modules you finish.'));
+    add(prog, track, el('p', 'muted small', 'Completing modules unlocks the Mini Case Challenge. Your Foundations Score comes from the quality of your work, not from how many modules you finish.'));
     app.appendChild(prog);
 
     if (!dash.entitlement.full) app.appendChild(upgradeCard());
@@ -233,7 +233,7 @@
     var head = el('div', 'ln-module-head');
     add(head, el('span', 'ai-num', '★'), m.finished ? el('span', 'ai-pill live', 'Finished') : (m.unlocked ? el('span', 'ai-pill best', 'Unlocked') : el('span', 'ai-pill soon', 'Locked')));
     add(card, head, el('h3', null, 'Mini Case Challenge'),
-      el('p', 'muted', 'A guided 10 to 15 minute case: questions, structure, two calculations, interpretation and a recommendation. It gives you your Case Readiness Score.'));
+      el('p', 'muted', 'A guided 10 to 15 minute case: questions, structure, two calculations, interpretation and a recommendation. It gives you your Foundations Score.'));
     if (m.unlocked) {
       add(card, btn(m.finished ? 'See my result' : (m.started ? 'Continue the case' : 'Start the case'), 'btn btn-primary btn-sm', function () { miniOpen(); }));
     } else {
@@ -244,7 +244,7 @@
   function upgradeCard() {
     var card = el('div', 'card mx-card ln-upgrade'); card.id = 'ln-upgrade';
     add(card, el('span', 'tag', 'Full course'), el('h3', null, 'Modules 3 to 6 and the Mini Case Challenge'),
-      el('p', 'muted', 'Modules 1 and 2 are free. The rest of the course, with AI feedback on every exercise and your Case Readiness Score, is included with Unlimited Interviews at $' + PASS_PRICE + ' a month.'));
+      el('p', 'muted', 'Modules 1 and 2 are free. The rest of the course, with AI feedback on every exercise and your Foundations Score, is included with Unlimited Interviews at $' + PASS_PRICE + ' a month.'));
     var ul = el('ul');
     ['Structuring, numbers, business judgment and your final recommendation, taught step by step.', 'Specific AI feedback on every exercise, with hints and model answers.', 'Unlimited AI case interviews and Case Math Mastery in the same subscription.'].forEach(function (t) { ul.appendChild(el('li', null, t)); });
     var note = el('p', 'muted small');
@@ -270,7 +270,7 @@
   }
   function rubricBox() {
     var d = document.createElement('details'); d.className = 'ln-rubric';
-    var s = el('summary', null, 'How your Case Readiness Score works'); d.appendChild(s);
+    var s = el('summary', null, 'How your Foundations Score works'); d.appendChild(s);
     var ol = el('ul');
     ((dash.rubric && dash.rubric.steps) || []).forEach(function (t) { ol.appendChild(el('li', null, t)); });
     d.appendChild(ol);
@@ -345,7 +345,7 @@
 
   // ---------------------------------------------------------------- voice coach ("Talk it through"): teaches, never scores
   // A second way to learn a module: a voice coach walks the candidate through it and takes any question. Nothing said is scored and nothing
-  // here touches the Case Readiness Score. The server (learn-voice) decides access, the module level and the daily limit; this only asks and
+  // here touches the Foundations Score. The server (learn-voice) decides access, the module level and the daily limit; this only asks and
   // shows. The voice library is large, so it loads only when the candidate starts a call. Off unless the build sets data-voice-src.
   var VOICE_SRC = app.getAttribute('data-voice-src') || '';
   // While the coach is private it only shows for someone who opened the page from the private link (?coach=nour), remembered for the session.
@@ -925,7 +925,7 @@
     if (!m.started) {
       clear(app);
       var c = el('div', 'card mx-card');
-      add(c, el('h3', null, m.title), paragraphs(m.case.intro), el('p', 'muted', 'About ' + m.case.minutes + ' minutes, in five short stages. Guidance is minimal here: this is where you show what you have learned. Your Case Readiness Score comes from this and your exercises.'),
+      add(c, el('h3', null, m.title), paragraphs(m.case.intro), el('p', 'muted', 'About ' + m.case.minutes + ' minutes, in five short stages. Guidance is minimal here: this is where you show what you have learned. Your Foundations Score comes from this and your exercises.'),
         btn('Start the case', 'btn btn-primary', function () { miniStart(); }), btn('Back', 'btn btn-ghost', home));
       app.appendChild(c); return;
     }
@@ -1085,7 +1085,7 @@
     var head = el('div', 'card ln-readiness');
     add(head, el('p', 'eyebrow', 'Mini Case Challenge result'));
     if (r.overall === null) {
-      add(head, el('h3', null, 'Not enough evidence for a score yet'), el('p', 'muted', 'A Case Readiness Score needs evidence in at least five of the six skills. Complete the exercises you skipped, then run the case again.'));
+      add(head, el('h3', null, 'Not enough evidence for a score yet'), el('p', 'muted', 'A Foundations Score needs evidence in at least five of the six skills. Complete the exercises you skipped, then run the case again.'));
     } else {
       var big = el('div', 'ln-score'); add(big, el('span', 'ln-score-n', String(Math.round(r.overall))), el('span', 'ln-score-of', '/ 100'));
       add(head, big, el('h3', null, r.band.label), el('p', 'muted', r.band.note));
