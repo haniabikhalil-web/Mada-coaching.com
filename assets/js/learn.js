@@ -187,90 +187,42 @@
     });
     return s;
   }
-  function linkBtn(text, onClick) {
-    var b = el('button', 'ln-link'); b.type = 'button'; b.appendChild(document.createTextNode(text)); b.appendChild(icon('arrow'));
-    b.addEventListener('click', onClick); return b;
-  }
-  function ctaBtn(text, onClick) { var b = btn(text, 'btn btn-primary', onClick); return b; }
-
   function home() {
     clear(app);
-    var mods = dash.modules, total = mods.length, mini = dash.mini, full = dash.entitlement.full;
-    var done = mods.filter(function (m) { return m.completed; }).length, allDone = done === total;
-    var next = null;
-    for (var i = 0; i < mods.length; i++) { if (!mods[i].completed && !mods[i].locked) { next = mods[i]; break; } }
-    var nextNo = next ? mods.indexOf(next) + 1 : 0;
-    var r = dash.readiness && dash.readiness.overall !== null && mini.finished ? dash.readiness : null;
+    var done = dash.modules.filter(function (m) { return m.completed; }).length;
+    var total = dash.modules.length;
 
     var bar = el('div', 'ln-bar');
     add(bar, el('span', 'muted small', 'Signed in as ' + email + ' · ' + levelLabel(dash.level) + ' level'),
-      add(el('span', 'ln-bar-actions'),
-        btn('Change level', 'ln-textbtn', function () { levelPicker(true); }),
-        btn('Sign out', 'ln-textbtn', function () { S.clear(); token = null; dash = null; signIn(); })));
+      btn('Change level', 'btn btn-ghost btn-sm', function () { levelPicker(true); }),
+      btn('Sign out', 'btn btn-ghost btn-sm', function () { S.clear(); token = null; dash = null; signIn(); }));
     app.appendChild(bar);
 
-    // ---- hero: progress, achievement and the next action, once
-    var hero = el('section', 'ln-hero'); hero.setAttribute('aria-labelledby', 'ln-hero-h');
-    var htxt = el('div', 'ln-hero-text');
-    var title, sub, cta;
-    if (next) {
-      title = (done === 0 ? 'Start with module ' : 'Up next: module ') + nextNo;
-      sub = next.title + ' · about ' + next.minutes + ' minutes';
-      cta = ctaBtn(next.attempted ? 'Continue module' : 'Start module', function () { openModule(next.key); });
-    } else if (allDone && mini.finished) {
-      title = 'Course complete'; sub = 'You finished the six modules and the Mini Case Challenge.';
-      cta = ctaBtn('View results', function () { miniOpen(); });
-    } else if (allDone && mini.unlocked) {
-      title = 'All six modules complete'; sub = 'The Mini Case Challenge is next. It turns your work into a Foundations Score.';
-      cta = ctaBtn(mini.started ? 'Continue the case' : 'Start challenge', function () { miniOpen(); });
-    } else {
-      title = full ? 'Keep going' : 'You have finished the free modules';
-      sub = full ? 'Complete the remaining modules to unlock the Mini Case Challenge.' : 'Modules 3 to 6 and the Mini Case Challenge come with Unlimited Interviews.';
-      cta = full ? null : ctaBtn('See Unlimited Interviews', function () { var u = document.getElementById('ln-upgrade'); if (u) u.scrollIntoView({ behavior: 'smooth', block: 'center' }); });
-    }
-    var h = el('h2', null, title); h.id = 'ln-hero-h';
-    add(htxt, el('p', 'ln-eyebrow', 'Introduction to Case Solving'), h, el('p', 'ln-hero-sub', sub));
-    var meter = el('div', 'ln-thin'); meter.setAttribute('role', 'progressbar'); meter.setAttribute('aria-valuemin', '0'); meter.setAttribute('aria-valuemax', String(total)); meter.setAttribute('aria-valuenow', String(done)); meter.setAttribute('aria-label', 'Modules completed');
-    var mfill = el('span'); mfill.style.width = Math.round(done / total * 100) + '%'; meter.appendChild(mfill);
-    var mtxt = el('p', 'ln-hero-count');
-    if (allDone) mtxt.appendChild(icon('check'));
-    mtxt.appendChild(document.createTextNode(done + ' of ' + total + ' modules' + (allDone ? ' complete' : '')));
-    add(htxt, meter, mtxt);
-    add(hero, htxt);
-    if (cta) add(hero, add(el('div', 'ln-hero-cta'), cta));
-    app.appendChild(hero);
+    // progress
+    var prog = el('div', 'card ln-progress');
+    var big = el('span', 'ln-big', String(done)); big.appendChild(el('small', null, '/' + total)); big.setAttribute('aria-hidden', 'true');
+    var ptxt = el('div', 'ln-prog-text'); add(ptxt, el('h3', null, done + ' of ' + total + ' modules complete'));
+    add(prog, add(el('div', 'ln-prog-top'), big, ptxt));
+    var track = el('div', 'ln-track'); track.setAttribute('role', 'progressbar'); track.setAttribute('aria-valuemin', '0'); track.setAttribute('aria-valuemax', String(total)); track.setAttribute('aria-valuenow', String(done));
+    var fill = el('div', 'ln-fill'); fill.style.width = Math.round(done / total * 100) + '%'; track.appendChild(fill);
+    track.style.setProperty('--n', String(total));
+    add(ptxt, track); add(prog, el('p', 'muted small', 'Completing modules unlocks the Mini Case Challenge. Your Foundations Score comes from the quality of your work, not from how many modules you finish.'));
+    app.appendChild(prog);
 
-    if (!full) app.appendChild(upgradeCard());
+    if (!dash.entitlement.full) app.appendChild(upgradeCard());
 
-    // ---- the five-step path (informational): the six modules cover steps 1 and 2
-    var steps = [
-      ['Learn fundamentals', allDone ? 'done' : 'current'],
-      ['Practise skills', allDone ? 'done' : 'current'],
-      ['Mini case', mini.finished ? 'done' : (allDone && mini.unlocked ? 'current' : 'upcoming')],
-      ['Full mock interview', mini.finished ? 'current' : 'upcoming'],
-      ['Improve with feedback', 'upcoming']
-    ];
-    var path = el('ol', 'ln-path'); path.setAttribute('aria-label', 'Your learning path');
-    steps.forEach(function (s, i) {
-      var li = el('li', 'is-' + s[1]); if (s[1] === 'current') li.setAttribute('aria-current', 'step');
-      var dot = el('span', 'ln-dot'); if (s[1] === 'done') dot.appendChild(icon('check')); else dot.appendChild(document.createTextNode(String(i + 1)));
-      add(li, dot, el('span', 'ln-step-t', s[0]), el('span', 'sr-only', ' (' + (s[1] === 'done' ? 'completed' : s[1] === 'current' ? 'current' : 'upcoming') + ')'));
-      path.appendChild(li);
+    // journey
+    var journey = el('ol', 'ln-journey');
+    ['Learn the fundamentals', 'Practise individual skills', 'Complete a mini case', 'Attempt a full AI mock interview', 'Improve with feedback'].forEach(function (t, i) {
+      var li = el('li'); add(li, el('span', 'ln-j-n', String(i + 1)), el('span', null, t)); journey.appendChild(li);
     });
-    var pathWrap = el('section', 'ln-section');
-    add(pathWrap, path, el('p', 'ln-note', 'The six modules below cover steps 1 and 2.'));
-    app.appendChild(pathWrap);
+    app.appendChild(journey);
 
-    // ---- modules
-    var msec = el('section', 'ln-section');
-    var mh = el('div', 'ln-sec-head'); add(mh, el('h2', 'ln-h2', 'Modules'), el('span', 'ln-note', done + ' of ' + total + ' complete'));
-    var grid = el('div', 'ln-mods');
-    mods.forEach(function (m, i) { grid.appendChild(moduleCard(m, i, next && next.key === m.key)); });
-    add(msec, mh, grid);
-    app.appendChild(msec);
-
-    // ---- final challenge
-    app.appendChild(miniSection(r));
+    // modules
+    var list = el('div', 'ln-modules');
+    dash.modules.forEach(function (m, i) { list.appendChild(moduleCard(m, i)); });
+    list.appendChild(miniCard());
+    app.appendChild(list);
 
     var practise = el('p', 'muted ln-practise');
     practise.appendChild(document.createTextNode('Between modules, build your calculation speed in '));
@@ -278,55 +230,41 @@
     practise.appendChild(document.createTextNode('.'));
     app.appendChild(practise);
 
-    if (r) app.appendChild(readinessCard(dash.readiness, dash.mini.result));
+    if (dash.readiness && dash.readiness.overall !== null && dash.mini.finished) app.appendChild(readinessCard(dash.readiness, dash.mini.result));
     app.appendChild(rubricBox());
   }
 
-  function moduleCard(m, i, isNext) {
-    var no = ('0' + (i + 1)).slice(-2);
-    var card = el('article', 'ln-mod' + (m.completed ? ' is-done' : '') + (m.locked ? ' is-locked' : '') + (isNext ? ' is-next' : ''));
-    var head = el('div', 'ln-mod-head');
-    add(head, el('span', 'ln-mod-no', no));
-    if (m.completed) { var ok = el('span', 'ln-state ok'); add(ok, icon('check'), el('span', 'sr-only', 'Completed')); head.appendChild(ok); }
-    else if (m.locked) { var lk = el('span', 'ln-state'); add(lk, icon('lock'), el('span', null, 'Full course')); head.appendChild(lk); }
-    else if (m.attempted) head.appendChild(el('span', 'ln-state prog', 'In progress'));
-    else if (m.free) head.appendChild(el('span', 'ln-state', 'Free'));
-    add(card, head, el('h3', 'ln-mod-title', m.title));
-    if (!m.completed) card.appendChild(el('p', 'ln-mod-desc', m.objective));
-    var meta = el('p', 'ln-meta'); add(meta, icon('clock'), document.createTextNode(m.minutes + ' min')); card.appendChild(meta);
-    var act = el('div', 'ln-mod-act');
-    if (m.locked) act.appendChild(linkBtn('See what unlocks it', function () { var u = document.getElementById('ln-upgrade'); if (u) u.scrollIntoView({ behavior: 'smooth', block: 'center' }); }));
-    else if (m.completed) act.appendChild(linkBtn('Review module', function () { openModule(m.key); }));
-    else if (isNext) act.appendChild(ctaBtn(m.attempted ? 'Continue module' : 'Start module', function () { openModule(m.key); }));
-    else act.appendChild(linkBtn(m.attempted ? 'Continue module' : 'Start module', function () { openModule(m.key); }));
-    card.appendChild(act);
+  function statusPill(m) {
+    if (m.completed) return el('span', 'ai-pill live', 'Completed');
+    if (m.locked) return el('span', 'ai-pill soon', 'Full course');
+    return el('span', 'ai-pill best', m.free ? 'Free' : 'Open');
+  }
+  function moduleCard(m, i) {
+    var card = el('article', 'card ln-module' + (m.locked ? ' is-locked' : '') + (m.completed ? ' is-done' : ''));
+    var head = el('div', 'ln-module-head');
+    add(head, el('span', 'ai-num', ('0' + (i + 1)).slice(-2)), statusPill(m));
+    add(card, head, el('h3', null, m.title), el('p', 'muted', m.objective), el('p', 'ln-meta', 'About ' + m.minutes + ' minutes'));
+    if (m.locked) {
+      add(card, btn('See what unlocks it', 'btn btn-ghost btn-sm', function () { var u = document.getElementById('ln-upgrade'); if (u) { u.scrollIntoView({ behavior: 'smooth', block: 'center' }); } }));
+    } else {
+      add(card, btn(m.completed ? 'Review module' : (m.attempted ? 'Continue' : 'Start module'), m.completed ? 'btn btn-ghost btn-sm' : 'btn btn-primary btn-sm', function () { openModule(m.key); }));
+    }
     return card;
   }
-
-  function miniSection(r) {
+  function miniCard() {
     var m = dash.mini;
-    var sec = el('section', 'ln-final' + (m.unlocked ? '' : ' is-locked')); sec.setAttribute('aria-labelledby', 'ln-final-h');
-    var left = el('div', 'ln-final-text');
-    var h = el('h2', 'ln-h2', 'Mini Case Challenge'); h.id = 'ln-final-h';
-    var tag = el('p', 'ln-eyebrow'); add(tag, icon('flag'), document.createTextNode('Final challenge'));
-    add(left, tag, h, el('p', 'ln-final-sub', 'A guided 10 to 15 minute case. Apply structure, numbers and judgment to earn your Foundations Score.'));
+    var card = el('article', 'card ln-module ln-mini' + (m.unlocked ? '' : ' is-locked'));
+    var head = el('div', 'ln-module-head');
+    add(head, el('span', 'ai-num', '★'), m.finished ? el('span', 'ai-pill live', 'Finished') : (m.unlocked ? el('span', 'ai-pill best', 'Unlocked') : el('span', 'ai-pill soon', 'Locked')));
+    add(card, head, el('h3', null, 'Mini Case Challenge'),
+      el('p', 'muted', 'A guided 10 to 15 minute case: questions, structure, two calculations, interpretation and a recommendation. It gives you your Foundations Score.'));
     if (m.unlocked) {
-      left.appendChild(add(el('div', 'ln-final-cta'), ctaBtn(m.finished ? 'View results' : (m.started ? 'Continue the case' : 'Start challenge'), function () { miniOpen(); })));
+      add(card, btn(m.finished ? 'See my result' : (m.started ? 'Continue the case' : 'Start the case'), 'btn btn-primary btn-sm', function () { miniOpen(); }));
     } else {
-      var lock = el('p', 'ln-final-lock'); add(lock, icon('lock'), document.createTextNode(dash.entitlement.full ? 'Complete all six modules to unlock it.' : 'Needs Unlimited Interviews and all six modules complete.'));
-      left.appendChild(lock);
+      add(card, el('p', 'small muted', dash.entitlement.full ? 'Complete all six modules to unlock it.' : 'Needs Unlimited Interviews and all six modules complete.'));
     }
-    sec.appendChild(left);
-    if (m.finished && r) {
-      var sc = el('div', 'ln-final-score');
-      add(sc, el('span', 'ln-final-label', 'Foundations Score'),
-        add(el('span', 'ln-final-n'), document.createTextNode(String(Math.round(r.overall))), el('small', null, '/100')),
-        r.band ? el('span', 'ln-final-band', r.band.label) : null);
-      sec.appendChild(sc);
-    }
-    return sec;
+    return card;
   }
-
   function upgradeCard() {
     var card = el('div', 'card mx-card ln-upgrade'); card.id = 'ln-upgrade';
     add(card, el('span', 'tag', 'Full course'), el('h3', null, 'Modules 3 to 6 and the Mini Case Challenge'),
