@@ -338,7 +338,7 @@
         load();
       });
     });
-    var note = el('p', 'muted small', attempted ? 'You can still retry the exercise afterwards.' : 'Try the exercise first. Completing a module needs at least one attempt.');
+    var note = el('p', 'muted small', attempted ? 'To complete a module you need 75% or more on each exercise. Retry as often as you like and use the hints.' : 'Try the exercise first. To complete a module you need 75% or more on each exercise, and you can retry as often as you like.');
     complete.disabled = !attempted && !(info && info.completed);
     foot.appendChild(el('h3', null, 'Finished this module?'));
     add(foot, complete, note);
@@ -395,6 +395,11 @@
     top();
   }
 
+  function fmtDay(iso) { try { return new Date(iso).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', timeZone: 'UTC' }); } catch (e) { return ''; } }
+  function monthlyCapScreen(key, text) {
+    coachScreen(key, 'Monthly call limit reached', text + ' You can keep learning with the module text and the written tutor until then.');
+  }
+
   function trialUsed(key) {
     coachScreen(key, 'You have used your free call with ' + COACH,
       'The free trial is one call. With Unlimited Interviews ($' + PASS_PRICE + ' a month) you can talk to ' + COACH + ' as often as you like, on every module, and get the rest of the course too.',
@@ -410,12 +415,14 @@
       if (r.status === 401) return expired();
       var j = r.ok && r.json ? r.json : null;
       if (j && j.free_call_used) return trialUsed(key);
+      var mo = j && j.monthly;
+      if (mo && mo.used_minutes >= mo.cap_minutes) return monthlyCapScreen(key, 'You have used your ' + mo.cap_minutes + ' coach minutes for this month. Your minutes reset on ' + fmtDay(mo.resets_on) + '.');
       if (j && j.available === false) return coachScreen(key, COACH + ' is not available right now', 'Please try again later. You can still read the module and ask the written tutor your questions.');
-      coachIntroScreen(key, j && j.full === false);
+      coachIntroScreen(key, j && j.full === false, mo);
     });
   }
 
-  function coachIntroScreen(key, oneFree) {
+  function coachIntroScreen(key, oneFree, monthly) {
     var m = moduleCache[key];
     coachScreen(key, 'Talk through "' + m.title + '" with ' + COACH,
       COACH + ' teaches this module one idea at a time and asks you to answer the exercises out loud. Ask anything you like. Sessions run up to 30 minutes.' + (oneFree ? ' This is your one free call: it counts once it has run for a minute.' : ''),
@@ -423,6 +430,15 @@
     var notice = el('p', 'muted small'); notice.textContent = COACH_NOTICE;
     var box = app.querySelector('.ln-coach-screen');
     box.insertBefore(notice, box.querySelector('.btn-row'));
+    if (monthly && monthly.cap_minutes) {
+      var used = Math.min(monthly.used_minutes || 0, monthly.cap_minutes);
+      var meter = el('div', 'ln-meter');
+      var track = el('div', 'ln-track small'); track.setAttribute('role', 'progressbar'); track.setAttribute('aria-label', 'Coach minutes used this month');
+      track.setAttribute('aria-valuemin', '0'); track.setAttribute('aria-valuemax', String(monthly.cap_minutes)); track.setAttribute('aria-valuenow', String(used));
+      var fill = el('div', 'ln-fill'); fill.style.width = Math.round(used / monthly.cap_minutes * 100) + '%'; track.appendChild(fill);
+      add(meter, el('p', 'small', used + ' of ' + monthly.cap_minutes + ' coach minutes used this month · resets on ' + fmtDay(monthly.resets_on)), track);
+      box.insertBefore(meter, box.querySelector('.btn-row'));
+    }
   }
 
   function coachMic(onReady) {
@@ -455,6 +471,7 @@
           var code = r.json && r.json.error && r.json.error.code;
           if (code === 'trial_used') return trialUsed(key);
           if (code === 'locked') return coachScreen(key, 'This module is part of Unlimited Interviews', 'Modules 1 and 2 are free. The rest are included with Unlimited Interviews.');
+          if (code === 'monthly_cap') return monthlyCapScreen(key, errText(r));
           if (code === 'fair_use' || code === 'call_in_progress') return coachScreen(key, code === 'fair_use' ? 'That is enough talking for today' : 'A call is already in progress', errText(r), code === 'call_in_progress' ? { label: 'Try again', go: function () { coachBegin(key); } } : null);
           if (code === 'not_configured') return coachScreen(key, COACH + ' is not available right now', 'Please try again later. You can still read the module and ask the written tutor your questions.');
           return coachBack('We could not start the call', errText(r, 'Please try again shortly.'));

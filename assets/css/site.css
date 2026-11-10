@@ -1183,3 +1183,7 @@ section.mm-sec{padding-top:40px}
   .ln-mini .btn{align-self:stretch}
 }
 @media (prefers-reduced-motion:reduce){.ln-module,.ln-module:hover{transition:none;transform:none}}
+
+/* ---- Coach minutes meter (site v120) ---- */
+.ln-meter{margin:0 0 16px;max-width:420px}.ln-meter p{margin:0 0 6px;color:var(--navy)}
+.ln-track.small::after{display:none}
