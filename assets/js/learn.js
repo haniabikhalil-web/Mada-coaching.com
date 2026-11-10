@@ -1,4 +1,4 @@
-// Mada AI "Introduction to Case Solving": sign-in, dashboard, lessons, exercises with AI feedback, tutor chat and the Mini Case Challenge.
+// Mada Academy "Introduction to Case Solving": sign-in, dashboard, lessons, exercises with AI feedback, tutor chat and the Mini Case Challenge.
 // The server decides everything that matters: which modules a candidate may open (learn-state), what the tutor says and how work is scored
 // (learn-tutor). This file only asks and shows. Every string is written with textContent, never innerHTML.
 (function () {
@@ -229,7 +229,7 @@
       cta = full ? null : ctaBtn('See Unlimited Interviews', function () { var u = document.getElementById('ln-upgrade'); if (u) u.scrollIntoView({ behavior: 'smooth', block: 'center' }); });
     }
     var h = el('h2', null, title); h.id = 'ln-hero-h';
-    add(htxt, el('p', 'ln-eyebrow', 'Introduction to Case Solving'), h, el('p', 'ln-hero-sub', sub));
+    add(htxt, el('p', 'ln-eyebrow', 'Mada Academy · Introduction to Case Solving'), h, el('p', 'ln-hero-sub', sub));
     var meter = el('div', 'ln-thin'); meter.setAttribute('role', 'progressbar'); meter.setAttribute('aria-valuemin', '0'); meter.setAttribute('aria-valuemax', String(total)); meter.setAttribute('aria-valuenow', String(done)); meter.setAttribute('aria-label', 'Modules completed');
     var mfill = el('span'); mfill.style.width = Math.round(done / total * 100) + '%'; meter.appendChild(mfill);
     var mtxt = el('p', 'ln-hero-count');
@@ -402,8 +402,8 @@
     add(nav, btn('← All modules', 'btn btn-ghost btn-sm', function () { load(); }), el('span', 'muted small', 'About ' + m.minutes + ' minutes'));
     app.appendChild(nav);
     add(app, el('h2', 'ln-title', m.title), el('p', 'lede', m.objective));
-    var read = el('div', 'ln-read'), watch = el('div', 'ln-watch card'); watch.hidden = true;
-    app.appendChild(formatSwitch(key, read, watch));
+    var read = el('div', 'ln-read'), watch = el('div', 'ln-watch'); watch.hidden = true;
+    app.appendChild(formatSwitch(key, read, watch, m.videos || []));
     if (VOICE_SRC) { var sums = el('div', 'ln-sums-holder'); app.appendChild(sums); savedSummaries(key, sums); }
 
     var body = el('div', 'ln-body');
@@ -433,27 +433,51 @@
     app.appendChild(watch);
   }
 
-  // Three ways into a module: read it, talk it through with the coach, or watch it. Video is not recorded yet, so it says so.
-  function formatSwitch(key, read, watch) {
+  // Three ways into one module, one progress: Read & practice, Talk with Nour, Watch & learn. Watch only appears when the module
+  // really has a video (nothing placeholder is ever shown), and no format is required to complete a module.
+  function videoPlayer(v) {
+    var box = el('div', 'ln-video card');
+    box.appendChild(el('h3', null, v.title));
+    var vid = document.createElement('video');
+    vid.controls = true; vid.preload = 'metadata'; vid.setAttribute('playsinline', '');
+    if (v.poster) vid.poster = v.poster;
+    vid.src = v.src;
+    (v.captions || []).forEach(function (c, i) {
+      var t = document.createElement('track'); t.kind = 'captions'; t.srclang = c.lang; t.label = c.label; t.src = c.src; if (i === 0) t.default = true; vid.appendChild(t);
+    });
+    box.appendChild(vid);
+    if (v.durationSec) box.appendChild(el('p', 'muted small', 'About ' + Math.max(1, Math.round(v.durationSec / 60)) + ' min'));
+    if (v.transcript) {
+      var d = document.createElement('details'); d.className = 'ln-transcript';
+      add(d, el('summary', null, 'Transcript'), el('p', null, v.transcript));
+      box.appendChild(d);
+    }
+    return box;
+  }
+
+  function formatSwitch(key, read, watch, videos) {
     var wrap = el('div', 'ln-formats'); wrap.setAttribute('role', 'group'); wrap.setAttribute('aria-label', 'How would you like to learn this module?');
-    var bRead = el('button', 'ln-fmt'), bTalk = el('button', 'ln-fmt'), bWatch = el('button', 'ln-fmt');
-    [bRead, bTalk, bWatch].forEach(function (b) { b.type = 'button'; });
-    add(bRead, icon('book'), el('span', null, 'Read'));
+    var bRead = el('button', 'ln-fmt'), bTalk = el('button', 'ln-fmt'), bWatch = videos.length ? el('button', 'ln-fmt') : null;
+    [bRead, bTalk, bWatch].forEach(function (b) { if (b) b.type = 'button'; });
+    add(bRead, icon('book'), el('span', null, 'Read & practice'));
     add(bTalk, icon('mic'), el('span', null, 'Talk with ' + COACH));
-    add(bWatch, icon('play'), el('span', null, 'Watch'), el('small', 'ln-soon', 'Soon'));
     function show(which) {
       read.hidden = which !== 'read'; watch.hidden = which !== 'watch';
-      bRead.setAttribute('aria-pressed', String(which === 'read')); bWatch.setAttribute('aria-pressed', String(which === 'watch'));
+      bRead.setAttribute('aria-pressed', String(which === 'read'));
+      if (bWatch) bWatch.setAttribute('aria-pressed', String(which === 'watch'));
     }
     bRead.addEventListener('click', function () { show('read'); });
-    bWatch.addEventListener('click', function () { show('watch'); });
     if (VOICE_SRC) bTalk.addEventListener('click', function () { coachIntro(key); });
     else { bTalk.disabled = true; bTalk.appendChild(el('small', 'ln-soon', 'Soon')); }
     bTalk.setAttribute('aria-pressed', 'false');
-    add(watch, el('h3', null, 'Short videos are on the way'),
-      el('p', 'muted', 'Each module will get short videos with captions and a transcript: worked examples and real case moments. Until then, read the lesson or talk it through out loud.'),
-      add(el('div', 'btn-row'), btn('Back to reading', 'btn btn-ghost', function () { show('read'); })));
-    add(wrap, bRead, bTalk, bWatch);
+    add(wrap, bRead, bTalk);
+    if (bWatch) {
+      add(bWatch, icon('play'), el('span', null, 'Watch & learn'));
+      bWatch.addEventListener('click', function () { show('watch'); });
+      videos.forEach(function (v) { watch.appendChild(videoPlayer(v)); });
+      add(watch, add(el('div', 'btn-row'), btn('Back to reading', 'btn btn-ghost', function () { show('read'); })));
+      wrap.appendChild(bWatch);
+    }
     show('read');
     return wrap;
   }

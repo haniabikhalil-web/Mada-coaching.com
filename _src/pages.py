@@ -422,7 +422,7 @@ def ai():
 
     # ---- 1. The six products: what you practice.
     products = [
-        ('compass', 'Introduction to Case Solving', 'An AI guide that teaches you how to approach a case, build a structured framework and solve with confidence.', 'ai/learn'),
+        ('compass', 'Mada Academy', 'Learn how to approach a case, build a structured framework and solve with confidence. Read, practise, talk it through with Nour, and get feedback on every exercise.', 'ai/learn'),
         ('chat', 'Case Interviews', 'Solve realistic business problems, test your quantitative skills and deliver a recommendation in an interactive AI-led case.', 'ai/case-practice/start'),
         ('mic', 'Fit Interviews', 'Practice your personal stories, consulting motivation, leadership and behavioral questions with realistic AI interviewers.', None),
         ('target', 'Full Mock Interviews', 'A complete case and fit simulation in one sitting, followed by consolidated feedback on your performance.', None),
@@ -443,7 +443,7 @@ def ai():
                else waitlist_btn(t))
         if page == 'ai/learn' and live:
             price = '<p class="ai-prod-price"><b>Free</b> <span>&middot; modules 1 and 2. Full course included with Unlimited AI Interviews</span></p>'
-        elif t in ('Introduction to Case Solving', 'AI CV Review'):
+        elif t in ('AI CV Review',):
             price = '<p class="ai-prod-price"><span>Pricing announced when it opens</span></p>'
         return f'''<article class="ai-prod{' is-live' if live else ''} reveal">
 <div class="ai-prod-top">{icon(ic)}<span class="ai-num">{n:02d}</span></div>
@@ -558,7 +558,7 @@ def ai():
 <div id="waitlist-cfg" hidden data-api="{C.SUPABASE_URL}" data-key="{C.SUPABASE_PUBLISHABLE_KEY}"></div>
 '''
     page('ai', 'Mada AI',
-         'Mada AI: Case Interviews, Case Math Mastery, Fit and Full Mock Interviews, Introduction to Case Solving and AI CV Review. Single AI interviews from $30, or Unlimited AI Interviews for $100 a month.',
+         'Mada AI: Case Interviews, Case Math Mastery, Fit and Full Mock Interviews, Mada Academy and AI CV Review. Single AI interviews from $30, or Unlimited AI Interviews for $100 a month.',
          body, ctx, extra_js=('js/waitlist.js',))
 
 
@@ -650,7 +650,7 @@ def ai_maths():
          body, ctx, noindex=True, extra_js=js)
 
 
-# ---------------------------------------------------------------- Mada AI Introduction to Case Solving
+# ---------------------------------------------------------------- Mada Academy: Introduction to Case Solving
 def ai_learn():
     ctx = Ctx('ai/learn')
     u = ctx.url
@@ -663,9 +663,14 @@ def ai_learn():
                '<noscript><p>This page needs JavaScript.</p></noscript></div>')
     body = f'''
 <header class="subhero"><div class="wrap">
-  <p class="eyebrow">Mada AI &middot; Introduction to Case Solving</p>
+  <p class="eyebrow">Mada Academy &middot; Introduction to Case Solving</p>
   <h1>Learn How to Solve a Case</h1>
   <p class="lede">Six short modules on how case interviews work, how to open a case, build a structure, handle the numbers, use business judgment and deliver a recommendation. Each one explains, shows, lets you practise and gives you specific feedback from an AI tutor. Finish with a Mini Case Challenge and get your Foundations Score.</p>
+  <ol class="cycle" aria-label="The Mada learning cycle">
+    <li class="is-here"><b>Learn</b><span>Mada Academy: build knowledge and case-solving skills</span></li>
+    <li><b>Apply</b><span><a href="{u('ai/case-practice/start')}">Practice with Mada AI</a>: full, realistic AI case interviews</span></li>
+    <li><b>Improve</b><span>Personalised improvement: your gaps, matched to Academy lessons (coming soon)</span></li>
+  </ol>
 </div></header>
 <section>
   <div class="wrap">
@@ -674,8 +679,8 @@ def ai_learn():
   </div>
 </section>
 '''
-    page('ai/learn', 'Introduction to Case Solving',
-         'A guided course on case interviews: structure, numbers, judgment and recommendations, with AI feedback and a Foundations Score.',
+    page('ai/learn', 'Mada Academy',
+         'Mada Academy: a guided course on case interviews: structure, numbers, judgment and recommendations, with AI feedback and a Foundations Score.',
          body, ctx, noindex=True, extra_js=('js/ai-session.js', 'js/learn.js'))
 
 
@@ -1134,7 +1139,7 @@ def legal_pages():
         ('Confidentiality of your job search', '<p>What you tell us about your current employer, your search, your compensation or your offers stays between you, your coach and Mada. We will never contact an employer about you, disclose that you are looking, or use your name or materials in marketing without your written permission.</p>'),
         ('International transfers', '<p>We work with candidates, coaches and providers in several countries, so your information may be processed outside your country of residence. Where that happens we rely on the safeguards offered by those providers, including standard contractual clauses where applicable.</p>'),
         ('Mada AI voice interviews', f'<p>When you use AI case practice, you speak with an AI interviewer (Tatiana, Faisal, Arthur, Layal, Joe or Mona). We collect your email address, a recording of your voice during the call that is turned into a transcript, and the scores and report generated from it. You accept a recording and scoring notice before every call.</p><ul><li><strong>Why</strong>: to run the interview, assess it and send you your report. We rely on your consent and on providing the service you chose.</li><li><strong>Automated scoring</strong>: an AI scores the transcript against Mada&rsquo;s rubric. The report is developmental feedback, not official employer scoring, and it is not used to make decisions about you with legal or similar effect. A Mada coach checks a small number of reports. Ask us at <a href="mailto:{E}">{E}</a> for a human review of yours.</li><li><strong>Who processes it</strong>: ElevenLabs runs the voice call, Anthropic scores the transcript, Supabase stores the data (in Frankfurt, Germany) and our email provider sends your report link. We store the transcript, not the audio; our voice provider may hold the conversation for a limited period under its own settings and terms.</li><li><strong>How long</strong>: we delete the transcript 90 days after your call. We keep your scores and report so you can come back to them until you ask us to delete them.</li><li><strong>Who sees it</strong>: you, and Mada staff where needed to run, check and improve the service. We never share it with employers or recruiters.</li></ul>'),
-        ('Voice coach in the course', f'<p>In the course Introduction to Case Solving you can talk through a module with Nour, an AI voice coach. We collect your email address and a recording of your voice during the call, which is turned into a transcript to run the conversation. You accept a recording notice before every call and you must be 18 or over.</p><ul><li><strong>Why</strong>: to teach you the module and answer your questions. We rely on your consent and on providing the service you chose.</li><li><strong>Not scored</strong>: a coach call is a teaching conversation. Nothing you say is scored and it does not affect your Foundations Score.</li><li><strong>Who processes it</strong>: ElevenLabs runs the voice call, Anthropic provides the AI that generates Nour&rsquo;s replies and Supabase stores the data (in Frankfurt, Germany).</li><li><strong>How long</strong>: the conversation is kept for up to 90 days and then deleted. We keep a record that a call took place, its length and the module, without the content.</li><li><strong>Who sees it</strong>: you, and Mada staff where needed to run and improve the service. We never share it with employers or recruiters.</li></ul>'),
+        ('Voice coach in the course', f'<p>In Mada Academy (the course Introduction to Case Solving) you can talk through a module with Nour, an AI voice coach. We collect your email address and a recording of your voice during the call, which is turned into a transcript to run the conversation. You accept a recording notice before every call and you must be 18 or over.</p><ul><li><strong>Why</strong>: to teach you the module and answer your questions. We rely on your consent and on providing the service you chose.</li><li><strong>Not scored</strong>: a coach call is a teaching conversation. Nothing you say is scored and it does not affect your Foundations Score.</li><li><strong>Who processes it</strong>: ElevenLabs runs the voice call, Anthropic provides the AI that generates Nour&rsquo;s replies and Supabase stores the data (in Frankfurt, Germany).</li><li><strong>How long</strong>: the conversation is kept for up to 90 days and then deleted. We keep a record that a call took place, its length and the module, without the content.</li><li><strong>Who sees it</strong>: you, and Mada staff where needed to run and improve the service. We never share it with employers or recruiters.</li></ul>'),
         ('AI-generated reviews', '<p>Your CV review score and findings are generated by an AI model. Mada coaches review a sample of AI-generated reviews to check their quality. If you would like a coach to look at your CV directly, you can book a CV Review with a Mada coach.</p>'),
         ('Payments and deleting your account', f'<p>Payments are processed by Stripe. We do not receive or store your full card number.</p><p>When you delete your Mada account, we cancel any active subscription straight away and delete your account data, apart from records we must keep (for example, payment records for accounting and tax).</p><p>Stripe keeps its own records of your payments, and it may keep your customer record, including your email address and saved card details, as needed for payment processing, tax, and fraud prevention. These are held under Stripe&rsquo;s own privacy policy. If you want your Stripe customer record erased as well, contact <a href="mailto:{E}">{E}</a>.</p>'),
         ('How long we keep it', '<p>We keep booking and payment records for as long as required for tax and accounting purposes. We keep coaching materials and session notes for up to 24 months after your last session so we can pick up where we left off, unless you ask us to delete them sooner.</p>'),
