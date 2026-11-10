@@ -1216,8 +1216,15 @@
     app.appendChild(head);
 
     var q = el('div', 'card'); q.appendChild(el('h4', null, 'Your numbers'));
-    add(q, el('p', null, 'Annual revenue: ' + (res.quant.revenueOk ? 'on target.' : 'not quite right. Check the order of operations: courts x hours x days x occupancy x price.')),
-      el('p', null, 'Payback: ' + (res.quant.paybackOk ? 'on target.' : 'not quite right. Payback is the investment divided by annual profit after fixed and variable costs.')));
+    var qn = res.quant || {};
+    var years = typeof qn.paybackYears === 'number' ? qn.paybackYears : null;
+    var need = typeof qn.requirementYears === 'number' ? qn.requirementYears : 5;
+    add(q, el('p', null, 'Annual revenue: ' + (qn.revenueOk ? 'correct.' : 'not quite right. Check the order of operations: courts x hours x days x occupancy x price.')),
+      el('p', null, 'Payback calculation: ' + (qn.paybackOk ? 'correct.' : 'not quite right. Payback is the investment divided by annual profit after fixed and variable costs.')));
+    if (years !== null) {
+      var meets = years <= need;
+      add(q, el('p', null, 'Against the board: your payback of ' + (Math.round(years * 10) / 10) + ' years ' + (meets ? 'meets' : 'misses') + ' the ' + need + '-year requirement' + (meets || !qn.paybackOk ? '.' : '. That is a finding, not a mistake: spotting the gap is the heart of this case.')));
+    }
     app.appendChild(q);
 
     function list(title, items, strengths) {
