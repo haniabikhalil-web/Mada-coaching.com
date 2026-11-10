@@ -179,10 +179,13 @@
 
     // progress
     var prog = el('div', 'card ln-progress');
-    add(prog, el('h3', null, done + ' of ' + total + ' modules complete'));
+    var big = el('span', 'ln-big', String(done)); big.appendChild(el('small', null, '/' + total)); big.setAttribute('aria-hidden', 'true');
+    var ptxt = el('div', 'ln-prog-text'); add(ptxt, el('h3', null, done + ' of ' + total + ' modules complete'));
+    add(prog, add(el('div', 'ln-prog-top'), big, ptxt));
     var track = el('div', 'ln-track'); track.setAttribute('role', 'progressbar'); track.setAttribute('aria-valuemin', '0'); track.setAttribute('aria-valuemax', String(total)); track.setAttribute('aria-valuenow', String(done));
     var fill = el('div', 'ln-fill'); fill.style.width = Math.round(done / total * 100) + '%'; track.appendChild(fill);
-    add(prog, track, el('p', 'muted small', 'Completing modules unlocks the Mini Case Challenge. Your Foundations Score comes from the quality of your work, not from how many modules you finish.'));
+    track.style.setProperty('--n', String(total));
+    add(ptxt, track); add(prog, el('p', 'muted small', 'Completing modules unlocks the Mini Case Challenge. Your Foundations Score comes from the quality of your work, not from how many modules you finish.'));
     app.appendChild(prog);
 
     if (!dash.entitlement.full) app.appendChild(upgradeCard());
@@ -212,18 +215,18 @@
 
   function statusPill(m) {
     if (m.completed) return el('span', 'ai-pill live', 'Completed');
-    if (m.locked) return el('span', 'ai-pill soon', 'Included with Unlimited Interviews');
+    if (m.locked) return el('span', 'ai-pill soon', 'Full course');
     return el('span', 'ai-pill best', m.free ? 'Free' : 'Open');
   }
   function moduleCard(m, i) {
-    var card = el('article', 'card ln-module' + (m.locked ? ' is-locked' : ''));
+    var card = el('article', 'card ln-module' + (m.locked ? ' is-locked' : '') + (m.completed ? ' is-done' : ''));
     var head = el('div', 'ln-module-head');
     add(head, el('span', 'ai-num', ('0' + (i + 1)).slice(-2)), statusPill(m));
-    add(card, head, el('h3', null, m.title), el('p', 'muted', m.objective), el('p', 'small muted', 'About ' + m.minutes + ' minutes'));
+    add(card, head, el('h3', null, m.title), el('p', 'muted', m.objective), el('p', 'ln-meta', 'About ' + m.minutes + ' minutes'));
     if (m.locked) {
       add(card, btn('See what unlocks it', 'btn btn-ghost btn-sm', function () { var u = document.getElementById('ln-upgrade'); if (u) { u.scrollIntoView({ behavior: 'smooth', block: 'center' }); } }));
     } else {
-      add(card, btn(m.completed ? 'Review module' : (m.attempted ? 'Continue' : 'Start module'), 'btn btn-primary btn-sm', function () { openModule(m.key); }));
+      add(card, btn(m.completed ? 'Review module' : (m.attempted ? 'Continue' : 'Start module'), m.completed ? 'btn btn-ghost btn-sm' : 'btn btn-primary btn-sm', function () { openModule(m.key); }));
     }
     return card;
   }
