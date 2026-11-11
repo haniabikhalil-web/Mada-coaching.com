@@ -234,7 +234,7 @@
     if (pass && pass.error) failed('your Unlimited AI Interviews');
     else if (passOn) {
       mine.push(tile({ owned: true, icon: 'unlimited', title: 'Unlimited AI Interviews', pill: 'Active', pillCls: 'good',
-        text: 'Practice as much as you need, up to ' + pass.data.dailyLimit + ' interviews a day.', note: renewal(pass.data),
+        text: 'Up to ' + pass.data.dailyLimit + ' interviews a day. Quality beats quantity, so space your sessions out and reflect on each report.', note: renewal(pass.data),
         cta: { text: 'Start an interview', href: START }, manage: portal('/functions/v1/pass-access') }));
     } else {
       more.push(tile({ icon: 'unlimited', title: 'Unlimited AI Interviews', text: 'One subscription for Case, Fit and Full Mock interviews, with Case Math Mastery included.', cta: { text: 'See the options', href: START } }));

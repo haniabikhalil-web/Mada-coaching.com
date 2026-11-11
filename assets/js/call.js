@@ -174,9 +174,9 @@
     var pass = el('div', 'card call-pay-best');
     pass.appendChild(el('span', 'badge rise', 'Best Value'));
     pass.appendChild(el('h3', null, 'Unlimited AI Interviews'));
-    pass.appendChild(el('p', 'pp-sub', 'Practice as much as you need.'));
+    pass.appendChild(el('p', 'pp-sub', 'Practice at a pace that helps you improve.'));
     pass.appendChild(priceLine(PASS_PRICE, '/ month'));
-    pass.appendChild(list(['Unlimited interviews, subject to fair use.', 'Every interviewer and case type.', 'A report after every interview. Cancel any time.']));
+    pass.appendChild(list(['Up to 3 interviews a day. Quality beats quantity, so space your sessions out and reflect on each report.', 'Every interviewer and case type.', 'A report after every interview. Cancel any time.']));
     var b2 = el('button', 'btn btn-primary', 'Subscribe for $' + PASS_PRICE + '/month'); b2.type = 'button';
     b2.addEventListener('click', function () { pay('/functions/v1/pass-access', b2, note); });
     pass.appendChild(b2);
@@ -412,7 +412,7 @@
         if (!r.ok) {
           var code = j && j.error && j.error.code;
           if (code === 'payment_required') return payScreen('You need to buy a call first.');
-          if (code === 'fair_use') return setup('You have reached the limit of interviews for today. Come back later today and practice again.');
+          if (code === 'fair_use') return setup('You have reached the limit of interviews for now. We do not believe that more practice beats better practice: improvement comes from spacing your sessions out and reflecting on each report. Review your reports, then come back and practice again.');
           if (code === 'call_in_progress') return setup('You already have a call in progress. Finish it, or wait a few minutes and try again.');
           if (code === 'voice_unavailable') return setup('We could not start the call. Nothing was used. Please try again shortly.');
           return setup('We could not start the call. Please try again shortly.');
