@@ -234,7 +234,7 @@
     if (pass && pass.error) failed('your Practice Pass');
     else if (passOn) {
       mine.push(tile({ owned: true, icon: 'unlimited', title: 'Practice Pass', pill: 'Active', pillCls: 'good',
-        text: 'Up to ' + pass.data.dailyLimit + ' interviews a day. Quality beats quantity, so space your sessions out and reflect on each report.', note: renewal(pass.data),
+        text: 'Up to ' + pass.data.dailyLimit + ' interviews a day. Quality beats quantity, so space your sessions out and reflect on each report.', note: renewal(pass.data) + (typeof pass.data.minutesUsed === 'number' && pass.data.monthlyMinutes ? (renewal(pass.data) ? ' \u00b7 ' : '') + pass.data.minutesUsed + ' of ' + pass.data.monthlyMinutes + ' interview minutes used in the last ' + pass.data.monthlyWindowDays + ' days' : ''),
         cta: { text: 'Start an interview', href: START }, manage: portal('/functions/v1/pass-access') }));
     } else {
       more.push(tile({ icon: 'unlimited', title: 'Practice Pass', text: 'One subscription for Case, Fit and Full Mock interviews, with Case Math Mastery included.', cta: { text: 'See the options', href: START } }));
@@ -248,6 +248,10 @@
       mine.push(tile({ owned: true, icon: 'interview', title: 'AI case interviews', pill: credits + ' ready', pillCls: 'good',
         text: 'You have ' + credits + ' practice interview' + (credits === 1 ? '' : 's') + ' ready to use.',
         cta: { text: 'Start a practice interview', href: START } }));
+    } else if (!passOn && credits !== null && bal.data && bal.data.free_first) {
+      mine.push(tile({ owned: true, icon: 'interview', title: 'AI case interviews', pill: 'First one free', pillCls: 'good',
+        text: 'Your first AI case interview is free. Choose an interviewer and a case, speak for about 25 minutes and get a scored report.',
+        cta: { text: 'Start your free interview', href: START } }));
     } else if (!passOn && credits !== null) {
       more.push(tile({ icon: 'interview', title: 'AI case interviews', text: 'Practice a real case with an AI interviewer and get a scored report.', cta: { text: 'Practice a case', href: START } }));
     }

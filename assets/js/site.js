@@ -13,6 +13,21 @@
     });
   }
 
+  // Where the visitor came from, kept on this device so it can be saved with their account if they sign up:
+  // campaign source, medium, the page they landed on and the site that sent them. First visit only. No IDs, no cookies.
+  try {
+    if (!localStorage.getItem('mada_touch')) {
+      var q = new URLSearchParams(location.search), ref = '';
+      try { ref = document.referrer ? new URL(document.referrer).hostname.replace(/^www\./, '') : ''; } catch (e) { ref = ''; }
+      if (ref === location.hostname.replace(/^www\./, '')) ref = '';
+      var src = q.get('utm_source') || ref || 'direct';
+      var med = q.get('utm_medium') || '';
+      var camp = q.get('utm_campaign') || '';
+      var lp = location.pathname.replace(/[^a-zA-Z0-9\/_-]/g, '').slice(0, 40) || '/';
+      localStorage.setItem('mada_touch', [src, med, camp, lp].map(function (v) { return String(v).replace(/[|]/g, '').slice(0, 40); }).join('|'));
+    }
+  } catch (e) { /* storage blocked: the sign-up simply has no source */ }
+
   // Mobile menu
   var header = document.querySelector('.site-header');
   var btn = document.querySelector('.menu-btn');

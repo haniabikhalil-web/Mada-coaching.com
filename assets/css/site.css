@@ -98,6 +98,9 @@ a:hover .arrow{transform:translateX(3px)}
 .hero h1{color:#fff;max-width:860px}
 .hero .lede{color:var(--on-navy);margin-top:24px}
 .hero .btn-row{margin-top:36px}
+.hero-sub{margin:20px 0 0;color:var(--on-navy);font-size:15px}
+.hero-sub .btn-link{background:none;border:0;padding:0;min-height:0;color:#fff;font-weight:600;text-decoration:underline;text-underline-offset:3px}
+.hero-sub .btn-link:hover{color:var(--dawn,#FF7A45)}
 .hero-ar,.subhero::before{position:absolute;top:24px;right:max(24px,4vw);direction:rtl;unicode-bidi:isolate;white-space:nowrap;font-family:var(--arabic);font-weight:700;letter-spacing:0;word-spacing:0;font-kerning:normal;text-rendering:optimizeLegibility;line-height:1.25;font-size:clamp(110px,15vw,192px);color:var(--cobalt);opacity:.28;pointer-events:none;user-select:none;z-index:0}
 .subhero::before{content:"\0645\062F\0649" / ""}
 .hero>.wrap,.subhero>.wrap{position:relative;z-index:1}

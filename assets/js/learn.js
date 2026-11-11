@@ -94,7 +94,7 @@
     add(form, input, go);
     form.addEventListener('submit', function (e) {
       e.preventDefault(); go.disabled = true; email = input.value.trim();
-      post('/auth/v1/otp', { email: email, create_user: true }).then(function (r) {
+      post('/auth/v1/otp', { email: email, create_user: true, data: (function () { try { var t = localStorage.getItem('mada_touch'); return t ? { src: t } : undefined; } catch (e) { return undefined; } })() }).then(function (r) {
         if (r.status === 429) return signIn('Please wait a minute before asking for another code, then try again.');
         if (!r.ok) return signIn('Could not send a code. Check the email address and try again.');
         codeForm();

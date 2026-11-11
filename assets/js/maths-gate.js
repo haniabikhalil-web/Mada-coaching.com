@@ -61,7 +61,7 @@
       e.preventDefault();
       btn.disabled = true;
       email = input.value.trim();
-      post('/auth/v1/otp', { email: email, create_user: true }).then(function (r) {
+      post('/auth/v1/otp', { email: email, create_user: true, data: (function () { try { var t = localStorage.getItem('mada_touch'); return t ? { src: t } : undefined; } catch (e) { return undefined; } })() }).then(function (r) {
         if (r.status === 429) { signInForm('Please wait a minute before asking for another code, then try again.'); return; }
         if (!r.ok) { signInForm('Could not send a code. Check the email address and try again.'); return; }
         codeForm();

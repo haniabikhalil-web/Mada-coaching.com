@@ -78,7 +78,7 @@
       e.preventDefault();
       btn.disabled = true;
       email = input.value.trim();
-      post('/auth/v1/otp', { email: email, create_user: true }).then(function (r) {
+      post('/auth/v1/otp', { email: email, create_user: true, data: (function () { try { var t = localStorage.getItem('mada_touch'); return t ? { src: t } : undefined; } catch (e) { return undefined; } })() }).then(function (r) {
         if (r.status === 429) { signInForm('Please wait a minute before asking for another code, then try again.'); return; }
         if (!r.ok) throw new Error();
         codeForm();
@@ -111,7 +111,7 @@
   function balance() {
     return post('/functions/v1/interview-checkout', { action: 'balance' }, token).then(function (r) {
       if (r.status === 401) { token = null; saveSession(); return null; }
-      return r.ok ? r.json().then(function (j) { return { credits: j.credits || 0, pass: !!j.pass }; }) : { credits: 0, pass: false };
+      return r.ok ? r.json().then(function (j) { return { credits: j.credits || 0, pass: !!j.pass, free: !!j.free_first }; }) : { credits: 0, pass: false, free: false };
     });
   }
 
@@ -121,6 +121,7 @@
     if (!tries) loader('Checking your account\u2026'); // the shared ring stays until the next screen replaces it
     balance().then(function (b) {
       if (!b) return signInForm('Your session expired. Sign in again.');
+      if (b.free && !b.pass && b.credits === 0 && !paidReturn) return setup('Your first AI interview is free. Choose your interviewer and case below. No payment needed.');
       if (b.pass || b.credits > 0) return setup(paidReturn ? (passReturn ? 'Subscription active. You are ready to start.' : 'Payment received. You are ready to start.') : undefined);
       if (paidReturn && tries < 10) { loader('Confirming your payment\u2026'); return setTimeout(function () { gate(tries + 1); }, 3000); }
       payScreen(paidReturn ? 'We have not received your payment yet. If you were charged, email us and we will sort it out.' : undefined);
@@ -411,7 +412,8 @@
       return r.json().then(function (j) {
         if (!r.ok) {
           var code = j && j.error && j.error.code;
-          if (code === 'payment_required') return payScreen('You need to buy a call first.');
+          if (code === 'payment_required') return payScreen(j.error.message && /free first/i.test(j.error.message) ? j.error.message : 'You need to buy a call first.');
+          if (code === 'fair_use_monthly') return setup(j.error.message);
           if (code === 'fair_use') return setup('You have reached the limit of interviews for now. We do not believe that more practice beats better practice: improvement comes from spacing your sessions out and reflecting on each report. Review your reports, then come back and practice again.');
           if (code === 'call_in_progress') return setup('You already have a call in progress. Finish it, or wait a few minutes and try again.');
           if (code === 'voice_unavailable') return setup('We could not start the call. Nothing was used. Please try again shortly.');
