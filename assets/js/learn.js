@@ -225,8 +225,8 @@
       cta = ctaBtn(mini.started ? 'Continue the case' : 'Start challenge', function () { miniOpen(); });
     } else {
       title = full ? 'Keep going' : 'You have finished the free modules';
-      sub = full ? 'Complete the remaining modules to unlock the Mini Case Challenge.' : 'Modules 3 to 6 and the Mini Case Challenge come with Unlimited Interviews.';
-      cta = full ? null : ctaBtn('See Unlimited Interviews', function () { var u = document.getElementById('ln-upgrade'); if (u) u.scrollIntoView({ behavior: 'smooth', block: 'center' }); });
+      sub = full ? 'Complete the remaining modules to unlock the Mini Case Challenge.' : 'Modules 3 to 6 and the Mini Case Challenge come with the Practice Pass.';
+      cta = full ? null : ctaBtn('See Practice Pass', function () { var u = document.getElementById('ln-upgrade'); if (u) u.scrollIntoView({ behavior: 'smooth', block: 'center' }); });
     }
     var h = el('h2', null, title); h.id = 'ln-hero-h';
     add(htxt, el('p', 'ln-eyebrow', 'Mada Academy · Introduction to Case Solving'), h, el('p', 'ln-hero-sub', sub));
@@ -313,7 +313,7 @@
     if (m.unlocked) {
       left.appendChild(add(el('div', 'ln-final-cta'), ctaBtn(m.finished ? 'View results' : (m.started ? 'Continue the case' : 'Start challenge'), function () { miniOpen(); })));
     } else {
-      var lock = el('p', 'ln-final-lock'); add(lock, icon('lock'), document.createTextNode(dash.entitlement.full ? 'Complete all six modules to unlock it.' : 'Needs Unlimited Interviews and all six modules complete.'));
+      var lock = el('p', 'ln-final-lock'); add(lock, icon('lock'), document.createTextNode(dash.entitlement.full ? 'Complete all six modules to unlock it.' : 'Needs the Practice Pass and all six modules complete.'));
       left.appendChild(lock);
     }
     sec.appendChild(left);
@@ -330,11 +330,11 @@
   function upgradeCard() {
     var card = el('div', 'card mx-card ln-upgrade'); card.id = 'ln-upgrade';
     add(card, el('span', 'tag', 'Full course'), el('h3', null, 'Modules 3 to 6 and the Mini Case Challenge'),
-      el('p', 'muted', 'Modules 1 and 2 are free. The rest of the course, with AI feedback on every exercise and your Foundations Score, is included with Unlimited Interviews at $' + PASS_PRICE + ' a month.'));
+      el('p', 'muted', 'Modules 1 and 2 are free. The rest of the course, with AI feedback on every exercise and your Foundations Score, is included with the Practice Pass at $' + PASS_PRICE + ' a month.'));
     var ul = el('ul');
-    ['Structuring, numbers, business judgment and your final recommendation, taught step by step.', 'Specific AI feedback on every exercise, with hints and model answers.', 'Unlimited AI case interviews and Case Math Mastery in the same subscription.'].forEach(function (t) { ul.appendChild(el('li', null, t)); });
+    ['Structuring, numbers, business judgment and your final recommendation, taught step by step.', 'Specific AI feedback on every exercise, with hints and model answers.', 'AI case interviews and Case Math Mastery in the same subscription.'].forEach(function (t) { ul.appendChild(el('li', null, t)); });
     var note = el('p', 'muted small');
-    var go = btn('Get Unlimited Interviews, $' + PASS_PRICE + '/month', 'btn btn-primary', function () {
+    var go = btn('Get the Practice Pass, $' + PASS_PRICE + '/month', 'btn btn-primary', function () {
       go.disabled = true;
       fn('pass-access', { action: 'checkout' }).then(function (r) {
         if (r.status === 401) return expired();
@@ -528,8 +528,8 @@
 
   function trialUsed(key) {
     coachScreen(key, 'You have used your free call with ' + COACH,
-      'The free trial is one call. With Unlimited Interviews ($' + PASS_PRICE + ' a month) you can talk to ' + COACH + ' as often as you like, on every module, and get the rest of the course too.',
-      { label: 'See Unlimited Interviews', go: function () { load(); } });
+      'The free trial is one call. With the Practice Pass ($' + PASS_PRICE + ' a month) you can talk to ' + COACH + ' as often as you like, on every module, and get the rest of the course too.',
+      { label: 'See Practice Pass', go: function () { load(); } });
   }
 
   // Ask first, so a candidate whose free call is gone never sees the recording notice or the microphone prompt. If the check fails, carry on:
@@ -596,7 +596,7 @@
         if (!r.ok) {
           var code = r.json && r.json.error && r.json.error.code;
           if (code === 'trial_used') return trialUsed(key);
-          if (code === 'locked') return coachScreen(key, 'This module is part of Unlimited Interviews', 'Modules 1 and 2 are free. The rest are included with Unlimited Interviews.');
+          if (code === 'locked') return coachScreen(key, 'This module is part of the Practice Pass', 'Modules 1 and 2 are free. The rest are included with the Practice Pass.');
           if (code === 'monthly_cap') return monthlyCapScreen(key, errText(r));
           if (code === 'fair_use' || code === 'call_in_progress') return coachScreen(key, code === 'fair_use' ? 'That is enough talking for today' : 'A call is already in progress', errText(r), code === 'call_in_progress' ? { label: 'Try again', go: function () { coachBegin(key); } } : null);
           if (code === 'not_configured') return coachScreen(key, COACH + ' is not available right now', 'Please try again later. You can still read the module and ask the written tutor your questions.');

@@ -68,7 +68,7 @@
   }
 
   var TABS = {
-    users: { name: 'Accounts', cols: ['Email', 'Signed up', 'Last sign-in', 'Verified', 'Profile', 'Single', 'Unlimited', 'Maths', 'Calls'],
+    users: { name: 'Accounts', cols: ['Email', 'Signed up', 'Last sign-in', 'Verified', 'Profile', 'Single', 'Practice Pass', 'Maths', 'Calls'],
       rows: function () { return (data.users || []).map(function (u) { return [u.email, day(u.created_at), u.last_sign_in_at ? day(u.last_sign_in_at) : '', u.verified ? 'Yes' : 'No', u.profile_done ? 'Yes' : '', u.single_paid || '', u.unlimited || '', u.maths || '', u.calls ? u.calls_scored + '/' + u.calls + ' scored' : '']; }); } },
     waitlist: { name: 'Waitlist', cols: ['Email', 'Tool', 'Joined'],
       rows: function () { return (data.waitlist || []).map(function (w) { return [w.email, LABEL.tool[w.tool] || w.tool, day(w.created_at)]; }); } },
@@ -127,7 +127,7 @@
     tiles.appendChild(tile(t.waitlist, 'Waitlist sign-ups'));
     tiles.appendChild(tile(t.calls, 'AI interviews', t.calls_scored + ' scored, ' + t.calls_failed + ' failed, ' + t.reports_held + ' held'));
     tiles.appendChild(tile(t.single_paid, 'Single interviews bought'));
-    tiles.appendChild(tile(t.unlimited_active, 'Unlimited subscribers'));
+    tiles.appendChild(tile(t.unlimited_active, 'Practice Pass subscribers'));
     tiles.appendChild(tile(t.maths_active, 'Maths subscribers'));
     tiles.appendChild(tile(usd(t.revenue_cents), 'Single-interview revenue'));
     app.appendChild(tiles);

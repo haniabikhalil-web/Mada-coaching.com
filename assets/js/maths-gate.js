@@ -128,7 +128,7 @@
     var price = PRICE;
     card.appendChild(el('span', 'tag', lapsed ? 'Payment needed' : 'Subscription'));
     card.appendChild(el('h3', null, lapsed ? 'Your last payment did not go through' : 'Case Math Mastery, $' + price + ' a month'));
-    if (!lapsed) card.appendChild(el('p', 'muted', 'Included at no extra cost with an Unlimited Interviews subscription.'));
+    if (!lapsed) card.appendChild(el('p', 'muted', 'Included at no extra cost with a Practice Pass subscription.'));
     if (lapsed) {
       card.appendChild(el('p', null, 'Update your payment details to get your access back. Nothing else changes.'));
       var fix = el('button', 'btn btn-primary', 'Update billing'); fix.type = 'button';
