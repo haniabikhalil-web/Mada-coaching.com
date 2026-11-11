@@ -34,7 +34,7 @@
         if (r.status === 401) return S.recover(API, KEY).then(function (ok) { if (ok) location.reload(); else { S.clear(); say('Your session expired. Sign in again.', ['Sign in at My Mada', HOME]); } });
         if (r.status === 403 || r.status === 400 || r.status === 404) return say('This page is for the Mada team. Your account does not have access.');
         if (!r.ok) return fail();
-        return r.json().then(function (j) { data = j; draw(); }, fail);
+        return r.json().then(function (j) { data = j; draw(); loadFunnel(); }, fail);
       }, fail);
   }
   function fail() {
@@ -97,6 +97,43 @@
     wrapb.appendChild(b); wrapb.appendChild(n); return wrapb;
   }
 
+  // The funnel (sign-up to first interview to paid). Optional: if it cannot be read, the rest of the page still works.
+  var funnel = null;
+  function loadFunnel() {
+    fetch(url('/rest/v1/rpc/admin_funnel'), { method: 'POST', headers: { 'content-type': 'application/json', apikey: KEY, authorization: 'Bearer ' + token }, body: '{}' })
+      .then(function (r) { return r.ok ? r.json() : null; }, function () { return null; })
+      .then(function (j) { if (j && j.steps) { funnel = j; draw(); } });
+  }
+  function pct(n, d) { return d ? Math.round(100 * n / d) + '%' : '-'; }
+  function smallTable(cols, rows) {
+    var tb = el('table'), th = el('tr'); cols.forEach(function (c) { th.appendChild(el('th', null, c)); }); var hd = el('thead'); hd.appendChild(th); tb.appendChild(hd);
+    var bd = el('tbody'); rows.forEach(function (r) { var tr = el('tr'); r.forEach(function (v) { tr.appendChild(el('td', null, v == null ? '' : String(v))); }); bd.appendChild(tr); }); tb.appendChild(bd);
+    var w = el('div', 'ad-table'); w.appendChild(tb); return w;
+  }
+  function funnelCard() {
+    var f = funnel, st = f.steps, c = el('div', 'ad-card');
+    c.appendChild(el('h3', null, 'Funnel: sign-up to first interview to paid'));
+    c.appendChild(el('p', 'muted', 'Visits and where visitors come from are in Google Analytics. This starts at account creation. Source is where the visitor first arrived from, saved when the account is created (accounts made before 11 Nov show as unknown).'));
+    var tl = el('div', 'ad-tiles');
+    tl.appendChild(tile(st.signed_up, 'Signed up'));
+    tl.appendChild(tile(st.started, 'Started an interview', pct(st.started, st.signed_up) + ' of sign-ups'));
+    tl.appendChild(tile(st.scored, 'Got a scored report', pct(st.scored, st.started) + ' of those who started'));
+    tl.appendChild(tile(st.paid, 'Paid (single or Practice Pass)', pct(st.paid, st.started) + ' of those who started'));
+    tl.appendChild(tile(st.free_used, 'Used the free first interview', st.free_then_paid + ' then paid'));
+    c.appendChild(tl);
+    c.appendChild(el('h4', null, 'By week of sign-up'));
+    c.appendChild(smallTable(['Week of', 'Signed up', 'Started', 'Scored', 'Paid'], (f.by_week || []).map(function (w) { return [day(w.week), w.signed_up, w.started, w.scored, w.paid]; })));
+    c.appendChild(el('h4', null, 'By source'));
+    c.appendChild(smallTable(['Source', 'Signed up', 'Started', 'Paid'], (f.by_source || []).map(function (x) { return [x.source, x.signed_up, x.started, x.paid]; })));
+    c.appendChild(el('h4', null, 'Interview minutes (calls with a recorded length)'));
+    c.appendChild(smallTable(['Month', 'Minutes', 'Calls'], (f.minutes_by_month || []).map(function (m) { return [m.month, m.minutes, m.calls_with_length]; })));
+    if ((f.pass_minutes_30d || []).length) {
+      c.appendChild(el('h4', null, 'Practice Pass minutes, last 30 days (cap 400)'));
+      c.appendChild(smallTable(['Account', 'Minutes'], f.pass_minutes_30d.map(function (m) { return [m.email, m.minutes]; })));
+    }
+    return c;
+  }
+
   function csv(rows, cols) {
     var esc = function (v) { v = String(v == null ? '' : v); if (/^[=+\-@]/.test(v)) v = "'" + v; return '"' + v.replace(/"/g, '""') + '"'; };
     return [cols].concat(rows).map(function (r) { return r.map(function (v) { return esc(txt(v)); }).join(','); }).join('\n');
@@ -133,6 +170,7 @@
     app.appendChild(tiles);
 
     var c1 = el('div', 'ad-card'); c1.appendChild(el('h3', null, 'New accounts, last 30 days')); c1.appendChild(spark(data.signups_by_day || [])); app.appendChild(c1);
+    if (funnel) app.appendChild(funnelCard());
 
     var pc = data.profile_counts || {}, ins = el('div', 'ad-card');
     ins.appendChild(el('h3', null, 'Who is applying (from completed profiles)'));
