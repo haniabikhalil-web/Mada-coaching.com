@@ -438,7 +438,7 @@ def ai():
             price = f'<p class="ai-prod-price"><b>${C.MATHS_PRICE_USD}</b> / month <span>&middot; included with Unlimited AI Interviews</span></p>'
         if page == 'ai/case-practice/start':
             price = (f'<p class="ai-prod-price"><b>${C.AI_PRACTICE_PRICE_USD}</b> / interview <span>&middot; Single AI Interview</span></p>'
-                     f'<p class="ai-prod-price"><b>${C.AI_PASS_PRICE_USD}</b> / month <span>&middot; Unlimited AI Interviews{"" if C.AI_PASS_LIVE else ", coming soon"}</span></p>')
+                     f'<p class="ai-prod-price"><b>${C.AI_PASS_PRICE_USD}</b> / month <span>&middot; Unlimited AI Interviews, up to 3 a day{"" if C.AI_PASS_LIVE else ", coming soon"}</span></p>')
         cta = (f'<a class="btn btn-primary btn-sm" href="{u(page)}">{"Start practicing" if page == "ai/maths" else "Start learning" if page == "ai/learn" else "Start a case"} <span class="arrow" aria-hidden="true">&rarr;</span></a>' if live
                else waitlist_btn(t))
         if page == 'ai/learn' and live:
@@ -512,7 +512,7 @@ def ai():
     body = f'''
 <header class="subhero ai-hero"><div class="wrap">
   <p class="eyebrow">Mada AI</p>
-  <h1>Practice as much as you need</h1>
+  <h1>Practice with purpose</h1>
   <p class="lede">Walk into your consulting interview prepared. Realistic AI interviews, available 24/7, with structured feedback after every session.</p>
   <div class="btn-row"><a class="btn btn-primary" href="#products">See what you can practice <span class="arrow" aria-hidden="true">&darr;</span></a></div>
 </div></header>
