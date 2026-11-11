@@ -426,7 +426,7 @@ def ai():
         ('chat', 'Case Interviews', 'Solve realistic business problems, test your quantitative skills and deliver a recommendation in an interactive AI-led case.', 'ai/case-practice/start'),
         ('mic', 'Fit Interviews', 'Practice your personal stories, consulting motivation, leadership and behavioral questions with realistic AI interviewers.', None),
         ('target', 'Full Mock Interviews', 'A complete case and fit simulation in one sitting, followed by consolidated feedback on your performance.', None),
-        ('bolt', 'Case Math Mastery', 'Build calculation speed, accuracy and confidence through unlimited, interactive quantitative practice.', 'ai/maths'),
+        ('bolt', 'Case Math Mastery', 'Build calculation speed, accuracy and confidence through interactive quantitative practice.', 'ai/maths'),
         ('doc', 'AI CV Review', 'Upload your CV and get instant, structured feedback on impact, clarity and positioning, with clear fixes to make before you apply.', None),
     ]
     def product_card(n, p):
@@ -435,14 +435,14 @@ def ai():
         pill = ('<span class="ai-pill live">Open now</span>' if live else '<span class="ai-pill soon">Coming soon</span>')
         price = ''
         if page == 'ai/maths':
-            price = f'<p class="ai-prod-price"><b>${C.MATHS_PRICE_USD}</b> / month <span>&middot; included with Unlimited AI Interviews</span></p>'
+            price = f'<p class="ai-prod-price"><b>${C.MATHS_PRICE_USD}</b> / month <span>&middot; included with the Practice Pass</span></p>'
         if page == 'ai/case-practice/start':
             price = (f'<p class="ai-prod-price"><b>${C.AI_PRACTICE_PRICE_USD}</b> / interview <span>&middot; Single AI Interview</span></p>'
-                     f'<p class="ai-prod-price"><b>${C.AI_PASS_PRICE_USD}</b> / month <span>&middot; Unlimited AI Interviews, up to 3 a day{"" if C.AI_PASS_LIVE else ", coming soon"}</span></p>')
+                     f'<p class="ai-prod-price"><b>${C.AI_PASS_PRICE_USD}</b> / month <span>&middot; Practice Pass, up to 3 interviews a day{"" if C.AI_PASS_LIVE else ", coming soon"}</span></p>')
         cta = (f'<a class="btn btn-primary btn-sm" href="{u(page)}">{"Start practicing" if page == "ai/maths" else "Start learning" if page == "ai/learn" else "Start a case"} <span class="arrow" aria-hidden="true">&rarr;</span></a>' if live
                else waitlist_btn(t))
         if page == 'ai/learn' and live:
-            price = '<p class="ai-prod-price"><b>Free</b> <span>&middot; modules 1 and 2. Full course included with Unlimited AI Interviews</span></p>'
+            price = '<p class="ai-prod-price"><b>Free</b> <span>&middot; modules 1 and 2. Full course included with the Practice Pass</span></p>'
         elif t in ('AI CV Review',):
             price = '<p class="ai-prod-price"><span>Pricing announced when it opens</span></p>'
         return f'''<article class="ai-prod{' is-live' if live else ''} reveal">
@@ -496,7 +496,7 @@ def ai():
         ('Experience', cell('Realistic AI interviews'), cell('Prompt-driven practice'), cell('Live 1:1 coaching'), ''),
         ('Ideal use', cell('Repetition &amp; skill building'), cell('Exploration &amp; fundamentals'), cell('Refinement &amp; mentorship'), 'cmp-key'),
         ('Feedback', cell('Structured &amp; case-specific'), cell('Prompt-dependent'), cell('Deep &amp; personalized'), ''),
-        ('Pricing', cell(f'${C.AI_PRACTICE_PRICE_USD}/interview or ${C.AI_PASS_PRICE_USD}/month unlimited'), cell('Free &amp; paid plans'), cell('Per-session fees'), ''),
+        ('Pricing', cell(f'${C.AI_PRACTICE_PRICE_USD}/interview or ${C.AI_PASS_PRICE_USD}/month Practice Pass'), cell('Free &amp; paid plans'), cell('Per-session fees'), ''),
     ]
     cmp_body = ''.join(
         f'<tr class="{k}"><th scope="row">{d}</th><td class="cmp-mada">{m}</td><td>{g}</td><td>{h}</td></tr>' for d, m, g, h, k in compare_rows)
@@ -558,7 +558,7 @@ def ai():
 <div id="waitlist-cfg" hidden data-api="{C.SUPABASE_URL}" data-key="{C.SUPABASE_PUBLISHABLE_KEY}"></div>
 '''
     page('ai', 'Mada AI',
-         'Mada AI: Case Interviews, Case Math Mastery, Fit and Full Mock Interviews, Mada Academy and AI CV Review. Single AI interviews from $30, or Unlimited AI Interviews for $100 a month.',
+         'Mada AI: Case Interviews, Case Math Mastery, Fit and Full Mock Interviews, Mada Academy and AI CV Review. Single AI interviews from $30, or the Practice Pass for $100 a month.',
          body, ctx, extra_js=('js/waitlist.js',))
 
 
@@ -1154,7 +1154,7 @@ def legal_pages():
         ('What we provide', '<p>We provide 1:1 career and interview coaching for consulting: advice, structured preparation, feedback on your materials, mock interviews and guidance through the stages of a job search and the early years of a consulting career. Sessions are delivered remotely by video call unless we agree otherwise. Sessions may be delivered by the founder or by a coach from the Mada bench, matched to you by Mada.</p>'),
         ('Mada AI tools', '<p>Mada AI tools are self-serve products that run on Mada&rsquo;s own tools rather than in a live session. AI-generated feedback can be wrong or incomplete; use it as one input to your own judgement. Specific terms for each tool will be shown before you buy or use it.</p>'),
         ('AI-generated reviews', '<p>AI-generated CV scores and feedback are guidance, not a guarantee of any hiring outcome. Mada coaches review a sample of them for quality.</p>'),
-        ('Deleting your account', f'<p>You can delete your account at any time. When you do:</p><ul><li>any active subscription (Unlimited AI Interviews or Case Math Mastery) is cancelled immediately;</li><li>we do not refund amounts you have already paid, including the unused part of a billing period;</li><li>you cannot delete your account while an AI interview call is in progress (up to 20 minutes). Finish or end the call, then try again.</li></ul><p>If you make a one-off purchase and your account is deleted before the credit is applied, contact <a href="mailto:{E}">{E}</a>.</p>'),
+        ('Deleting your account', f'<p>You can delete your account at any time. When you do:</p><ul><li>any active subscription (Practice Pass or Case Math Mastery) is cancelled immediately;</li><li>we do not refund amounts you have already paid, including the unused part of a billing period;</li><li>you cannot delete your account while an AI interview call is in progress (up to 20 minutes). Finish or end the call, then try again.</li></ul><p>If you make a one-off purchase and your account is deleted before the credit is applied, contact <a href="mailto:{E}">{E}</a>.</p>'),
         ('What we do not provide', '<p>We are not a recruitment agency and we do not place candidates into jobs. We have no role in any employer&rsquo;s hiring decision, and we cannot and do not guarantee an interview, an offer, a salary level, a promotion or any other outcome. Nothing on this website or in a session should be read as a promise of employment. We do not provide legal, immigration, tax or financial advice, and any commentary on an offer is general information for your own decision-making, not professional advice in those fields.</p>'),
         ('Booking and payment', '<p>Sessions are paid in advance unless agreed otherwise. Prices are shown in US dollars on the Mada Expert page. Where a multi-session package is purchased, sessions must be scheduled within 6 months of purchase. Memberships and the Math Drills subscription are billed monthly and renew automatically; they can be cancelled before the next billing date. We may change our prices at any time, but never for a session you have already paid for.</p>'),
         ('Rescheduling, cancellation and refunds', '<p>Our <a href="{{refunds}}">Cancellation &amp; Refund Policy</a> forms part of these terms.</p>'),

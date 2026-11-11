@@ -142,7 +142,7 @@
     }, function () { btn.disabled = false; msgEl.textContent = 'Could not reach the service. Please try again.'; });
   }
 
-  // The purchase page: the same two-card layout as the homepage pricing (white single card, navy unlimited card).
+  // The purchase page: the same two-card layout as the homepage pricing (white single card, navy Practice Pass card).
   function payScreen(msg) {
     clear();
     var wrapEl = el('div', 'call-pay');
@@ -173,7 +173,7 @@
 
     var pass = el('div', 'card call-pay-best');
     pass.appendChild(el('span', 'badge rise', 'Best Value'));
-    pass.appendChild(el('h3', null, 'Unlimited AI Interviews'));
+    pass.appendChild(el('h3', null, 'Practice Pass'));
     pass.appendChild(el('p', 'pp-sub', 'Practice at a pace that helps you improve.'));
     pass.appendChild(priceLine(PASS_PRICE, '/ month'));
     pass.appendChild(list(['Up to 3 interviews a day. Quality beats quantity, so space your sessions out and reflect on each report.', 'Every interviewer and case type.', 'A report after every interview. Cancel any time.']));

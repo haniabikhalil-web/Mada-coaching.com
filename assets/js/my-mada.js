@@ -229,15 +229,15 @@
     var mine = [], more = [], notes = [];
     var failed = function (what) { notes.push('We could not load ' + what + ' just now. Refresh in a minute.'); };
 
-    // Unlimited interviews
+    // Practice Pass
     var passOn = !!(pass && pass.ok && pass.data && pass.data.active);
-    if (pass && pass.error) failed('your Unlimited AI Interviews');
+    if (pass && pass.error) failed('your Practice Pass');
     else if (passOn) {
-      mine.push(tile({ owned: true, icon: 'unlimited', title: 'Unlimited AI Interviews', pill: 'Active', pillCls: 'good',
+      mine.push(tile({ owned: true, icon: 'unlimited', title: 'Practice Pass', pill: 'Active', pillCls: 'good',
         text: 'Up to ' + pass.data.dailyLimit + ' interviews a day. Quality beats quantity, so space your sessions out and reflect on each report.', note: renewal(pass.data),
         cta: { text: 'Start an interview', href: START }, manage: portal('/functions/v1/pass-access') }));
     } else {
-      more.push(tile({ icon: 'unlimited', title: 'Unlimited AI Interviews', text: 'One subscription for Case, Fit and Full Mock interviews, with Case Math Mastery included.', cta: { text: 'See the options', href: START } }));
+      more.push(tile({ icon: 'unlimited', title: 'Practice Pass', text: 'One subscription for Case, Fit and Full Mock interviews, with Case Math Mastery included.', cta: { text: 'See the options', href: START } }));
     }
 
     // Case interviews (single credits)
