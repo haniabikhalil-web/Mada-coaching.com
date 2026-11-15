@@ -317,8 +317,10 @@
       head.appendChild(m.complete ? add(el('span', 'ln-state ok'), icon('check'), el('span', null, 'Complete'))
         : el('span', 'ln-state prog', m.completedLessons + ' of ' + m.lessonCount + ' lessons'));
     } else head.appendChild(el('span', 'ln-state', 'Coming soon'));
+    if (m.draft) head.appendChild(el('span', 'ln-state draft', 'Draft preview'));
     box.appendChild(head);
     box.appendChild(el('p', 'ln-mod-desc', m.description));
+    if (m.draft) box.appendChild(el('p', 'ln-meta muted small', 'Draft for review. Only reviewers can see this module; learners see Coming soon.'));
     if (published) {
       var meta = el('p', 'ln-meta'); add(meta, icon('clock'), document.createTextNode(m.lessonCount + ' lessons · about ' + m.minutes + ' min')); box.appendChild(meta);
       var list = el('div', 'ln-mods');
