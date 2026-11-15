@@ -1244,6 +1244,12 @@ section.mm-sec{padding-top:40px}
 .ln-am-title{margin:0;font-size:1.05rem;flex:1 1 220px}
 .ln-am.is-soon .ln-am-title,.ln-am.is-soon .ln-mod-desc{color:var(--stone)}
 .ln-am .ln-mods{margin-top:var(--s2)}
+.ln-numeric{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:var(--s2)}
+.ln-numeric input{font:inherit;padding:10px 12px;border:1px solid #C3CAE0;border-radius:10px;width:100%;box-sizing:border-box}
+.ln-numres{list-style:none;margin:8px 0 0;padding:0;display:flex;flex-direction:column;gap:6px}
+.ln-numres li{padding:8px 12px;border-radius:10px;border:1px solid var(--card-line);background:#fff}
+.ln-numres li.ok{border-color:#2e8b57;background:#e6f4ec}
+.ln-numres li.no{border-color:#c9503a;background:#fbeae6}
 .ln-covers{margin-top:6px;font-size:14px;color:var(--stone)}
 .ln-covers summary{cursor:pointer;font-weight:600;color:var(--navy)}
 .ln-covers ul{margin:8px 0 0;padding-left:20px;line-height:1.55}

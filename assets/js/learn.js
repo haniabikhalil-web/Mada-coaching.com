@@ -218,9 +218,11 @@
     var title, sub, cta = null;
     var introDone = prog.modulesComplete >= 1;
     if (nextLesson) {
-      var lessonNo = mods.indexOf(nextLesson) + 1;
+      var nm = null;
+      cur.stages.forEach(function (st) { st.modules.forEach(function (x) { if (x.id === cur.next.module) nm = x; }); });
+      var lessonNo = nm ? nm.lessons.indexOf(nextLesson.key) + 1 : 1;
       title = (firstDone || nextLesson.attempted ? 'Continue: ' : 'Start with: ') + nextLesson.title;
-      sub = 'Introduction to Case Solving · lesson ' + lessonNo + ' of ' + mods.length + ' · about ' + nextLesson.minutes + ' minutes';
+      sub = (nm ? nm.title : 'Mada Academy') + ' · lesson ' + lessonNo + ' of ' + (nm ? nm.lessons.length : 1) + ' · about ' + nextLesson.minutes + ' minutes';
       if (nextLesson.locked) {
         title = 'You have finished the free lessons'; sub = 'Lessons 3 to 6 and the Foundations Assessment come with the Practice Pass.';
         cta = ctaBtn('See Practice Pass', function () { var u = document.getElementById('ln-upgrade'); if (u) u.scrollIntoView({ behavior: 'smooth', block: 'center' }); });
@@ -446,7 +448,11 @@
       moduleCache[key] = r.json.module; showModule(key);
     });
   }
-  function infoFor(key) { for (var i = 0; i < dash.modules.length; i++) if (dash.modules[i].key === key) return dash.modules[i]; return null; }
+  function infoFor(key) {
+    var all = dash.modules.concat(dash.extraLessons || []);
+    for (var i = 0; i < all.length; i++) if (all[i].key === key) return all[i];
+    return null;
+  }
 
   function showModule(key) {
     var m = moduleCache[key], info = infoFor(key);
@@ -968,6 +974,70 @@
   }
 
   // ---------------------------------------------------------------- exercise
+  // A numeric exercise: one box per part, marked on the server against a private key. Nothing about the answers is in this page.
+  function numericCard(modKey, ex, card, saved) {
+    var inputs = {};
+    var form = el('div', 'ln-fields ln-numeric');
+    ex.numeric.parts.forEach(function (p) {
+      var lab = el('label', 'ln-field'); lab.appendChild(el('span', 'ln-field-l', p.label + (p.unit ? ' (' + p.unit + ')' : '')));
+      var inp = el('input'); inp.type = 'text'; inp.inputMode = 'decimal'; inp.autocomplete = 'off'; inp.maxLength = 40;
+      var d = draftGet(ex.key + '.' + p.id); if (d) inp.value = d;
+      inp.addEventListener('input', function () { draftSet(ex.key + '.' + p.id, inp.value); });
+      lab.appendChild(inp); form.appendChild(lab); inputs[p.id] = inp;
+    });
+    card.appendChild(form);
+    card.appendChild(el('p', 'muted small', 'Rounded answers are fine: anything within about 2% counts. Use the calculator if it helps.'));
+    var status = el('p', 'ln-status muted small'); status.setAttribute('aria-live', 'polite');
+    var result = el('div', 'ln-feedback'), hintBox = el('div', 'ln-hints'), model = el('div', 'ln-model');
+    var hintsShown = 0;
+    function showResult(r, n) {
+      clear(result);
+      add(result, el('h4', null, 'Attempt ' + n + ': ' + r.summary));
+      var ul = el('ul', 'ln-numres');
+      r.parts.forEach(function (p) {
+        var li = el('li', p.correct ? 'ok' : 'no');
+        add(li, el('b', null, (p.correct ? 'Correct · ' : 'Not yet · ') + p.label));
+        if (!p.correct && p.hint) li.appendChild(el('span', 'muted small', ' ' + p.hint));
+        ul.appendChild(li);
+      });
+      result.appendChild(ul);
+    }
+    var check = btn(saved ? 'Check a new attempt' : 'Check my answers', 'btn btn-primary', function () {
+      var answers = {}; ex.numeric.parts.forEach(function (p) { answers[p.id] = inputs[p.id].value; });
+      check.disabled = true; status.textContent = 'Checking…';
+      fn('learn-state', { action: 'check', exercise: ex.key, answers: answers }).then(function (r) {
+        check.disabled = false;
+        if (r.status === 401) return expired();
+        if (!r.ok) { status.textContent = errText(r, 'Could not check just now. Your answers are kept; try again.'); return; }
+        status.textContent = '';
+        dash.exercises[ex.key] = { count: r.json.attempt_no, latest: { attempt_no: r.json.attempt_no } };
+        showResult(r.json.result, r.json.attempt_no);
+        check.textContent = 'Check a new attempt';
+        result.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        refreshComplete();
+      });
+    });
+    var hintBtn = btn('Give me a hint', 'btn btn-ghost', function () {
+      if (hintsShown >= ex.hints.length) { status.textContent = 'That is all the hints. Try the worked answer if you are stuck.'; return; }
+      hintBox.appendChild(el('p', 'ln-hint', 'Hint ' + (hintsShown + 1) + ': ' + ex.hints[hintsShown])); hintsShown++;
+      if (hintsShown >= ex.hints.length) hintBtn.textContent = 'No more hints';
+    });
+    var reveal = btn('Show the worked answer', 'btn btn-ghost', function () {
+      var tried = !!dash.exercises[ex.key];
+      if (!tried && !window.confirm('You have not tried this yet. You will learn more if you attempt it first. Show the worked answer anyway?')) return;
+      reveal.disabled = true;
+      fn('learn-state', { action: 'reveal', exercise: ex.key, explicit: !tried }).then(function (r) {
+        reveal.disabled = false;
+        if (r.status === 401) return expired();
+        if (!r.ok) { status.textContent = errText(r); return; }
+        clear(model); add(model, el('h4', null, 'Worked answer'), paragraphs(r.json.modelAnswer, 'ln-text'));
+      });
+    });
+    var row = el('div', 'btn-row ln-actions'); add(row, check, hintBtn, reveal);
+    add(card, row, status, hintBox, result, model);
+    return card;
+  }
+
   function exerciseCard(modKey, ex) {
     var card = el('section', 'card ln-exercise');
     var saved = dash.exercises[ex.key];
@@ -980,6 +1050,7 @@
       card.appendChild(tb);
     }
     if (ex.tools.indexOf('scratchpad') >= 0) card.appendChild(scratchpad());
+    if (ex.numeric) return numericCard(modKey, ex, card, saved);
 
     var inputs = {};   // field id -> textarea
     var form = el('div', 'ln-fields');
