@@ -672,6 +672,13 @@
       add(watch, add(el('div', 'btn-row'), btn('Back to reading', 'btn btn-ghost', function () { show('read'); })));
       wrap.appendChild(bWatch);
     }
+    if (!bWatch) {
+      // No video yet: say so plainly. A disabled button, never a player with nothing in it.
+      var soon = el('button', 'ln-fmt'); soon.type = 'button'; soon.disabled = true;
+      soon.setAttribute('aria-label', 'Watch and learn: video explainers are coming soon');
+      add(soon, icon('play'), el('span', null, 'Watch & learn'), el('small', 'ln-soon', 'Coming soon'));
+      wrap.appendChild(soon);
+    }
     show('read');
     return wrap;
   }
