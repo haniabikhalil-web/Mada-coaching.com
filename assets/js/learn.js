@@ -1000,6 +1000,83 @@
     }, function () { giveUp(); });
   }
 
+
+  // ---- Exhibits: an accessible SVG chart (bar, stacked, line) with the same data as a table. Drawn here, no library. ----
+  var CHART_COLORS = ['#2B4BEE', '#FF7A45', '#0F1F4B', '#8A93B2'];
+  function fmtNum(v) { var r = Math.round(v * 100) / 100; return String(r); }
+  function niceStep(raw) {
+    var p = Math.pow(10, Math.floor(Math.log(raw) / Math.LN10)), f = raw / p;
+    return (f <= 1 ? 1 : f <= 2 ? 2 : f <= 2.5 ? 2.5 : f <= 5 ? 5 : 10) * p;
+  }
+  function chartEl(c) {
+    var NS = 'http://www.w3.org/2000/svg', narrow = window.innerWidth < 560, W = narrow ? 400 : 640, H = narrow ? 320 : 310, L = narrow ? 40 : 54, R = 12, T = 22, B = 46;
+    function s(tag, attrs, text) { var n = document.createElementNS(NS, tag); for (var k in attrs) n.setAttribute(k, attrs[k]); if (text != null) n.textContent = text; return n; }
+    var nC = c.categories.length, nS = c.series.length, i, j;
+    var lo = 0, hi = 0;
+    for (i = 0; i < nC; i++) {
+      var pos = 0, neg = 0;
+      for (j = 0; j < nS; j++) {
+        var v = c.series[j].values[i];
+        if (c.kind === 'stacked') { if (v >= 0) pos += v; else neg += v; } else { pos = Math.max(pos, v); neg = Math.min(neg, v); }
+      }
+      hi = Math.max(hi, pos); lo = Math.min(lo, neg);
+    }
+    if (hi === lo) hi = lo + 1;
+    var step = niceStep((hi - lo) / 5); lo = Math.floor(lo / step) * step; hi = Math.ceil(hi / step) * step;
+    function y(v) { return T + (hi - v) / (hi - lo) * (H - T - B); }
+    var desc = c.title + (c.unit ? ' (' + c.unit + ')' : '') + '. ' + c.series.map(function (se) { return se.name + ': ' + c.categories.map(function (cat, k) { return cat + ' ' + fmtNum(se.values[k]); }).join(', '); }).join('. ');
+
+    var fig = el('figure', 'ln-chart');
+    add(fig, el('figcaption', 'ln-chart-title', c.title + (c.unit ? ' (' + c.unit + ')' : '')));
+    var svg = s('svg', { viewBox: '0 0 ' + W + ' ' + H, role: 'img', 'aria-label': desc, class: 'ln-chart-svg' });
+    for (var t = lo; t <= hi + step / 1000; t += step) {
+      svg.appendChild(s('line', { x1: L, x2: W - R, y1: y(t), y2: y(t), class: t === 0 ? 'ln-ch-zero' : 'ln-ch-grid' }));
+      svg.appendChild(s('text', { x: L - 8, y: y(t) + 4, 'text-anchor': 'end', class: 'ln-ch-tick' }, fmtNum(t)));
+    }
+    var band = (W - L - R) / nC, labels = nC * nS <= 12;
+    for (i = 0; i < nC; i++) svg.appendChild(s('text', { x: L + band * (i + 0.5), y: H - B + 20, 'text-anchor': 'middle', class: 'ln-ch-cat' }, c.categories[i]));
+    if (c.kind === 'line') {
+      for (j = 0; j < nS; j++) {
+        var pts = c.series[j].values.map(function (v, k) { return (L + band * (k + 0.5)) + ',' + y(v); }).join(' ');
+        svg.appendChild(s('polyline', { points: pts, fill: 'none', stroke: CHART_COLORS[j % 4], 'stroke-width': 3, 'stroke-linejoin': 'round' }));
+        c.series[j].values.forEach(function (v, k) {
+          var cx = L + band * (k + 0.5);
+          svg.appendChild(s('circle', { cx: cx, cy: y(v), r: 4.5, fill: CHART_COLORS[j % 4] }));
+          if (labels) svg.appendChild(s('text', { x: cx, y: y(v) - 10, 'text-anchor': 'middle', class: 'ln-ch-val' }, fmtNum(v)));
+        });
+      }
+    } else if (c.kind === 'stacked') {
+      for (i = 0; i < nC; i++) {
+        var up = 0, down = 0, bw = Math.min(band * 0.6, 90);
+        for (j = 0; j < nS; j++) {
+          var sv = c.series[j].values[i], y0 = sv >= 0 ? up : down, y1 = y0 + sv;
+          if (sv >= 0) up = y1; else down = y1;
+          svg.appendChild(s('rect', { x: L + band * i + (band - bw) / 2, y: y(Math.max(y0, y1)), width: bw, height: Math.abs(y(y0) - y(y1)), fill: CHART_COLORS[j % 4] }));
+        }
+      }
+    } else {
+      var gw = Math.min(band * 0.74, 140), bwid = gw / nS;
+      for (i = 0; i < nC; i++) for (j = 0; j < nS; j++) {
+        var bv = c.series[j].values[i], bx = L + band * i + (band - gw) / 2 + j * bwid;
+        svg.appendChild(s('rect', { x: bx + 1, y: y(Math.max(bv, 0)), width: Math.max(bwid - 2, 2), height: Math.max(Math.abs(y(bv) - y(0)), 1), fill: CHART_COLORS[j % 4], rx: 2 }));
+        if (labels) svg.appendChild(s('text', { x: bx + bwid / 2, y: bv >= 0 ? y(bv) - 6 : y(bv) + 14, 'text-anchor': 'middle', class: 'ln-ch-val' }, fmtNum(bv)));
+      }
+    }
+    fig.appendChild(svg);
+    if (nS > 1) {
+      var lg = el('ul', 'ln-chart-legend');
+      c.series.forEach(function (se, k) { var li = el('li'); var sw = el('span', 'ln-chart-sw'); sw.style.background = CHART_COLORS[k % 4]; add(li, sw, document.createTextNode(se.name)); lg.appendChild(li); });
+      fig.appendChild(lg);
+    }
+    var det = el('details', 'ln-chart-data'); det.appendChild(el('summary', null, 'View the data as a table'));
+    var tb = el('table', 'ln-table'), th = el('thead'), hr = el('tr'); hr.appendChild(el('th', null, ''));
+    c.categories.forEach(function (cat) { hr.appendChild(el('th', null, cat)); }); th.appendChild(hr); tb.appendChild(th);
+    var tbd = el('tbody'); c.series.forEach(function (se) { var tr = el('tr'); tr.appendChild(el('th', null, se.name)); se.values.forEach(function (v) { tr.appendChild(el('td', null, fmtNum(v))); }); tbd.appendChild(tr); });
+    tb.appendChild(tbd); det.appendChild(tb); fig.appendChild(det);
+    if (c.note) fig.appendChild(el('p', 'ln-chart-note', c.note));
+    return fig;
+  }
+
   function block(b) {
     if (b.type === 'p') return paragraphs(b.text);
     if (b.type === 'callout') { var c = el('div', 'ln-callout'); add(c, el('p', 'ln-kicker', 'Key idea'), paragraphs(b.text, 'ln-text')); return c; }
@@ -1027,6 +1104,7 @@
       add(e, el('p', 'ln-kicker', 'Worked example'), el('h4', 'ln-ex-t', t), paragraphs(b.text));
       return e;
     }
+    if (b.type === 'chart') return chartEl(b);
     if (b.type === 'quiz') return quiz(b);
     return null;
   }
@@ -1190,6 +1268,7 @@
     var saved = dash.exercises[ex.key];
     add(card, el('p', 'eyebrow', 'Exercise'), el('h3', null, ex.title), paragraphs(ex.prompt, 'ln-prompt'));
 
+    (ex.exhibits || []).forEach(function (c) { card.appendChild(chartEl(c)); });
     if (ex.table) {
       var tb = el('table', 'ln-table'); tb.appendChild(el('caption', null, ex.table.caption));
       var thead = el('thead'), hr = el('tr'); ex.table.head.forEach(function (h) { hr.appendChild(el('th', null, h)); }); thead.appendChild(hr); tb.appendChild(thead);
