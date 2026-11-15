@@ -282,7 +282,7 @@ def faq_full(url):
         ('What&rsquo;s the difference between Mada Coaching and Mada AI?',
          f'Mada Coaching offers personalized 1:1 guidance from experienced consultants and interviewers, tailored to your career goals. <a href="{url("ai")}">Mada AI</a> provides self-serve tools to practice case interviews (with fit interviews coming soon), sharpen your skills, and receive structured feedback at your own pace.'),
         ('Which Mada AI tools are available?',
-         f'<a href="{url("ai")}">Mada AI</a> is already live! Case Interviews and Case Math Mastery are available now, with more tools, including Fit and Full Mock Interviews, coming soon.'),
+         f'<a href="{url("ai")}">Mada AI</a> is already live! Case Interviews and Case Math Mastery are available now, with more tools, including Fit Interviews, coming soon.'),
         ('How long are sessions?',
          'Most sessions run 60 minutes. A mock interview is a 60-minute realistic interview followed by detailed feedback.'),
         ('Can I book one service, or combine them?',

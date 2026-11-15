@@ -415,7 +415,7 @@ def waitlist_btn(tool, label='Join the waitlist'):
 
 # The four steps of an AI interview (item 17). Formats are shown as status chips, never as buttons.
 AI_STEPS = [
-    ('01', 'Choose your interview format', 'Select a Case Interview, Fit Interview, or Full Mock Interview.', 'chat'),
+    ('01', 'Choose your interview format', 'Select a Case Interview or a Fit Interview.', 'chat'),
     ('02', 'Customize your interview', 'Choose your AI interviewer, interview/case type, and difficulty level where applicable.', 'compass'),
     ('03', 'Practice in a realistic interview', 'Work through the interview with your chosen AI interviewer, responding to questions and solving problems in real time.', 'mic'),
     ('04', 'Get your feedback', 'Receive a structured performance report identifying strengths, areas for improvement, and recommended next steps.', 'doc'),
@@ -429,16 +429,16 @@ def ai():
 
     # ---- 1. The six products: what you practice.
     products = [
-        ('compass', 'Mada Academy', 'Learn how to approach a case, build a structured framework and solve with confidence. Read, practise, talk it through with Nour, and get feedback on every exercise.', 'ai/learn'),
-        ('chat', 'Case Interviews', 'Solve realistic business problems, test your quantitative skills and deliver a recommendation in an interactive AI-led case.', 'ai/case-practice/start'),
-        ('mic', 'Fit Interviews', 'Practice your personal stories, consulting motivation, leadership and behavioral questions with realistic AI interviewers.', None),
-        ('target', 'Full Mock Interviews', 'A complete case and fit simulation in one sitting, followed by consolidated feedback on your performance.', None),
-        ('bolt', 'Case Math Mastery', 'Build calculation speed, accuracy and confidence through interactive quantitative practice.', 'ai/maths'),
+        ('target', 'Readiness Assessment', 'Find out where you stand across CV, case solving, quantitative skills and fit, get a personalised report and a plan for what to improve first.', 'ai/readiness'),
         ('doc', 'AI CV Review', 'Upload your CV and get instant, structured feedback on impact, clarity and positioning, with clear fixes to make before you apply.', None),
+        ('compass', 'Mada Academy', 'Learn how to approach a case, build a structured framework and solve with confidence. Read, practise, talk it through with Nour, and get feedback on every exercise.', 'ai/learn'),
+        ('mic', 'Fit Interviews', 'Practice your personal stories, consulting motivation, leadership and behavioral questions with realistic AI interviewers.', None),
+        ('chat', 'Case Interviews', 'Solve realistic business problems, test your quantitative skills and deliver a recommendation in an interactive AI-led case.', 'ai/case-practice/start'),
+        ('bolt', 'Case Math Mastery', 'Build calculation speed, accuracy and confidence through interactive quantitative practice.', 'ai/maths'),
     ]
     def product_card(n, p):
         ic, t, d, page = p
-        live = bool(page) and (drills_live if page == 'ai/maths' else bool(C.LEARN_LISTED) if page == 'ai/learn' else bool(C.AI_PRACTICE_LIVE))
+        live = bool(page) and (drills_live if page == 'ai/maths' else bool(C.LEARN_LISTED) if page == 'ai/learn' else bool(C.READINESS_LIVE and C.READINESS_LISTED) if page == 'ai/readiness' else bool(C.AI_PRACTICE_LIVE))
         pill = ('<span class="ai-pill live">Open now</span>' if live else '<span class="ai-pill soon">Coming soon</span>')
         price = ''
         if page == 'ai/maths':
@@ -447,10 +447,12 @@ def ai():
             price = ((f'<p class="ai-prod-price"><b>Free</b> <span>&middot; your first AI interview</span></p>' if C.FREE_FIRST_LIVE else '') +
                      f'<p class="ai-prod-price"><b>${C.AI_PRACTICE_PRICE_USD}</b> / interview <span>&middot; Single AI Interview</span></p>'
                      f'<p class="ai-prod-price"><b>${C.AI_PASS_PRICE_USD}</b> / month <span>&middot; Practice Pass, up to 3 interviews a day{"" if C.AI_PASS_LIVE else ", coming soon"}</span></p>')
-        cta = (f'<a class="btn btn-primary btn-sm" href="{u(page)}">{"Start practicing" if page == "ai/maths" else "Start learning" if page == "ai/learn" else "Start a case"} <span class="arrow" aria-hidden="true">&rarr;</span></a>' if live
+        cta = (f'<a class="btn btn-primary btn-sm" href="{u(page)}">{"Start practicing" if page == "ai/maths" else "Start learning" if page == "ai/learn" else "Assess my readiness" if page == "ai/readiness" else "Start a case"} <span class="arrow" aria-hidden="true">&rarr;</span></a>' if live
                else waitlist_btn(t))
         if page == 'ai/learn' and live:
             price = f'<p class="ai-prod-price"><b>Free</b> <span>&middot; lessons 1 and 2. Full course ${C.ACADEMY_PRICE_USD} / month with Mada Academy</span></p>'
+        elif page == 'ai/readiness':
+            price = '<p class="ai-prod-price"><b>Free</b> <span>&middot; about eight minutes</span></p>'
         elif t in ('AI CV Review',):
             price = '<p class="ai-prod-price"><span>Pricing announced when it opens</span></p>'
         return f'''<article class="ai-prod{' is-live' if live else ''} reveal">
@@ -461,7 +463,7 @@ def ai():
     product_cards = f'<div class="ai-prods top">{"".join(cards[:3])}</div><div class="ai-prods bottom">{"".join(cards[3:])}</div>'
 
     # ---- 2. How an AI interview works (replaces the old pricing section; pricing lives on the purchase page).
-    formats = [('Case', True), ('Fit', False), ('Full Mock', False)]
+    formats = [('Case', True), ('Fit', False)]
     fmt_chips = ''.join(
         f'<li><span>{n}</span><span class="ai-pill {"live" if live else "soon"}">{"Available now" if live else "Coming soon"}</span></li>' for n, live in formats)
     def visual(num):
@@ -588,7 +590,7 @@ def ai():
 <div id="waitlist-cfg" hidden data-api="{C.SUPABASE_URL}" data-key="{C.SUPABASE_PUBLISHABLE_KEY}"></div>
 '''
     page('ai', 'Mada AI',
-         'Mada AI: Case Interviews, Case Math Mastery, Fit and Full Mock Interviews, Mada Academy and AI CV Review. Single AI interviews from $30, or the Practice Pass for $100 a month.',
+         'Mada AI: Readiness Assessment, AI CV Review, Mada Academy, Fit and Case Interviews and Case Math Mastery. Single AI interviews from $30, or the Practice Pass for $100 a month.',
          body, ctx, extra_js=('js/waitlist.js',))
 
 

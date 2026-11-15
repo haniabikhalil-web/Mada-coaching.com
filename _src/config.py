@@ -2,7 +2,7 @@
 
 DOMAIN = 'mada-coaching.com'
 EMAIL = 'hello@mada-coaching.com'
-VERSION = '138'   # bump to force browsers to reload CSS/JS after changes
+VERSION = '139'   # bump to force browsers to reload CSS/JS after changes
 
 GA_ID = 'G-0JW66CX0T1'   # Google Analytics 4 measurement ID
 
@@ -46,7 +46,7 @@ MATHS_PRICE_USD = 20
 LEARN_LIVE = True      # the course works at /ai/learn/ (noindex, not in the sitemap)
 READINESS_LIVE = True     # the assessment works at /ai/readiness/ (noindex, not in the sitemap)
 READINESS_LISTED = True   # adds the journey section and "Assess my readiness" button on /ai/ (listed 15 Nov at Hani's go-ahead)
-LEARN_LISTED = False   # True adds the card and link on /ai/ and elsewhere; keep False until launch
+LEARN_LISTED = True    # Academy listed on /ai/ and elsewhere (15 Nov, at Hani's go-ahead)
 # The voice coach on each module ("Talk it through"). Needs the learn-voice and learn-voice-lesson functions deployed, the coach agent created in
 # ElevenLabs with ELEVENLABS_LEARN_COACH_AGENT_ID set, and the recording notice added to the Privacy page. Keep False until all three are done.
 LEARN_VOICE_LIVE = True
