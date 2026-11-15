@@ -1421,3 +1421,21 @@ body.ln-focus #learn-app{padding-top:24px}
 .sub-form{max-width:480px;margin-top:20px}
 .sub-form .btn{margin-top:4px}
 .sub-form .small{font-size:13px;margin-top:14px}
+
+/* Exhibits: charts in lessons and exercises */
+.ln-chart{margin:18px 0;padding:16px 16px 12px;border:1px solid var(--line);border-radius:var(--radius-sm);background:#fff}
+.ln-chart-title{font-family:var(--display);font-weight:700;color:var(--navy);font-size:16px;margin:0 0 8px}
+.ln-chart-svg{display:block;width:100%;height:auto;max-height:340px}
+.ln-ch-grid{stroke:var(--line);stroke-width:1}
+.ln-ch-zero{stroke:var(--stone);stroke-width:1.5}
+.ln-ch-tick,.ln-ch-cat{fill:var(--stone);font-size:12px;font-family:var(--body)}
+.ln-ch-val{fill:var(--navy);font-size:12px;font-weight:700;font-family:var(--body)}
+.ln-chart-legend{display:flex;flex-wrap:wrap;gap:6px 16px;list-style:none;margin:8px 0 0;padding:0;font-size:14px;color:var(--navy)}
+.ln-chart-legend li{display:flex;align-items:center;gap:6px}
+.ln-chart-sw{width:12px;height:12px;border-radius:3px;display:inline-block}
+.ln-chart-data{margin-top:10px;font-size:14px}
+.ln-chart-data summary{cursor:pointer;color:var(--cobalt);font-weight:600}
+.ln-chart-data .ln-table{margin:8px 0 0}
+.ln-chart-data .ln-table th:first-child{background:#fff}
+.ln-chart-note{margin:8px 0 0;font-size:13px;color:var(--stone)}
+@media (max-width:560px){.ln-chart{padding:12px 10px}.ln-ch-tick,.ln-ch-cat,.ln-ch-val{font-size:14px}}
