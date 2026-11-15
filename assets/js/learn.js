@@ -10,7 +10,7 @@
   var MATHS = app.getAttribute('data-maths') || '../maths/';
   var TERMS = app.getAttribute('data-terms') || '../../terms/';
   var REFUNDS = app.getAttribute('data-refunds') || '../../refunds/';
-  var PASS_PRICE = app.getAttribute('data-pass-price') || '100';
+  var ACADEMY_PRICE = app.getAttribute('data-academy-price') || '150';
   var S = window.MadaSession;
   var token = null, email = '';
   var dash = null;          // the last learn-state "get" answer
@@ -234,8 +234,8 @@
       title = (firstDone || nextLesson.attempted ? 'Continue: ' : 'Start with: ') + nextLesson.title;
       sub = (nm ? nm.title : 'Mada Academy') + ' · lesson ' + lessonNo + ' of ' + (nm ? nm.lessons.length : 1) + ' · about ' + nextLesson.minutes + ' minutes';
       if (nextLesson.locked) {
-        title = 'You have finished the free lessons'; sub = 'Lessons 3 to 6 and the Foundations Assessment come with the Practice Pass.';
-        cta = ctaBtn('See Practice Pass', function () { var u = document.getElementById('ln-upgrade'); if (u) u.scrollIntoView({ behavior: 'smooth', block: 'center' }); });
+        title = 'You have finished the free lessons'; sub = 'Lessons 3 to 6 and the Foundations Assessment come with Mada Academy.';
+        cta = ctaBtn('See Mada Academy', function () { var u = document.getElementById('ln-upgrade'); if (u) u.scrollIntoView({ behavior: 'smooth', block: 'center' }); });
       } else cta = ctaBtn(nextLesson.attempted ? 'Continue lesson' : 'Start lesson', function () { openModule(nextLesson.key); });
     } else if (introDone && mini.unlocked && !mini.finished) {
       title = 'Introduction complete. Take the Foundations Assessment';
@@ -418,7 +418,7 @@
     if (m.unlocked) {
       left.appendChild(add(el('div', 'ln-final-cta'), ctaBtn(m.finished ? 'View results' : (m.started ? 'Continue the case' : 'Start challenge'), function () { miniOpen(); })));
     } else {
-      var lock = el('p', 'ln-final-lock'); add(lock, icon('lock'), document.createTextNode(dash.entitlement.full ? 'Complete all six lessons to unlock it.' : 'Needs the Practice Pass and all six lessons complete.'));
+      var lock = el('p', 'ln-final-lock'); add(lock, icon('lock'), document.createTextNode(dash.entitlement.full ? 'Complete all six lessons to unlock it.' : 'Needs Mada Academy and all six lessons complete.'));
       left.appendChild(lock);
     }
     sec.appendChild(left);
@@ -435,13 +435,13 @@
   function upgradeCard() {
     var card = el('div', 'card mx-card ln-upgrade'); card.id = 'ln-upgrade';
     add(card, el('span', 'tag', 'Full course'), el('h3', null, 'Lessons 3 to 6 and the Foundations Assessment'),
-      el('p', 'muted', 'Lessons 1 and 2 are free. The rest of the course, with AI feedback on every exercise and your Foundations Score, is included with the Practice Pass at $' + PASS_PRICE + ' a month.'));
+      el('p', 'muted', 'Lessons 1 and 2 are free. The rest of the course, with AI feedback on every exercise and your Foundations Score, is included with Mada Academy at $' + ACADEMY_PRICE + ' a month.'));
     var ul = el('ul');
-    ['Structuring, numbers, business judgment and your final recommendation, taught step by step.', 'Specific AI feedback on every exercise, with hints and model answers.', 'AI case interviews and Case Math Mastery in the same subscription.'].forEach(function (t) { ul.appendChild(el('li', null, t)); });
+    ['Structuring, numbers, business judgment and your final recommendation, taught step by step.', 'Specific AI feedback on every exercise, with hints and model answers.', 'A guided path from foundations to full cases, with new modules added as they are reviewed.'].forEach(function (t) { ul.appendChild(el('li', null, t)); });
     var note = el('p', 'muted small');
-    var go = btn('Get the Practice Pass, $' + PASS_PRICE + '/month', 'btn btn-primary', function () {
+    var go = btn('Get Mada Academy, $' + ACADEMY_PRICE + '/month', 'btn btn-primary', function () {
       go.disabled = true;
-      fn('pass-access', { action: 'checkout' }).then(function (r) {
+      fn('academy-access', { action: 'checkout' }).then(function (r) {
         if (r.status === 401) return expired();
         if (r.status === 409) return load();
         var u = r.ok && stripeUrl(r.json.url);
@@ -729,8 +729,8 @@
 
   function trialUsed(key) {
     coachScreen(key, 'You have used your free call with ' + COACH,
-      'The free trial is one call. With the Practice Pass ($' + PASS_PRICE + ' a month) you can talk to ' + COACH + ' as often as you like, on every module, and get the rest of the course too.',
-      { label: 'See Practice Pass', go: function () { load(); } });
+      'The free trial is one call. With Mada Academy ($' + ACADEMY_PRICE + ' a month) you can talk to ' + COACH + ' as often as you like, on every lesson, and get the rest of the course too.',
+      { label: 'See Mada Academy', go: function () { load(); } });
   }
 
   // Ask first, so a candidate whose free call is gone never sees the recording notice or the microphone prompt. If the check fails, carry on:
@@ -797,7 +797,7 @@
         if (!r.ok) {
           var code = r.json && r.json.error && r.json.error.code;
           if (code === 'trial_used') return trialUsed(key);
-          if (code === 'locked') return coachScreen(key, 'This module is part of the Practice Pass', 'Lessons 1 and 2 are free. The rest are included with the Practice Pass.');
+          if (code === 'locked') return coachScreen(key, 'This lesson is part of Mada Academy', 'Lessons 1 and 2 are free. The rest are included with Mada Academy.');
           if (code === 'monthly_cap') return monthlyCapScreen(key, errText(r));
           if (code === 'fair_use' || code === 'call_in_progress') return coachScreen(key, code === 'fair_use' ? 'That is enough talking for today' : 'A call is already in progress', errText(r), code === 'call_in_progress' ? { label: 'Try again', go: function () { coachBegin(key); } } : null);
           if (code === 'not_configured') return coachScreen(key, COACH + ' is not available right now', 'Please try again later. You can still read the module and ask the written tutor your questions.');
