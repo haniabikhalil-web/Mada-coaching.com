@@ -450,7 +450,7 @@ def ai():
         cta = (f'<a class="btn btn-primary btn-sm" href="{u(page)}">{"Start practicing" if page == "ai/maths" else "Start learning" if page == "ai/learn" else "Start a case"} <span class="arrow" aria-hidden="true">&rarr;</span></a>' if live
                else waitlist_btn(t))
         if page == 'ai/learn' and live:
-            price = '<p class="ai-prod-price"><b>Free</b> <span>&middot; modules 1 and 2. Full course included with the Practice Pass</span></p>'
+            price = f'<p class="ai-prod-price"><b>Free</b> <span>&middot; lessons 1 and 2. Full course ${C.ACADEMY_PRICE_USD} / month with Mada Academy</span></p>'
         elif t in ('AI CV Review',):
             price = '<p class="ai-prod-price"><span>Pricing announced when it opens</span></p>'
         return f'''<article class="ai-prod{' is-live' if live else ''} reveal">
@@ -517,13 +517,35 @@ def ai():
 <tbody>{cmp_body}</tbody></table></div>
 <p class="cmp-note">Capabilities and pricing may vary by provider, subscription plan, and individual coach.</p>'''
 
+    journey = ''
+    assess_btn = ''
+    if C.READINESS_LISTED and C.READINESS_LIVE:
+        assess_btn = f'<a class="btn btn-ghost" href="{u("ai/readiness")}">Assess my readiness</a>'
+        j_steps = [
+            ('01', 'Mada Readiness Assessment', 'Discover where you stand and what to improve. Free, about eight minutes.', 'ai/readiness', 'Assess my readiness'),
+            ('02', 'Mada Academy', 'Learn consulting case-solving fundamentals, one skill at a time.', 'ai/learn', 'See the course' if C.LEARN_LISTED else ''),
+            ('03', 'Practice with Mada AI', 'Simulate realistic consulting interviews and get a scored report.', 'ai/case-practice/start', 'Start an interview'),
+            ('04', 'Personalised improvement', 'Follow a plan built from your results and track real progress.', 'ai/readiness', 'See my plan'),
+        ]
+        cards_j = ''.join(
+            f'<li class="jn-step reveal"><span class="jn-num">{n}</span><h3>{t}</h3><p>{d}</p>' + (f'<a href="{u(pg)}">{cta} <span aria-hidden="true">&rarr;</span></a>' if cta else '') + '</li>'
+            for n, t, d, pg, cta in j_steps)
+        journey = f'''<section class="bg-mist" id="journey">
+  <div class="wrap">
+    <div class="section-head reveal"><p class="eyebrow">Your preparation journey</p><h2>Start with where you stand</h2>
+      <p class="lede">New to Mada? Take the assessment first. Already practised? Jump straight to the Academy or an interview.</p></div>
+    <ol class="jn-steps">{cards_j}</ol>
+  </div>
+</section>
+'''
     body = f'''
 <header class="subhero ai-hero"><div class="wrap">
   <p class="eyebrow">Mada AI</p>
   <h1>Practice with purpose</h1>
   <p class="lede">Walk into your consulting interview prepared. Realistic AI interviews, available 24/7, with structured feedback after every session.</p>
-  <div class="btn-row"><a class="btn btn-primary" href="#products">See what you can practice <span class="arrow" aria-hidden="true">&darr;</span></a></div>
+  <div class="btn-row"><a class="btn btn-primary" href="#products">See what you can practice <span class="arrow" aria-hidden="true">&darr;</span></a>{assess_btn}</div>
 </div></header>
+{journey}
 
 <section id="products">
   <div class="wrap">
@@ -690,6 +712,34 @@ def ai_learn():
     page('ai/learn', 'Mada Academy',
          'Mada Academy: a structured course on consulting case interviews, with exercises, AI feedback and a conversational coach.',
          body, ctx, noindex=True, extra_js=('js/ai-session.js', 'js/learn.js'))
+
+
+# ---------------------------------------------------------------- Mada Readiness Assessment
+def ai_readiness():
+    ctx = Ctx('ai/readiness')
+    u = ctx.url
+    if not (C.READINESS_LIVE and C.SUPABASE_PUBLISHABLE_KEY):
+        app = '<p class="muted">The assessment opens soon.</p>'
+    else:
+        app = (f'<div id="readiness-app" data-api="{C.SUPABASE_URL}" data-key="{C.SUPABASE_PUBLISHABLE_KEY}" data-start="{u("ai/case-practice/start")}"'
+               f' data-academy="{u("ai/learn")}" data-maths="{u("ai/maths")}" data-expert="{u("expert")}" data-cv="{u("cv-review")}" data-privacy="{u("privacy")}" aria-live="polite">'
+               '<noscript><p>This page needs JavaScript.</p></noscript></div>')
+    body = f'''
+<header class="subhero"><div class="wrap">
+  <p class="eyebrow">Mada AI</p>
+  <h1>Mada Readiness Assessment</h1>
+  <p class="lede">Find out where you stand for consulting recruitment, what to improve first and how Mada can help, then track your progress.</p>
+</div></header>
+<section>
+  <div class="wrap narrow">
+    {app}
+    <p class="muted" style="margin-top:32px;text-align:center">Prefer to talk it through with a person? <a href="{u('expert')}">Work with a Mada coach</a>. Your saved reports live in <a href="{u('ai/account')}">My Mada</a>.</p>
+  </div>
+</section>
+'''
+    page('ai/readiness', 'Mada Readiness Assessment',
+         'Mada Readiness Assessment: a free eight-minute assessment of your consulting applications, case interviews and fit interviews, with a personal plan.',
+         body, ctx, noindex=True, extra_js=('js/ai-session.js', 'js/report-insights.js', 'js/readiness.js'))
 
 
 # ---------------------------------------------------------------- Mada AI "My Mada" (one sign-in; everything the candidate has, in one place)
@@ -1260,9 +1310,9 @@ def not_found():
 
 def build_all():
     not_found()
-    home(); how_it_works(); services(); ai(); ai_case_practice(); ai_start(); ai_report(); ai_reports(); ai_account(); ai_admin(); ai_maths(); ai_learn(); coaches(); about(); cv_review(); resources(); book(); legal_pages(); thank_you()
+    home(); how_it_works(); services(); ai(); ai_case_practice(); ai_start(); ai_report(); ai_reports(); ai_account(); ai_admin(); ai_maths(); ai_learn(); ai_readiness(); coaches(); about(); cv_review(); resources(); book(); legal_pages(); thank_you()
     root_files()
-    return ['', 'how-it-works', 'expert', 'ai', 'ai/case-practice', 'ai/case-practice/start', 'ai/report', 'ai/reports', 'ai/account', 'coaches', 'about', 'cv-review', 'resources', 'book',
+    return ['', 'how-it-works', 'expert', 'ai', 'ai/case-practice', 'ai/case-practice/start', 'ai/report', 'ai/reports', 'ai/account', 'ai/readiness', 'coaches', 'about', 'cv-review', 'resources', 'book',
             'privacy', 'terms', 'refunds', 'cookies', 'thank-you', '404']
 
 
