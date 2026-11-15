@@ -671,9 +671,9 @@ def ai_learn():
                '<noscript><p>This page needs JavaScript.</p></noscript></div>')
     body = f'''
 <header class="subhero"><div class="wrap">
-  <p class="eyebrow">Mada Academy &middot; Introduction to Case Solving</p>
-  <h1>Learn How to Solve a Case</h1>
-  <p class="lede">Six short modules on how case interviews work, how to open a case, build a structure, handle the numbers, use business judgment and deliver a recommendation. Each one explains, shows, lets you practise and gives you specific feedback from an AI tutor. Finish with a Mini Case Challenge and get your Foundations Score.</p>
+  <p class="eyebrow">Mada Academy</p>
+  <h1>Master consulting case interviews, one skill at a time.</h1>
+  <p class="lede">Mada Academy is a structured course on solving consulting cases. It starts with Introduction to Case Solving: how case interviews work, how to open a case, structure a problem, work the numbers, use business judgment and deliver a recommendation. More modules are being added in stages, each one only when it is finished. Every lesson has exercises with specific AI feedback, and you can talk any topic through with Nour.</p>
   <ol class="cycle" aria-label="The Mada learning cycle">
     <li class="is-here"><b>Learn</b><span>Mada Academy: build knowledge and case-solving skills</span></li>
     <li><b>Apply</b><span><a href="{u('ai/case-practice/start')}">Practice with Mada AI</a>: full, realistic AI case interviews</span></li>
@@ -688,7 +688,7 @@ def ai_learn():
 </section>
 '''
     page('ai/learn', 'Mada Academy',
-         'Mada Academy: a guided course on case interviews: structure, numbers, judgment and recommendations, with AI feedback and a Foundations Score.',
+         'Mada Academy: a structured course on consulting case interviews, with exercises, AI feedback and a conversational coach.',
          body, ctx, noindex=True, extra_js=('js/ai-session.js', 'js/learn.js'))
 
 

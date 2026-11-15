@@ -1226,6 +1226,29 @@ section.mm-sec{padding-top:40px}
   .ln-final-score{width:100%}
 }
 @media (max-width:560px){.ln-mods{grid-template-columns:1fr}.ln-section{margin-bottom:var(--s5)}}
+/* Mada Academy dashboard: ways to learn, stages, curriculum modules */
+.ln-ways{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:var(--s2)}
+.ln-way{background:#fff;border:1px solid var(--card-line);border-radius:16px;padding:var(--s3);display:flex;flex-direction:column;gap:6px}
+.ln-way h3{margin:0;font-size:1rem}
+.ln-way p{margin:0;font-size:14px;line-height:1.5;color:var(--stone)}
+.ln-way.is-soon{background:#FAFBFE;border-style:dashed}
+.ln-stage-sub{font-size:12.5px;line-height:1.35;color:var(--stone);font-weight:400}
+.ln-stage{border:1px solid var(--card-line);border-radius:16px;background:#fff;margin:0 0 var(--s2);padding:0}
+.ln-stage>summary{cursor:pointer;list-style:none;display:flex;justify-content:space-between;align-items:baseline;gap:var(--s2);padding:var(--s2) var(--s3);font-weight:700;color:var(--navy)}
+.ln-stage>summary::-webkit-details-marker{display:none}
+.ln-stage[open]>summary{border-bottom:1px solid var(--card-line)}
+.ln-stage-t{font-size:1.05rem}
+.ln-am{padding:var(--s3);border-bottom:1px solid var(--card-line)}
+.ln-am:last-child{border-bottom:0}
+.ln-am-head{display:flex;align-items:center;gap:var(--s2);flex-wrap:wrap}
+.ln-am-title{margin:0;font-size:1.05rem;flex:1 1 220px}
+.ln-am.is-soon .ln-am-title,.ln-am.is-soon .ln-mod-desc{color:var(--stone)}
+.ln-am .ln-mods{margin-top:var(--s2)}
+.ln-covers{margin-top:6px;font-size:14px;color:var(--stone)}
+.ln-covers summary{cursor:pointer;font-weight:600;color:var(--navy)}
+.ln-covers ul{margin:8px 0 0;padding-left:20px;line-height:1.55}
+@media (max-width:900px){.ln-ways{grid-template-columns:1fr}}
+
 @media (prefers-reduced-motion:reduce){.ln-mod,.ln-thin span,.ln-link .ln-ic{transition:none}.ln-link:hover .ln-ic{transform:none}}
 
 /* ---- Coach minutes meter (site v120) ---- */
