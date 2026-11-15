@@ -83,6 +83,7 @@
   }
 
   // ---------------------------------------------------------------- sign in (a new email creates an account: modules 1 and 2 are free)
+  var wantsSub = /[?&]subscribe=1/.test(location.search);
   function pitch(show) { var p = document.getElementById('ln-pitch'); if (p) p.hidden = !show; }
   function signIn(msg) {
     pitch(true);
@@ -262,6 +263,7 @@
     app.appendChild(hero);
 
     if (!full) app.appendChild(upgradeCard());
+    if (!full && wantsSub) { wantsSub = false; setTimeout(function () { var up = document.getElementById('ln-upgrade'); if (up) up.scrollIntoView({ behavior: 'smooth', block: 'center' }); }, 250); }
 
     // ---- the five stages: a roadmap. One card per stage, a rail joining them, the current stage filled.
     app.appendChild(roadmap(cur, prog));
