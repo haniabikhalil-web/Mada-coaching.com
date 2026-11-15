@@ -83,12 +83,14 @@
   }
 
   // ---------------------------------------------------------------- sign in (a new email creates an account: modules 1 and 2 are free)
+  function pitch(show) { var p = document.getElementById('ln-pitch'); if (p) p.hidden = !show; }
   function signIn(msg) {
+    pitch(true);
     focusMode(false);
     clear(app);
     var form = el('form', 'rp-form card mx-card');
-    add(form, el('h3', null, 'Sign in to start the course'),
-      el('p', 'muted', msg || 'Enter your email and we will send you a one-time code. New here? The same step creates your account. Lessons 1 and 2 are free.'));
+    add(form, el('h3', null, 'Sign in to take a free look'),
+      el('p', 'muted', msg || 'Enter your email and we will send you a one-time code. New here? The same step creates your account, and the introduction is free.'));
     var input = el('input'); input.type = 'email'; input.required = true; input.autocomplete = 'email'; input.placeholder = 'you@example.com';
     input.setAttribute('aria-label', 'Email address');
     var go = el('button', 'btn btn-primary', 'Email me a code'); go.type = 'submit';
@@ -207,6 +209,7 @@
   function lessonInfo(key) { return infoFor(key); }
   function focusMode(on) { try { document.body.classList.toggle('ln-focus', !!on); } catch (e) {} }
   function home() {
+    pitch(false);
     focusMode(false);
     clear(app);
     var cur = dash.curriculum, prog = cur.progress, mini = dash.mini, full = dash.entitlement.full;
@@ -435,7 +438,7 @@
   function upgradeCard() {
     var card = el('div', 'card mx-card ln-upgrade'); card.id = 'ln-upgrade';
     add(card, el('span', 'tag', 'Full course'), el('h3', null, 'Lessons 3 to 6 and the Foundations Assessment'),
-      el('p', 'muted', 'Lessons 1 and 2 are free. The rest of the course, with AI feedback on every exercise and your Foundations Score, is included with Mada Academy at $' + ACADEMY_PRICE + ' a month.'));
+      el('p', 'muted', 'The introduction is free. The rest of the course, with AI feedback on every exercise and your Foundations Score, is included with Mada Academy at $' + ACADEMY_PRICE + ' a month.'));
     var ul = el('ul');
     ['Structuring, numbers, business judgment and your final recommendation, taught step by step.', 'Specific AI feedback on every exercise, with hints and model answers.', 'A guided path from foundations to full cases, with new modules added as they are reviewed.'].forEach(function (t) { ul.appendChild(el('li', null, t)); });
     var note = el('p', 'muted small');

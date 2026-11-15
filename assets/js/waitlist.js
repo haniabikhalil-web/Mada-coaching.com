@@ -12,7 +12,8 @@
     'Introduction to Case Solving': 'intro-case-solving',
     'Fit Interviews': 'fit-interviews',
     'Full Mock Interviews': 'full-mock-interviews',
-    'AI CV Review': 'ai-cv-review'
+    'AI CV Review': 'ai-cv-review',
+    'All Access': 'all-access'
   };
 
   function el(tag, cls, text) { var e = document.createElement(tag); if (cls) e.className = cls; if (text) e.textContent = text; return e; }
