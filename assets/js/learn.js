@@ -84,6 +84,7 @@
 
   // ---------------------------------------------------------------- sign in (a new email creates an account: modules 1 and 2 are free)
   function signIn(msg) {
+    focusMode(false);
     clear(app);
     var form = el('form', 'rp-form card mx-card');
     add(form, el('h3', null, 'Sign in to start the course'),
@@ -174,8 +175,15 @@
     flag: ['M6 21V4', 'M6 5h11l-2 4 2 4H6'],
     book: ['M4 5.5C6.5 4.5 9.5 4.5 12 6c2.5-1.5 5.5-1.5 8-.5V19c-2.5-1-5.5-1-8 .5-2.5-1.5-5.5-1.5-8-.5z', 'M12 6v13.5'],
     mic: ['M12 3a3 3 0 0 0-3 3v5a3 3 0 0 0 6 0V6a3 3 0 0 0-3-3z', 'M6 11a6 6 0 0 0 12 0', 'M12 17v4'],
-    play: ['M8 5.5v13l11-6.5z']
+    play: ['M8 5.5v13l11-6.5z'],
+    compass: ['circle', 'M15.5 8.5l-2 5-5 2 2-5z'],
+    bars: ['M5 20v-8', 'M12 20V5', 'M19 20v-5'],
+    target: ['circle', 'M12 8a4 4 0 1 0 0 8 4 4 0 0 0 0-8z', 'M12 12h.01'],
+    layers: ['M12 3l9 5-9 5-9-5z', 'M3 12.5l9 5 9-5', 'M3 17l9 5 9-5'],
+    trophy: ['M8 21h8', 'M12 17v4', 'M7 4h10v5a5 5 0 0 1-10 0z', 'M7 6H4v2a3 3 0 0 0 3 3', 'M17 6h3v2a3 3 0 0 1-3 3'],
+    chat: ['M5 5h14a1 1 0 0 1 1 1v9a1 1 0 0 1-1 1H10l-5 4v-4H5a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1z']
   };
+  var STAGE_ICONS = ['compass', 'bars', 'target', 'layers', 'trophy'];
   function icon(name) {
     var NS = 'http://www.w3.org/2000/svg', s = document.createElementNS(NS, 'svg');
     s.setAttribute('viewBox', '0 0 24 24'); s.setAttribute('class', 'ln-ic'); s.setAttribute('aria-hidden', 'true'); s.setAttribute('focusable', 'false');
@@ -197,7 +205,9 @@
   // One map, shown once: header and next action, the three ways to learn, the five stages, the curriculum by stage (Module 1 opens into its
   // six lessons; later modules say "Coming soon" with what they will cover until they really exist), then assessments and results.
   function lessonInfo(key) { return infoFor(key); }
+  function focusMode(on) { try { document.body.classList.toggle('ln-focus', !!on); } catch (e) {} }
   function home() {
+    focusMode(false);
     clear(app);
     var cur = dash.curriculum, prog = cur.progress, mini = dash.mini, full = dash.entitlement.full;
     var mods = dash.modules;
@@ -250,36 +260,29 @@
 
     if (!full) app.appendChild(upgradeCard());
 
+    // ---- the five stages: a roadmap. One card per stage, a rail joining them, the current stage filled.
+    app.appendChild(roadmap(cur, prog));
+
     // ---- three ways to learn (Watch is described as coming, never as available)
     var fm = el('section', 'ln-section'); fm.setAttribute('aria-label', 'Ways to learn');
     var fgrid = el('div', 'ln-ways');
-    [['Read & practice', 'Written lessons, worked examples and exercises with specific feedback.', 'Available'],
-     ['Talk with Nour', 'Ask Nour to explain, test you or work an example through, by voice or in writing, inside any lesson.', 'Available'],
-     ['Watch & learn', 'Short animated explainers are planned. Nothing is needed from them to finish a lesson.', 'Coming later']].forEach(function (w) {
+    [['Read & practice', 'Written lessons, worked examples and exercises with specific feedback.', 'Available', 'book'],
+     ['Talk with Nour', 'Ask Nour to explain, test you or work an example through, by voice or in writing, inside any lesson.', 'Available', 'chat'],
+     ['Watch & learn', 'Short animated explainers are planned. Nothing is needed from them to finish a lesson.', 'Coming later', 'play']].forEach(function (w) {
       var c = el('div', 'ln-way' + (w[2] === 'Available' ? '' : ' is-soon'));
-      add(c, el('h3', null, w[0]), el('p', null, w[1]), el('span', 'ln-state' + (w[2] === 'Available' ? ' ok' : ''), w[2]));
+      var ic = el('span', 'ln-way-ic'); ic.appendChild(icon(w[3]));
+      var tx = el('div', 'ln-way-tx'); add(tx, add(el('h3'), document.createTextNode(w[0]), el('span', 'ln-state' + (w[2] === 'Available' ? ' ok' : ''), w[2])), el('p', null, w[1]));
+      add(c, ic, tx);
       fgrid.appendChild(c);
     });
     add(fm, fgrid); app.appendChild(fm);
-
-    // ---- the five stages
-    var path = el('ol', 'ln-path ln-stages'); path.setAttribute('aria-label', 'Your learning journey');
-    cur.stages.forEach(function (s, i) {
-      var pub = s.modules.filter(function (m) { return m.status === 'published'; });
-      var state = pub.length && pub.every(function (m) { return m.complete; }) ? 'done' : (s.id === prog.currentStage ? 'current' : 'upcoming');
-      var li = el('li', 'is-' + state); if (state === 'current') li.setAttribute('aria-current', 'step');
-      var dot = el('span', 'ln-dot'); if (state === 'done') dot.appendChild(icon('check')); else dot.appendChild(document.createTextNode(String(i + 1)));
-      add(li, dot, el('span', 'ln-step-t', s.title), el('span', 'ln-stage-sub', s.blurb));
-      path.appendChild(li);
-    });
-    add(app, add(el('section', 'ln-section'), path));
 
     // ---- curriculum, by stage
     var csec = el('section', 'ln-section');
     var ch = el('div', 'ln-sec-head'); add(ch, el('h2', 'ln-h2', 'Curriculum'), el('span', 'ln-note', prog.modulesComplete + ' of ' + prog.modulesTotal + ' modules complete'));
     csec.appendChild(ch);
     cur.stages.forEach(function (s) {
-      var d = document.createElement('details'); d.className = 'ln-stage';
+      var d = document.createElement('details'); d.className = 'ln-stage'; d.id = 'ln-stage-' + s.id;
       if (s.id === (prog.currentStage || 'foundations')) d.open = true;
       var sm = document.createElement('summary');
       add(sm, el('span', 'ln-stage-t', s.title), el('span', 'ln-note', s.modules.length + (s.modules.length === 1 ? ' module' : ' modules')));
@@ -306,6 +309,51 @@
 
     if (r) app.appendChild(readinessCard(dash.readiness, dash.mini.result));
     app.appendChild(rubricBox());
+  }
+
+  // The learning roadmap. State is always said in words as well as shown: Completed, In progress, Up next, Coming soon.
+  function roadmap(cur, prog) {
+    var sec = el('section', 'ln-section ln-roadmap'); sec.setAttribute('aria-labelledby', 'ln-road-h');
+    var head = el('div', 'ln-sec-head');
+    add(head, (function () { var h = el('h2', 'ln-h2', 'Your learning journey'); h.id = 'ln-road-h'; return h; })(),
+      el('span', 'ln-note', 'Five stages, from the basics to interview readiness'));
+    sec.appendChild(head);
+    var ol = el('ol', 'ln-road');
+    var seenCurrent = false;
+    cur.stages.forEach(function (s, i) {
+      var mods = s.modules, pub = mods.filter(function (m) { return m.status === 'published'; });
+      var lessons = pub.reduce(function (n, m) { return n + (m.lessonCount || 0); }, 0);
+      var done = pub.reduce(function (n, m) { return n + m.completedLessons; }, 0);
+      var finished = pub.length > 0 && pub.every(function (m) { return m.complete; });
+      var current = !finished && s.id === prog.currentStage;
+      var state = finished ? 'done' : current ? 'current' : 'upcoming';
+      if (current) seenCurrent = true;
+      var label = finished ? 'Completed' : current ? 'In progress' : (pub.length ? 'Ready to start' : (seenCurrent && !pub.length ? 'Coming soon' : 'Coming soon'));
+      var li = el('li', 'is-' + state);
+      var card = el('button', 'ln-rs'); card.type = 'button';
+      if (current) card.setAttribute('aria-current', 'step');
+      var top = el('span', 'ln-rs-top');
+      var ic = el('span', 'ln-rs-ic'); ic.appendChild(icon(finished ? 'check' : STAGE_ICONS[i] || 'flag'));
+      add(top, ic, el('span', 'ln-rs-no', 'Stage ' + (i + 1)));
+      var body = el('span', 'ln-rs-body');
+      add(body, el('span', 'ln-rs-title', s.title), el('span', 'ln-rs-blurb', s.blurb));
+      var foot = el('span', 'ln-rs-foot');
+      var stat = el('span', 'ln-rs-stat', label);
+      var meta = el('span', 'ln-rs-meta', lessons ? done + ' of ' + lessons + ' lessons' : mods.length + (mods.length === 1 ? ' module' : ' modules'));
+      add(foot, stat, meta);
+      if (lessons) {
+        var bar = el('span', 'ln-rs-bar'); bar.setAttribute('aria-hidden', 'true');
+        var fill = el('span'); fill.style.width = Math.round(done / Math.max(1, lessons) * 100) + '%'; bar.appendChild(fill); foot.appendChild(bar);
+      }
+      add(card, top, body, foot);
+      card.addEventListener('click', function () {
+        var d = document.getElementById('ln-stage-' + s.id);
+        if (d) { d.open = true; try { d.scrollIntoView({ behavior: 'smooth', block: 'start' }); } catch (e) { d.scrollIntoView(); } }
+      });
+      li.appendChild(card); ol.appendChild(li);
+    });
+    sec.appendChild(ol);
+    return sec;
   }
 
   function academyModule(m) {
@@ -456,15 +504,71 @@
     return null;
   }
 
+  // Where a lesson sits: its module, its position, and its neighbours. Built from the curriculum map the server sent.
+  function lessonPlace(key) {
+    var found = null;
+    dash.curriculum.stages.forEach(function (st) {
+      st.modules.forEach(function (mod) {
+        var i = mod.lessons.indexOf(key);
+        if (i >= 0) found = { module: mod, stage: st, index: i, total: mod.lessons.length, prev: mod.lessons[i - 1] || null, next: mod.lessons[i + 1] || null };
+      });
+    });
+    return found;
+  }
+  function stateOf(key) { var i = infoFor(key); return i && i.completed ? 'done' : (i && i.attempted ? 'prog' : 'todo'); }
+
+  function lessonSide(key, place) {
+    var side = el('aside', 'ln-side'); side.setAttribute('aria-label', 'In this module');
+    var card = el('div', 'ln-side-card');
+    add(card, el('p', 'ln-side-eyebrow', place.module.title), el('p', 'ln-side-count', place.module.completedLessons + ' of ' + place.total + ' lessons complete'));
+    var ol = el('ol', 'ln-side-list');
+    place.module.lessons.forEach(function (k, i) {
+      var inf = infoFor(k); if (!inf) return;
+      var li = el('li', 'is-' + stateOf(k) + (k === key ? ' is-here' : ''));
+      var b = el('button', 'ln-side-item'); b.type = 'button'; if (k === key) b.setAttribute('aria-current', 'page');
+      var dot = el('span', 'ln-side-dot'); if (stateOf(k) === 'done') dot.appendChild(icon('check')); else dot.appendChild(document.createTextNode(String(i + 1)));
+      add(b, dot, el('span', 'ln-side-t', inf.title));
+      if (k !== key) b.addEventListener('click', function () { openModule(k); });
+      li.appendChild(b); ol.appendChild(li);
+    });
+    card.appendChild(ol);
+    side.appendChild(card);
+    return side;
+  }
+
   function showModule(key) {
-    var m = moduleCache[key], info = infoFor(key);
+    var m = moduleCache[key], info = infoFor(key), place = lessonPlace(key);
+    focusMode(true);
     clear(app);
-    var nav = el('div', 'ln-bar');
-    add(nav, btn('← Mada Academy', 'btn btn-ghost btn-sm', function () { load(); }), el('span', 'muted small', 'About ' + m.minutes + ' minutes'));
+    // ---- where am I: breadcrumb, position, module progress
+    var nav = el('nav', 'ln-crumbs'); nav.setAttribute('aria-label', 'Breadcrumb');
+    var back = btn('Mada Academy', 'ln-crumb', function () { load(); });
+    add(nav, back);
+    if (place) {
+      add(nav, el('span', 'ln-crumb-sep', '/'), el('span', 'ln-crumb-now', place.module.title), el('span', 'ln-crumb-sep', '/'), el('span', 'ln-crumb-now', 'Lesson ' + (place.index + 1) + ' of ' + place.total));
+    }
     app.appendChild(nav);
-    add(app, el('h2', 'ln-title', m.title), el('p', 'lede', m.objective));
+    if (place) {
+      var seg = el('div', 'ln-segs'); seg.setAttribute('role', 'img'); seg.setAttribute('aria-label', 'Lesson ' + (place.index + 1) + ' of ' + place.total + ' in ' + place.module.title);
+      place.module.lessons.forEach(function (k, i) { seg.appendChild(el('span', 'is-' + (k === key ? 'here' : stateOf(k)))); });
+      app.appendChild(seg);
+    }
+    add(app, el('h2', 'ln-title', m.title));
+
+    // ---- what you will learn
+    var goal = el('div', 'ln-goal');
+    var gi = el('span', 'ln-goal-ic'); gi.appendChild(icon('target'));
+    var gt = el('div', 'ln-goal-tx');
+    add(gt, el('p', 'ln-goal-k', 'What you will learn'), el('p', 'ln-goal-v', m.objective));
+    var gm = el('p', 'ln-goal-meta');
+    add(gm, icon('clock'), document.createTextNode('About ' + m.minutes + ' minutes'), el('span', 'ln-dotsep', '·'), document.createTextNode(m.exercises.length + (m.exercises.length === 1 ? ' exercise' : ' exercises')), el('span', 'ln-dotsep', '·'), document.createTextNode('Nour can help'));
+    gt.appendChild(gm);
+    add(goal, gi, gt);
+    app.appendChild(goal);
+
     var read = el('div', 'ln-read'), watch = el('div', 'ln-watch'); watch.hidden = true;
-    app.appendChild(formatSwitch(key, read, watch, m.videos || []));
+    var fmt = formatSwitch(key, read, watch, m.videos || []);
+    app.appendChild(fmt);
     if (VOICE_SRC) { var sums = el('div', 'ln-sums-holder'); app.appendChild(sums); savedSummaries(key, sums); }
 
     var body = el('div', 'ln-body');
@@ -489,9 +593,38 @@
     foot.appendChild(el('h3', null, 'Finished this lesson?'));
     add(foot, complete, note);
     read.appendChild(foot);
-    read.appendChild(chatBox(key));
-    app.appendChild(read);
-    app.appendChild(watch);
+
+    // ---- previous / next
+    if (place && (place.prev || place.next)) {
+      var pn = el('div', 'ln-prevnext');
+      if (place.prev) { var pi = infoFor(place.prev); if (pi) pn.appendChild(pnBtn('Previous', pi.title, place.prev, 'prev')); }
+      if (place.next) { var ni = infoFor(place.next); if (ni) pn.appendChild(pnBtn('Next', ni.title, place.next, 'next')); }
+      read.appendChild(pn);
+    }
+    var chat = chatBox(key); chat.id = 'ln-chat';
+    read.appendChild(chat);
+
+    // ---- layout: lesson column + (desktop) outline sidebar with Ask Nour
+    var layout = el('div', 'ln-lesson' + (place ? ' has-side' : ''));
+    var main = el('div', 'ln-main'); add(main, read, watch);
+    layout.appendChild(main);
+    if (place) {
+      var side = lessonSide(key, place);
+      var ask = btn('Ask ' + COACH + ' about this lesson', 'btn btn-ghost ln-side-ask', function () {
+        chat.open = true; chat.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        var ta = chat.querySelector('textarea'); if (ta) try { ta.focus({ preventScroll: true }); } catch (e) { ta.focus(); }
+      });
+      var ic = icon('chat'); ask.insertBefore(ic, ask.firstChild);
+      side.appendChild(ask);
+      layout.appendChild(side);
+    }
+    app.appendChild(layout);
+  }
+  function pnBtn(label, title, key, dir) {
+    var b = el('button', 'ln-pn ' + dir); b.type = 'button';
+    add(b, el('span', 'ln-pn-k', label), el('span', 'ln-pn-t', title));
+    b.addEventListener('click', function () { openModule(key); });
+    return b;
   }
 
   // Three ways into one module, one progress: Read & practice, Talk with Nour, Watch & learn. Watch only appears when the module
@@ -862,7 +995,7 @@
 
   function block(b) {
     if (b.type === 'p') return paragraphs(b.text);
-    if (b.type === 'callout') { var c = el('div', 'ln-callout'); c.appendChild(paragraphs(b.text, 'ln-text')); return c; }
+    if (b.type === 'callout') { var c = el('div', 'ln-callout'); add(c, el('p', 'ln-kicker', 'Key idea'), paragraphs(b.text, 'ln-text')); return c; }
     if (b.type === 'list') {
       var w = el('div', 'ln-block'); if (b.title) w.appendChild(el('h4', null, b.title));
       var ul = el('ul'); b.items.forEach(function (t) { ul.appendChild(el('li', null, t)); }); w.appendChild(ul); return w;
@@ -870,7 +1003,7 @@
     if (b.type === 'steps') {
       var s = el('div', 'ln-block'); if (b.title) s.appendChild(el('h4', null, b.title));
       var ol = el('ol', 'ln-steps');
-      b.items.forEach(function (it) { var li = el('li'); add(li, el('b', null, it.title), el('span', null, ' ' + it.text)); ol.appendChild(li); });
+      b.items.forEach(function (it) { var li = el('li'); add(li, el('b', null, it.title), el('span', null, it.text)); ol.appendChild(li); });
       s.appendChild(ol); return s;
     }
     if (b.type === 'twocol') {
@@ -881,7 +1014,12 @@
       });
       t.appendChild(g); return t;
     }
-    if (b.type === 'example') { var e = el('div', 'ln-example'); add(e, el('b', 'ln-col-h', 'Worked example: ' + b.title), paragraphs(b.text)); return e; }
+    if (b.type === 'example') {
+      var e = el('div', 'ln-example');
+      var t = String(b.title).replace(/^worked example:\s*/i, ''); t = t.charAt(0).toUpperCase() + t.slice(1);
+      add(e, el('p', 'ln-kicker', 'Worked example'), el('h4', 'ln-ex-t', t), paragraphs(b.text));
+      return e;
+    }
     if (b.type === 'quiz') return quiz(b);
     return null;
   }
@@ -1140,24 +1278,41 @@
     }
     cur.disabled = false;
   }
+  // Feedback, structured: the verdict in one line, what worked and what to improve side by side, one thing to try next,
+  // and the per-skill ratings tucked behind a disclosure so the first view is short.
   function showFeedback(box, f, n, resumed) {
     clear(box);
-    var head = el('h4', null, (resumed ? 'Feedback on attempt ' : 'Feedback on attempt ') + n);
-    add(box, head, el('p', 'ln-summary', f.summary));
+    var wrap = el('div', 'ln-fbx');
+    var head = el('div', 'ln-fbx-head');
+    add(head, el('span', 'ln-fbx-k', 'Feedback · attempt ' + n), el('p', 'ln-fbx-sum', f.summary));
+    wrap.appendChild(head);
+
+    function col(title, items, cls, ic) {
+      if (!items || !items.length) return null;
+      var c = el('div', 'ln-fbx-col ' + cls);
+      var h = el('p', 'ln-fbx-h'); add(h, icon(ic), document.createTextNode(title)); c.appendChild(h);
+      var ul = el('ul'); items.forEach(function (t) { ul.appendChild(el('li', null, t)); }); c.appendChild(ul); return c;
+    }
+    var good = col('What worked', f.strengths, 'good', 'check'), todo = col('To improve', f.improvements, 'todo', 'arrow');
+    if (good || todo) { var cols = el('div', 'ln-fbx-cols'); add(cols, good, todo); wrap.appendChild(cols); }
+
+    if (f.nextHint || f.followUp) {
+      var nx = el('div', 'ln-fbx-next');
+      var nh = el('p', 'ln-fbx-h'); add(nh, icon('target'), document.createTextNode('Try next')); nx.appendChild(nh);
+      if (f.nextHint) nx.appendChild(el('p', null, f.nextHint));
+      if (f.followUp) nx.appendChild(el('p', 'ln-follow', 'Think about this: ' + f.followUp));
+      wrap.appendChild(nx);
+    }
     if (f.dimensions && f.dimensions.length) {
+      var d = document.createElement('details'); d.className = 'ln-fbx-dims';
+      d.appendChild(el('summary', null, 'How each skill was rated'));
       var chips = el('div', 'ln-chips');
-      f.dimensions.forEach(function (d) {
-        var c = el('div', 'ln-chip'); add(c, el('b', null, d.label), el('span', null, d.rating || 'Not enough to judge'), d.note ? el('small', 'muted', d.note) : null); chips.appendChild(c);
+      f.dimensions.forEach(function (dm) {
+        var c = el('div', 'ln-chip'); add(c, el('b', null, dm.label), el('span', null, dm.rating || 'Not enough to judge'), dm.note ? el('small', 'muted', dm.note) : null); chips.appendChild(c);
       });
-      box.appendChild(chips);
+      d.appendChild(chips); wrap.appendChild(d);
     }
-    function listBlock(title, items, cls) {
-      if (!items || !items.length) return;
-      var w = el('div', 'ln-fb-list ' + cls); w.appendChild(el('b', null, title)); var ul = el('ul'); items.forEach(function (t) { ul.appendChild(el('li', null, t)); }); w.appendChild(ul); box.appendChild(w);
-    }
-    listBlock('What worked', f.strengths, 'good'); listBlock('To improve', f.improvements, 'todo');
-    if (f.nextHint) add(box, el('p', 'ln-hint', 'A nudge: ' + f.nextHint));
-    if (f.followUp) add(box, el('p', 'ln-follow', 'Think about this: ' + f.followUp));
+    box.appendChild(wrap);
   }
 
   // ---------------------------------------------------------------- tutor chat
