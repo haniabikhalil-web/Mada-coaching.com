@@ -445,12 +445,12 @@ def ai():
             price = f'<p class="ai-prod-price"><b>${C.MATHS_PRICE_USD}</b> / month <span>&middot; included with the Practice Pass</span></p>'
         if page == 'ai/case-practice/start':
             price = ((f'<p class="ai-prod-price"><b>Free</b> <span>&middot; your first AI interview</span></p>' if C.FREE_FIRST_LIVE else '') +
-                     f'<p class="ai-prod-price"><b>${C.AI_PRACTICE_PRICE_USD}</b> / interview <span>&middot; Single AI Interview</span></p>'
                      f'<p class="ai-prod-price"><b>${C.AI_PASS_PRICE_USD}</b> / month <span>&middot; Practice Pass, up to 3 interviews a day{"" if C.AI_PASS_LIVE else ", coming soon"}</span></p>')
         cta = (f'<a class="btn btn-primary btn-sm" href="{u(page)}">{"Start practicing" if page == "ai/maths" else "Start learning" if page == "ai/learn" else "Assess my readiness" if page == "ai/readiness" else "Start a case"} <span class="arrow" aria-hidden="true">&rarr;</span></a>' if live
                else waitlist_btn(t))
         if page == 'ai/learn' and live:
-            price = f'<p class="ai-prod-price"><b>Free</b> <span>&middot; lessons 1 and 2. Full course ${C.ACADEMY_PRICE_USD} / month with Mada Academy</span></p>'
+            price = (f'<p class="ai-prod-price"><b>Free</b> <span>&middot; lessons 1 and 2</span></p>'
+                     f'<p class="ai-prod-price"><b>${C.ACADEMY_PRICE_USD}</b> / month <span>&middot; Mada Academy, the full course</span></p>')
         elif page == 'ai/readiness':
             price = '<p class="ai-prod-price"><b>Free</b> <span>&middot; about eight minutes</span></p>'
         elif t in ('AI CV Review',):
@@ -506,7 +506,7 @@ def ai():
         ('Experience', cell('Realistic AI interviews'), cell('Prompt-driven practice'), cell('Live 1:1 coaching'), ''),
         ('Ideal use', cell('Repetition &amp; skill building'), cell('Exploration &amp; fundamentals'), cell('Refinement &amp; mentorship'), 'cmp-key'),
         ('Feedback', cell('Structured &amp; case-specific'), cell('Prompt-dependent'), cell('Deep &amp; personalized'), ''),
-        ('Pricing', cell(f'${C.AI_PRACTICE_PRICE_USD}/interview or ${C.AI_PASS_PRICE_USD}/month Practice Pass'), cell('Free &amp; paid plans'), cell('Per-session fees'), ''),
+        ('Pricing', cell(f'Free first interview, then ${C.AI_PASS_PRICE_USD}/month Practice Pass'), cell('Free &amp; paid plans'), cell('Per-session fees'), ''),
     ]
     cmp_body = ''.join(
         f'<tr class="{k}"><th scope="row">{d}</th><td class="cmp-mada">{m}</td><td>{g}</td><td>{h}</td></tr>' for d, m, g, h, k in compare_rows)
@@ -590,7 +590,7 @@ def ai():
 <div id="waitlist-cfg" hidden data-api="{C.SUPABASE_URL}" data-key="{C.SUPABASE_PUBLISHABLE_KEY}"></div>
 '''
     page('ai', 'Mada AI',
-         'Mada AI: Readiness Assessment, AI CV Review, Mada Academy, Fit and Case Interviews and Case Math Mastery. Single AI interviews from $30, or the Practice Pass for $100 a month.',
+         'Mada AI: Readiness Assessment, AI CV Review, Mada Academy, Fit and Case Interviews and Case Math Mastery. Your first AI interview is free, then the Practice Pass is $100 a month.',
          body, ctx, extra_js=('js/waitlist.js',))
 
 
