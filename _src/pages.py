@@ -453,32 +453,41 @@ def ai():
   </div>
 </section>'''
 
-    # ---- 3. Six ways to prepare: name, one benefit, one price line, one CTA. A label only where a tool is not open yet.
-    def card(ic, title, benefit, price, cta_html, soon=False):
+    # ---- 3. Six ways to prepare: name, one benefit, then either one button or "Try for free" plus "Subscribe".
+    def card(ic, title, benefit, foot_html, note='', soon=False):
         pill = '<span class="ai-pill soon">Coming soon</span>' if soon else ''
         return f'''<article class="lp-card reveal">
 <div class="lp-card-top"><span class="lp-card-ic">{icon(ic)}</span>{pill}</div>
 <h3>{title}</h3>
 <p class="lp-benefit">{benefit}</p>
-<p class="lp-price">{price}</p>
-<div class="lp-card-foot">{cta_html}</div></article>'''
-    def go(label, page, track):
-        return f'<a class="btn btn-primary btn-sm" href="{u(page)}" data-lp="{track}">{label} {arrow}</a>'
-    def notify(tool):
-        return waitlist_btn(tool, 'Get notified')
+<p class="lp-note">{note}</p>
+<div class="lp-card-foot">{foot_html}</div></article>'''
+    def btn(label, page, track, primary=True, qs=''):
+        return f'<a class="btn {"btn-primary" if primary else "btn-ghost"} btn-sm" href="{u(page)}{qs}" data-lp="{track}">{label}</a>'
+    def off(label):
+        return f'<span class="btn btn-ghost btn-sm is-disabled" aria-disabled="true">{label}</span>'
+    def notify(tool, label='Get notified'):
+        return waitlist_btn(tool, label)
+    pass_p, acad_p, maths_p = C.AI_PASS_PRICE_USD, C.ACADEMY_PRICE_USD, C.MATHS_PRICE_USD
     tools = [
-        card('search', 'Readiness Assessment', 'Find out where you stand and what to work on next.', '<b>Free</b>',
-             go('Assess my readiness', 'ai/readiness', 'assess_card') if ready_live else notify('Readiness Assessment'), not ready_live),
-        card('doc', 'AI CV Review', 'Improve your CV and resubmit it, with structured feedback each time.', '<b>$20</b> for 3 CV reviews',
-             notify('AI CV Review'), True),
-        card('compass', 'Mada Academy', 'Learn to solve cases step by step, with exercises and a voice coach.', f'Take a free look <span>&middot; ${C.ACADEMY_PRICE_USD}/month for full access</span>',
-             go('Explore Mada Academy', 'ai/learn', 'academy_card') if learn_live else notify('Introduction to Case Solving'), not learn_live),
-        card('mic', 'Fit Interviews', 'Practise your stories, motivation and leadership answers.', f'Free introductory interview <span>&middot; ${C.AI_PASS_PRICE_USD}/month Practice Pass</span>',
-             notify('Fit Interviews'), True),
-        card('chat', 'Case Interviews', 'Solve a live, spoken case with an interviewer you choose.', (f'First interview free <span>&middot; ' if free_first else '<span>') + f'${C.AI_PASS_PRICE_USD}/month Practice Pass</span>',
-             go('Try a free interview' if free_first else 'Start a case interview', 'ai/case-practice/start', 'free_interview_card') if case_live else notify('Case Interviews'), not case_live),
-        card('bolt', 'Case Math Mastery', 'Build the speed and accuracy that cases demand.', f'<b>${C.MATHS_PRICE_USD}</b>/month <span>&middot; Included with Practice Pass</span>',
-             go('Practise case math', 'ai/maths', 'maths_card') if drills_live else notify('Case Math Mastery'), not drills_live),
+        card('search', 'Readiness Assessment', 'Find out where you stand and what to work on next.',
+             btn('Assess my readiness', 'ai/readiness', 'assess_card') if ready_live else notify('Readiness Assessment'),
+             '<b>Free</b>', not ready_live),
+        card('doc', 'AI CV Review', 'Improve your CV and resubmit it, with structured feedback each time.',
+             notify('AI CV Review'), '<b>$20</b> for 3 CV reviews', True),
+        card('compass', 'Mada Academy', 'Learn to solve cases step by step, with exercises and a voice coach.',
+             (btn('Try for free', 'ai/learn', 'academy_free') + btn(f'Subscribe &middot; ${acad_p}/mo', 'ai/learn', 'academy_subscribe', False, '?subscribe=1')) if learn_live else notify('Introduction to Case Solving'),
+             '', not learn_live),
+        card('mic', 'Fit Interviews', 'Practise your stories, motivation and leadership answers.',
+             off('Try for free') + off(f'Subscribe &middot; ${pass_p}/mo'),
+             f'{notify("Fit Interviews", "Get notified")}', True),
+        card('chat', 'Case Interviews', 'Solve a live, spoken case with an interviewer you choose.',
+             ((btn('Try for free', 'ai/case-practice/start', 'free_interview_card') if free_first else btn('Start a case', 'ai/case-practice/start', 'start_case_card')) +
+              (btn(f'Subscribe &middot; ${pass_p}/mo', 'ai/case-practice/start', 'pass_subscribe', False, '?subscribe=1') if C.AI_PASS_LIVE else '')) if case_live else notify('Case Interviews'),
+             '', not case_live),
+        card('bolt', 'Case Math Mastery', 'Build the speed and accuracy that cases demand.',
+             btn(f'Subscribe &middot; ${maths_p}/mo', 'ai/maths', 'maths_subscribe') if drills_live else notify('Case Math Mastery'),
+             'Included with Practice Pass', not drills_live),
     ]
     catalog = f'''<section class="bg-mist" id="tools">
   <div class="wrap">
@@ -508,7 +517,12 @@ def ai():
     case_html = ''.join(f'<li class="ai-step reveal"><div class="ai-step-top">{icon(ic)}<span class="ai-num">{n}</span></div><h3>{t}</h3><p>{d}</p><div class="ai-step-vis">{v}</div></li>'
                         for n, ic, t, d, v in case_steps)
     rd = ('<div class="ai-vis lp-read"><p class="lp-lesson">Approaching a Case</p><ul><li class="done">Read the lesson</li><li class="done">Try the exercise</li><li>Get specific AI feedback</li></ul></div>')
-    tk = ('<div class="ai-vis lp-talk"><p class="you">Can we work through this structure together?</p><p class="bot"><b>Nour</b> Of course. What is your first branch, and why does it come first?</p></div>')
+    nw = ''.join(f'<i style="--d:{i * 0.1:.1f}s"></i>' for i in range(9))
+    tk = (f'<div class="ai-vis lp-talk" aria-label="Sample conversation with Nour">'
+          '<p class="b1 you">Can we work through my structure together?</p>'
+          f'<p class="b2 bot"><b>Nour</b><span class="nw" aria-hidden="true">{nw}</span>Of course. What is your first branch, and why does it come first?</p>'
+          '<p class="b3 you">Costs, because profit fell while revenue held.</p>'
+          f'<p class="b4 bot"><b>Nour</b><span class="nw" aria-hidden="true">{nw}</span>Good. What would you test next to confirm it?</p></div>')
     wt = ('<div class="ai-vis lp-watch"><span class="lp-play" aria-hidden="true"><svg viewBox="0 0 24 24" width="26" height="26"><path d="M8 5.5v13l11-6.5z" fill="currentColor"/></svg></span><span class="ai-pill soon">Coming soon</span></div>')
     acad = [('01', 'book', 'Read and practise', 'Written lessons with interactive exercises and specific feedback.', rd),
             ('02', 'chat', 'Talk with Nour', 'Your AI tutor: explain, question, structure and work through cases.', tk),
@@ -522,7 +536,6 @@ def ai():
     <ol class="ai-steps">{case_html}</ol>
     <h3 class="lp-sub reveal">Learn in Mada Academy</h3>
     <ol class="ai-steps three">{acad_html}</ol>
-    <p class="lp-foot reveal">Illustrations show the product experience with sample content.</p>
   </div>
 </section>'''
 
@@ -555,13 +568,13 @@ def ai():
             ('Learning', 'Open-ended conversation', 'A structured Academy curriculum'),
             ('Progress', 'Depends on how you set it up', 'Assessment and interview reports'),
             ('Interviewers', 'Personas you define', 'Dedicated AI interviewer profiles')]
-    body_rows = ''.join(f'<tr><th scope="row">{d}</th><td>{g}</td><td class="cmp-mada">{m}</td></tr>' for d, g, m in rows)
+    body_rows = ''.join(f'<tr><th scope="row">{d}</th><td data-label="Generic AI">{g}</td><td class="cmp-mada" data-label="Mada AI">{m}</td></tr>' for d, g, m in rows)
     compare = f'''<section class="bg-mist" id="compare">
   <div class="wrap narrow">
     <div class="section-head reveal"><p class="eyebrow">Why Mada AI</p><h2>Why Mada AI over generic AI?</h2>
       <p class="lede">General AI can help you prepare. Mada AI is built specifically for consulting interviews.</p></div>
-    <div class="cmp-scroll reveal" role="region" aria-label="Generic AI compared with Mada AI" tabindex="0">
-    <table class="cmp lp-cmp"><thead><tr><th scope="col"><span class="sr-only">Dimension</span></th><th scope="col"><span class="cmp-name">Generic AI</span></th><th scope="col" class="cmp-mada"><span class="cmp-name">Mada AI</span></th></tr></thead>
+    <div class="lp-cmp-wrap reveal">
+    <table class="lp-cmp"><thead><tr><th scope="col"><span class="sr-only">Dimension</span></th><th scope="col">Generic AI</th><th scope="col" class="cmp-mada">Mada AI</th></tr></thead>
     <tbody>{body_rows}</tbody></table></div>
     <p class="cmp-note">General AI tools are capable and flexible. This compares a ready-made, purpose-built experience with one you set up yourself.</p>
   </div>
@@ -585,7 +598,7 @@ def ai():
 
     closing = f'''<section class="bg-navy">
   <div class="wrap narrow center" style="text-align:center">
-    <h2>Practise with AI. Refine with an expert.</h2>
+    <h2 class="lp-close-h"><span>Practise with AI.</span><span>Refine with an expert.</span></h2>
     <p class="lede center" style="margin-top:16px">Build confidence through consistent AI practice, then work with experienced consultants to sharpen your performance.</p>
     <div class="btn-row" style="justify-content:center;margin-top:28px"><a class="btn btn-primary" href="{u('ai/case-practice/start') if case_live else '#tools'}" data-lp="practise_final">Practise with Mada AI {arrow}</a><a class="btn btn-ghost" href="{u('expert')}" data-lp="expert">Explore Expert Coaching {arrow}</a></div>
   </div>

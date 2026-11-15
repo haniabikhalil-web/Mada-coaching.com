@@ -26,6 +26,7 @@
   var CAP_MIN = 25, CAP_SECS = CAP_MIN * 60; // matches the Max conversation duration on every ElevenLabs interviewer
   var PASS_LIVE = app.getAttribute('data-pass-live') === '1';
   var passReturn = /[?&]pass=1/.test(location.search);
+  var wantsPass = /[?&]subscribe=1/.test(location.search);
   var paidReturn = /[?&]paid=1/.test(location.search) || passReturn;
   var CONSENT_VERSION = '2026-10-v1';
   var RETENTION_DAYS = 90;
@@ -121,6 +122,7 @@
     if (!tries) loader('Checking your account\u2026'); // the shared ring stays until the next screen replaces it
     balance().then(function (b) {
       if (!b) return signInForm('Your session expired. Sign in again.');
+      if (wantsPass && PASS_LIVE && !b.pass && !paidReturn) { wantsPass = false; return payScreen(); }
       if (b.free && !b.pass && b.credits === 0 && !paidReturn) return setup('Your first AI interview is free. Choose your interviewer and case below. No payment needed.');
       if (b.pass || b.credits > 0) return setup(paidReturn ? (passReturn ? 'Subscription active. You are ready to start.' : 'Payment received. You are ready to start.') : undefined);
       if (paidReturn && tries < 10) { loader('Confirming your payment\u2026'); return setTimeout(function () { gate(tries + 1); }, 3000); }
