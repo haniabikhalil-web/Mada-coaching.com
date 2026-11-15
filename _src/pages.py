@@ -1006,6 +1006,29 @@ def cv_review():
 
 
 # ---------------------------------------------------------------- resources
+def subscribe_block(ctx):
+    """Email signup (marketing consent). Wording version site-2026-11-15; see docs/email-automation/consent-wording.md in mada-ai.
+    The checkbox is unticked, the browser holds only the publishable key and can only call subscribe_marketing()."""
+    u = ctx.url
+    if not C.SUPABASE_PUBLISHABLE_KEY:
+        return ''
+    return f'''<section class="tight" id="subscribe">
+  <div class="wrap narrow">
+    <h2>Get practical advice by email</h2>
+    <p class="muted">Short, practical emails on breaking into consulting, plus news about our coaching and Mada AI. No spam, and you can unsubscribe at any time.</p>
+    <form id="subscribe-form" class="sub-form" novalidate data-api="{C.SUPABASE_URL}" data-key="{C.SUPABASE_PUBLISHABLE_KEY}">
+      <label class="wl-label" for="sub-email">Email address</label>
+      <input class="wl-input" id="sub-email" name="email" type="email" autocomplete="email" inputmode="email" required maxlength="254">
+      <label class="wl-consent"><input type="checkbox" id="sub-consent"><span>Send me emails from Mada Coaching: practical advice on breaking into consulting, and news about our coaching and Mada AI. I can unsubscribe at any time.</span></label>
+      <p class="wl-msg" id="sub-msg" role="status" aria-live="polite"></p>
+      <button class="btn btn-primary" type="submit" id="sub-submit">Sign up</button>
+      <p class="muted small">We use your email only to send you Mada emails. See our <a href="{u('privacy')}">Privacy Policy</a>. Mada Coaching FZE, Sharjah Publishing City Free Zone, United Arab Emirates.</p>
+      <noscript><p class="muted small">JavaScript is needed for this form. Or write to <a href="mailto:{C.EMAIL}">{C.EMAIL}</a>.</p></noscript>
+    </form>
+  </div>
+</section>'''
+
+
 def resources():
     from guides_data import GUIDES
     import re
@@ -1038,11 +1061,12 @@ def resources():
 <section class="tight" style="padding-top:0">
   <div class="wrap"><p class="muted">From reading to doing: practice with <a href="{u('ai')}">Mada AI</a>, or work 1:1 with a <a href="{u('expert')}">Mada Expert coach</a>.</p></div>
 </section>
+{subscribe_block(ctx)}
 {cta_band(ctx, 'Want this applied to your own situation?', 'A free 20-minute intro call is the quickest way to find out where to focus.')}
 '''
     page('resources', 'Free consulting recruiting guides',
          'Free guides on consulting CVs, case and fit interviews, networking, Saudi and UAE recruiting, offers and your first 90 days in consulting.',
-         body, ctx)
+         body, ctx, extra_js=('js/subscribe.js',))
 
 
 # ---------------------------------------------------------------- book
@@ -1152,6 +1176,7 @@ def legal_pages():
         ('Payments and deleting your account', f'<p>Payments are processed by Stripe. We do not receive or store your full card number.</p><p>When you delete your Mada account, we cancel any active subscription straight away and delete your account data, apart from records we must keep (for example, payment records for accounting and tax).</p><p>Stripe keeps its own records of your payments, and it may keep your customer record, including your email address and saved card details, as needed for payment processing, tax, and fraud prevention. These are held under Stripe&rsquo;s own privacy policy. If you want your Stripe customer record erased as well, contact <a href="mailto:{E}">{E}</a>.</p>'),
         ('How long we keep it', '<p>We keep booking and payment records for as long as required for tax and accounting purposes. We keep coaching materials and session notes for up to 24 months after your last session so we can pick up where we left off, unless you ask us to delete them sooner.</p>'),
         ('Your rights', f'<p>You can ask us for a copy of the personal information we hold about you, ask us to correct it, ask us to delete it, object to how we use it, or ask us to restrict its use. Write to <a href="mailto:{E}">{E}</a> and we will respond within 30 days. If you are not satisfied with our response, you may complain to the data protection authority where you live.</p>'),
+        ('Marketing emails', f'<p>If you tick the box on a sign-up form or on our booking page, we send you occasional emails with advice on consulting recruiting and news about our coaching and Mada AI. We rely on your consent, which you can withdraw at any time with the unsubscribe link in every marketing email, or by writing to <a href="mailto:{E}">{E}</a>. We keep a record of when and how you agreed. If you book or buy from us, we still send you the emails about that booking or purchase, which are not marketing. We never sell your email address.</p>'),
         ('Cookies and analytics', f'<p>This site sets no cookies of its own, but we use Google Analytics to measure how the site is used. It sets cookies in your browser and sends Google information about your visit, including your approximate location based on your IP address. We rely on our legitimate interest in understanding and improving the site, we have not enabled Google&rsquo;s advertising features, and we do not use this data to identify you individually. Our <a href="../cookies/">Cookie Policy</a> sets out exactly what is set and how to opt out.</p>'),
         ('Changes', '<p>If we change this policy we will update the date at the top of this page.</p>'),
     ], 'How Mada Coaching collects, uses and protects your personal information.')
