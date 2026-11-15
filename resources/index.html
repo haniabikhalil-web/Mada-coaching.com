@@ -30,7 +30,7 @@
 <meta name="twitter:card" content="summary_large_image">
 <link rel="preload" href="../assets/fonts/bricolage-grotesque.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="../assets/fonts/instrument-sans.woff2" as="font" type="font/woff2" crossorigin>
-<link rel="stylesheet" href="../assets/css/site.css?v=127">
+<link rel="stylesheet" href="../assets/css/site.css?v=128">
 <script>document.documentElement.classList.add('js')</script>
 </head>
 <body>
@@ -190,6 +190,21 @@
 <section class="tight" style="padding-top:0">
   <div class="wrap"><p class="muted">From reading to doing: practice with <a href="../ai/">Mada AI</a>, or work 1:1 with a <a href="../expert/">Mada Expert coach</a>.</p></div>
 </section>
+<section class="tight" id="subscribe">
+  <div class="wrap narrow">
+    <h2>Get practical advice by email</h2>
+    <p class="muted">Short, practical emails on breaking into consulting, plus news about our coaching and Mada AI. No spam, and you can unsubscribe at any time.</p>
+    <form id="subscribe-form" class="sub-form" novalidate data-api="https://gjijobwtergfgeaaildq.supabase.co" data-key="sb_publishable_bQyU2LHpTxWVnqBN1eMoNA_LBozNVx6">
+      <label class="wl-label" for="sub-email">Email address</label>
+      <input class="wl-input" id="sub-email" name="email" type="email" autocomplete="email" inputmode="email" required maxlength="254">
+      <label class="wl-consent"><input type="checkbox" id="sub-consent"><span>Send me emails from Mada Coaching: practical advice on breaking into consulting, and news about our coaching and Mada AI. I can unsubscribe at any time.</span></label>
+      <p class="wl-msg" id="sub-msg" role="status" aria-live="polite"></p>
+      <button class="btn btn-primary" type="submit" id="sub-submit">Sign up</button>
+      <p class="muted small">We use your email only to send you Mada emails. See our <a href="../privacy/">Privacy Policy</a>. Mada Coaching FZE, Sharjah Publishing City Free Zone, United Arab Emirates.</p>
+      <noscript><p class="muted small">JavaScript is needed for this form. Or write to <a href="mailto:hello@mada-coaching.com">hello@mada-coaching.com</a>.</p></noscript>
+    </form>
+  </div>
+</section>
 
 <section class="tight"><div class="wrap">
   <div class="cta-band reveal">
@@ -250,6 +265,7 @@
     </div>
   </div>
 </footer>
-<script src="../assets/js/site.js?v=127" defer></script>
+<script src="../assets/js/site.js?v=128" defer></script>
+<script src="../assets/js/subscribe.js?v=128" defer></script>
 </body>
 </html>

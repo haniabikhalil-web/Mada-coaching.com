@@ -1238,3 +1238,7 @@ section.mm-sec{padding-top:40px}
 .subhero .cycle b::before{color:var(--cobalt);font-weight:700;margin-right:8px}
 .subhero .cycle span{color:var(--stone);font-size:14px;line-height:1.45}.subhero .cycle a{color:var(--cobalt);font-weight:600}
 @media (max-width:720px){.subhero .cycle{grid-template-columns:1fr}}
+/* resources: email signup */
+.sub-form{max-width:480px;margin-top:20px}
+.sub-form .btn{margin-top:4px}
+.sub-form .small{font-size:13px;margin-top:14px}
