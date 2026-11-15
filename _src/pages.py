@@ -413,185 +413,199 @@ def waitlist_btn(tool, label='Join the waitlist'):
     return (f'<a class="ai-link" data-waitlist="{tool}" href="{waitlist_href(tool)}">{label} <span aria-hidden="true">&rarr;</span></a>')
 
 
-# The four steps of an AI interview (item 17). Formats are shown as status chips, never as buttons.
-AI_STEPS = [
-    ('01', 'Choose your interview format', 'Select a Case Interview or a Fit Interview.', 'chat'),
-    ('02', 'Customize your interview', 'Choose your AI interviewer, interview/case type, and difficulty level where applicable.', 'compass'),
-    ('03', 'Practice in a realistic interview', 'Work through the interview with your chosen AI interviewer, responding to questions and solving problems in real time.', 'mic'),
-    ('04', 'Get your feedback', 'Receive a structured performance report identifying strengths, areas for improvement, and recommended next steps.', 'doc'),
-]
+# ---- Mada AI landing page (/ai/). Journey = how it works; catalog = what you can use; previews = what it looks like.
+# Prices come from config. "Sample" content in the previews is illustrative and labelled as such.
+def _tick():
+    return '<svg viewBox="0 0 20 20" width="16" height="16" aria-hidden="true"><path d="M5 10.4l3.2 3.2L15 6.8" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>'
 
 
 def ai():
     ctx = Ctx('ai')
     u = ctx.url
     drills_live = bool(C.MATHS_PAID_LIVE)
+    ready_live = bool(C.READINESS_LIVE and C.READINESS_LISTED)
+    learn_live = bool(C.LEARN_LISTED)
+    case_live = bool(C.AI_PRACTICE_LIVE)
+    free_first = bool(C.FREE_FIRST_LIVE and case_live)
+    arrow = '<span class="arrow" aria-hidden="true">&rarr;</span>'
 
-    # ---- 1. The six products: what you practice.
-    products = [
-        ('target', 'Readiness Assessment', 'Find out where you stand across CV, case solving, quantitative skills and fit, get a personalised report and a plan for what to improve first.', 'ai/readiness'),
-        ('doc', 'AI CV Review', 'Upload your CV and get instant, structured feedback on impact, clarity and positioning, with clear fixes to make before you apply.', None),
-        ('compass', 'Mada Academy', 'Learn how to approach a case, build a structured framework and solve with confidence. Read, practise, talk it through with Nour, and get feedback on every exercise.', 'ai/learn'),
-        ('mic', 'Fit Interviews', 'Practice your personal stories, consulting motivation, leadership and behavioral questions with realistic AI interviewers.', None),
-        ('chat', 'Case Interviews', 'Solve realistic business problems, test your quantitative skills and deliver a recommendation in an interactive AI-led case.', 'ai/case-practice/start'),
-        ('bolt', 'Case Math Mastery', 'Build calculation speed, accuracy and confidence through interactive quantitative practice.', 'ai/maths'),
-    ]
-    def product_card(n, p):
-        ic, t, d, page = p
-        live = bool(page) and (drills_live if page == 'ai/maths' else bool(C.LEARN_LISTED) if page == 'ai/learn' else bool(C.READINESS_LIVE and C.READINESS_LISTED) if page == 'ai/readiness' else bool(C.AI_PRACTICE_LIVE))
-        pill = ('<span class="ai-pill live">Open now</span>' if live else '<span class="ai-pill soon">Coming soon</span>')
-        price = ''
-        if page == 'ai/maths':
-            price = f'<p class="ai-prod-price"><b>${C.MATHS_PRICE_USD}</b> / month <span>&middot; included with the Practice Pass</span></p>'
-        if page == 'ai/case-practice/start':
-            price = ((f'<p class="ai-prod-price"><b>Free</b> <span>&middot; your first AI interview</span></p>' if C.FREE_FIRST_LIVE else '') +
-                     f'<p class="ai-prod-price"><b>${C.AI_PASS_PRICE_USD}</b> / month <span>&middot; Practice Pass, up to 3 interviews a day{"" if C.AI_PASS_LIVE else ", coming soon"}</span></p>')
-        cta = (f'<a class="btn btn-primary btn-sm" href="{u(page)}">{"Start practicing" if page == "ai/maths" else "Start learning" if page == "ai/learn" else "Assess my readiness" if page == "ai/readiness" else "Start a case"} <span class="arrow" aria-hidden="true">&rarr;</span></a>' if live
-               else waitlist_btn(t))
-        if page == 'ai/learn' and live:
-            price = (f'<p class="ai-prod-price"><b>Free</b> <span>&middot; lessons 1 and 2</span></p>'
-                     f'<p class="ai-prod-price"><b>${C.ACADEMY_PRICE_USD}</b> / month <span>&middot; Mada Academy, the full course</span></p>')
-        elif page == 'ai/readiness':
-            price = '<p class="ai-prod-price"><b>Free</b> <span>&middot; about eight minutes</span></p>'
-        elif t in ('AI CV Review',):
-            price = '<p class="ai-prod-price"><span>Pricing announced when it opens</span></p>'
-        return f'''<article class="ai-prod{' is-live' if live else ''} reveal">
-<div class="ai-prod-top">{icon(ic)}<span class="ai-num">{n:02d}</span></div>
-<h3>{t}</h3><p class="ai-prod-desc">{d}</p>{price}
-<div class="ai-prod-foot">{pill}{cta}</div></article>'''
-    cards = [product_card(i, p) for i, p in enumerate(products, 1)]
-    product_cards = f'<div class="ai-prods top">{"".join(cards[:3])}</div><div class="ai-prods bottom">{"".join(cards[3:])}</div>'
-
-    # ---- 2. How an AI interview works (replaces the old pricing section; pricing lives on the purchase page).
-    formats = [('Case', True), ('Fit', False)]
-    fmt_chips = ''.join(
-        f'<li><span>{n}</span><span class="ai-pill {"live" if live else "soon"}">{"Available now" if live else "Coming soon"}</span></li>' for n, live in formats)
-    def visual(num):
-        """Small decorative illustration per step (aria-hidden, except the format list which carries real availability)."""
-        if num == '01':
-            return f'<ul class="ai-formats" aria-label="Interview formats and availability">{fmt_chips}</ul>'
-        if num == '02':
-            faces = ''.join(f'<img src="{ctx.asset("img/interviewers/" + n + ".jpg")}" alt="" width="44" height="44" loading="lazy">' for n in ('tatiana', 'faisal', 'alex', 'layal'))
-            return (f'<div class="ai-vis" aria-hidden="true"><div class="ai-faces">{faces}<span class="ai-more">+2</span></div>'
-                    '<div class="ai-seg"><span>Easier</span><span class="on">Standard</span><span>Harder</span></div></div>')
-        if num == '03':
-            bars = ''.join(f'<i style="--d:{i * 0.12:.2f}s;--h:{h}%"></i>' for i, h in enumerate((30, 62, 44, 85, 55, 96, 48, 72, 36, 64, 28, 52)))
-            return (f'<div class="ai-vis ai-live" aria-hidden="true"><span class="ai-rec"><b></b>Live</span><div class="ai-wave">{bars}</div></div>')
-        return ('<div class="ai-vis ai-report" aria-hidden="true"><span class="ai-eg">Example report</span>'
-                '<div><em>Structure</em><u style="--w:82%"></u></div><div><em>Quantitative</em><u style="--w:64%"></u></div>'
-                '<div><em>Communication</em><u style="--w:90%"></u></div></div>')
-    steps = []
-    for num, title, text, ic in AI_STEPS:
-        steps.append(f'''<li class="ai-step reveal"><div class="ai-step-top">{icon(ic)}<span class="ai-num">{num}</span></div>
-<h3>{title}</h3><p>{text}</p><div class="ai-step-vis">{visual(num)}</div></li>''')
-    how = f'<ol class="ai-steps">{"".join(steps)}</ol>'
-
-    # ---- 3. Interviewers: one data list, any number of profiles.
-    minis = ''.join(f'''<div class="mini-persona reveal"><img src="{ctx.asset("img/interviewers/" + i["img"] + ".jpg")}" alt="{i["name"]}, {i["title"]}" width="160" height="160" loading="lazy">
-<h3>{i['name']}</h3><span class="tag">{i['title']}</span><p>{i['traits']}</p></div>''' for i in INTERVIEWER_PROFILES)
-
-    # ---- 4. Comparison: six rows, then an illustrative value strip. Statements reflect what is live today.
-    CHK = '<svg class="cmp-ic ok" viewBox="0 0 20 20" width="18" height="18" aria-hidden="true"><circle cx="10" cy="10" r="10" fill="currentColor" opacity=".14"/><path d="M5.8 10.4l2.8 2.8 5.6-6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><span class="sr-only">Yes: </span>'
-    CAL = '<svg class="cmp-ic cal" viewBox="0 0 20 20" width="18" height="18" aria-hidden="true"><rect x="3" y="4.5" width="14" height="12.5" rx="2.5" fill="none" stroke="currentColor" stroke-width="1.7"/><path d="M3.5 8.5h13M7 3v3M13 3v3" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg>'
-    HEAD_IC = {
-        'repeat': '<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M17 2l3 3-3 3"/><path d="M4 11V9a4 4 0 0 1 4-4h12"/><path d="M7 22l-3-3 3-3"/><path d="M20 13v2a4 4 0 0 1-4 4H4"/></svg>',
-        'sparkle': '<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8z"/><path d="M19 15l.7 2.3L22 18l-2.3.7L19 21l-.7-2.3L16 18l2.3-.7z"/></svg>',
-        'people': '<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="8" r="3.2"/><path d="M3 20c0-3.3 2.7-6 6-6s6 2.7 6 6"/><circle cx="17" cy="9" r="2.4"/><path d="M16.5 14.2c2.6.2 4.5 2.3 4.5 5"/></svg>',
-    }
-    def cell(text, icon=''):
-        return f'<span class="cmp-cell">{icon}<span>{text}</span></span>'
-    compare_rows = [
-        ('Specialization', cell('Consulting interviews'), cell('General-purpose'), cell('Consulting expertise'), ''),
-        ('Availability', cell('Anytime, 24/7', CHK), cell('Anytime, 24/7', CHK), cell('By appointment', CAL), ''),
-        ('Experience', cell('Realistic AI interviews'), cell('Prompt-driven practice'), cell('Live 1:1 coaching'), ''),
-        ('Ideal use', cell('Repetition &amp; skill building'), cell('Exploration &amp; fundamentals'), cell('Refinement &amp; mentorship'), 'cmp-key'),
-        ('Feedback', cell('Structured &amp; case-specific'), cell('Prompt-dependent'), cell('Deep &amp; personalized'), ''),
-        ('Pricing', cell(f'Free first interview, then ${C.AI_PASS_PRICE_USD}/month Practice Pass'), cell('Free &amp; paid plans'), cell('Per-session fees'), ''),
-    ]
-    cmp_body = ''.join(
-        f'<tr class="{k}"><th scope="row">{d}</th><td class="cmp-mada">{m}</td><td>{g}</td><td>{h}</td></tr>' for d, m, g, h, k in compare_rows)
-    compare = f'''<div class="cmp-scroll" role="region" aria-label="Comparison of Mada AI, general AI tools and human expert coaches" tabindex="0">
-<table class="cmp">
-<thead><tr><th scope="col"><span class="sr-only">Category</span></th>
-<th scope="col" class="cmp-mada"><span class="cmp-ico">{HEAD_IC['repeat']}</span><span class="cmp-badge">Best for practice</span><span class="cmp-name">Mada AI</span><span class="cmp-sub">Best for everyday practice</span></th>
-<th scope="col"><span class="cmp-ico">{HEAD_IC['sparkle']}</span><span class="cmp-name">General AI Tools</span><span class="cmp-sub">Best for general preparation</span></th>
-<th scope="col"><span class="cmp-ico">{HEAD_IC['people']}</span><span class="cmp-name">Human Expert Coaches</span><span class="cmp-sub">Best for personalized refinement</span></th></tr></thead>
-<tbody>{cmp_body}</tbody></table></div>
-<p class="cmp-note">Capabilities and pricing may vary by provider, subscription plan, and individual coach.</p>'''
-
-    journey = ''
-    assess_btn = ''
-    if C.READINESS_LISTED and C.READINESS_LIVE:
-        assess_btn = f'<a class="btn btn-ghost" href="{u("ai/readiness")}">Assess my readiness</a>'
-        j_steps = [
-            ('01', 'Mada Readiness Assessment', 'Discover where you stand and what to improve. Free, about eight minutes.', 'ai/readiness', 'Assess my readiness'),
-            ('02', 'Mada Academy', 'Learn consulting case-solving fundamentals, one skill at a time.', 'ai/learn', 'See the course' if C.LEARN_LISTED else ''),
-            ('03', 'Practice with Mada AI', 'Simulate realistic consulting interviews and get a scored report.', 'ai/case-practice/start', 'Start an interview'),
-            ('04', 'Personalised improvement', 'Follow a plan built from your results and track real progress.', 'ai/readiness', 'See my plan'),
-        ]
-        cards_j = ''.join(
-            f'<li class="jn-step reveal"><span class="jn-num">{n}</span><h3>{t}</h3><p>{d}</p>' + (f'<a href="{u(pg)}">{cta} <span aria-hidden="true">&rarr;</span></a>' if cta else '') + '</li>'
-            for n, t, d, pg, cta in j_steps)
-        journey = f'''<section class="bg-mist" id="journey">
-  <div class="wrap">
-    <div class="section-head reveal"><p class="eyebrow">Your preparation journey</p><h2>Start with where you stand</h2>
-      <p class="lede">New to Mada? Take the assessment first. Already practised? Jump straight to the Academy or an interview.</p></div>
-    <ol class="jn-steps">{cards_j}</ol>
+    # ---- Hero: two CTAs, one product preview (sample data, labelled).
+    case_cta = 'Try a free AI interview' if free_first else 'Start a case interview'
+    hero_secondary = (f'<a class="btn btn-ghost" href="{u("ai/case-practice/start")}" data-lp="free_interview">{case_cta} {arrow}</a>' if case_live else '')
+    hero_primary = (f'<a class="btn btn-primary" href="{u("ai/readiness")}" data-lp="assess_hero">Assess my readiness {arrow}</a>' if ready_live
+                    else f'<a class="btn btn-primary" href="#tools">See the tools {arrow}</a>')
+    free_note = ('The assessment and your first AI interview are free.' if (ready_live and free_first) else
+                 'The assessment is free.' if ready_live else '')
+    bars = [('Case structure', 72), ('Quantitative', 58), ('Fit stories', 81), ('Applications', 64)]
+    hero_bars = ''.join(f'<div class="lp-bar"><span>{n}</span><i><u style="--w:{v}%"></u></i><b>{v}</b></div>' for n, v in bars)
+    hero_visual = f'''<figure class="lp-shot" aria-label="Sample readiness report. Illustrative data.">
+  <div class="lp-shot-top"><span class="lp-dot"></span><span class="lp-dot"></span><span class="lp-dot"></span><em>Readiness report</em></div>
+  <div class="lp-shot-body">
+    <div class="lp-score"><b>68</b><span>Developing</span></div>
+    <div class="lp-bars">{hero_bars}</div>
+    <p class="lp-next"><em>Work on first</em> Quantitative: 2 Academy lessons and a Case Math drill</p>
   </div>
-</section>
-'''
+  <figcaption>Sample report. Illustrative data.</figcaption>
+</figure>'''
+
+    # ---- Journey: compact connected stepper. Recommended path, not prerequisites.
+    j = [
+        ('01', 'Assess', 'See your strengths and gaps.', 'search'),
+        ('02', 'Learn', 'Build case-solving skills in Mada Academy.', 'compass'),
+        ('03', 'Practice', 'Simulate realistic interviews.', 'mic'),
+        ('04', 'Improve', 'Get feedback and work on what matters.', 'bolt'),
+    ]
+    plan_link = (f'<a class="lp-j-link" data-lp="plan" data-signed-label="View my progress" href="{u("ai/readiness")}">Get my plan {arrow}</a>' if ready_live else '')
+    j_html = ''.join(f'<li class="lp-j"><span class="lp-j-n">{n}</span><span class="lp-j-ic">{icon(ic)}</span><h3>{t}</h3><p>{d}</p>{plan_link if n == "04" else ""}</li>' for n, t, d, ic in j)
+    journey = f'''<section class="lp-journey" id="how-it-works">
+  <div class="wrap">
+    <div class="section-head reveal"><p class="eyebrow">How Mada AI works</p><h2>Assess. Learn. Practice. Improve.</h2>
+      <p class="lede">A recommended path, not a requirement. Open any tool directly whenever you like.</p></div>
+    <ol class="lp-steps reveal">{j_html}</ol>
+  </div>
+</section>'''
+
+    # ---- Catalog: six cards with one shape: status, title, who it is for, benefit, access, one CTA.
+    def card(ic, title, who, benefit, access, live, cta_html):
+        pill = '<span class="ai-pill live">Open now</span>' if live else '<span class="ai-pill soon">Coming soon</span>'
+        return f'''<article class="lp-card{' is-live' if live else ''} reveal">
+<div class="lp-card-top"><span class="lp-card-ic">{icon(ic)}</span>{pill}</div>
+<h3>{title}</h3>
+<p class="lp-who">{who}</p>
+<p class="lp-benefit">{benefit}</p>
+<p class="lp-access">{access}</p>
+<div class="lp-card-foot">{cta_html}</div></article>'''
+    def go(label, page, track):
+        return f'<a class="btn btn-primary btn-sm" href="{u(page)}" data-lp="{track}">{label} {arrow}</a>'
+    tools = [
+        card('search', 'Readiness Assessment', 'For anyone starting out', 'See where you stand on your CV, cases, quantitative skills and fit, with a personal report and plan.',
+             '<b>Free</b> &middot; about eight minutes', ready_live,
+             go('Assess my readiness', 'ai/readiness', 'assess_card') if ready_live else waitlist_btn('Readiness Assessment')),
+        card('doc', 'AI CV Review', 'For anyone about to apply', 'Upload your CV and get structured feedback on impact, clarity and positioning, with fixes to make.',
+             'Pricing announced when it opens', False, waitlist_btn('AI CV Review')),
+        card('compass', 'Mada Academy', 'For new and early case solvers', 'Learn to solve cases step by step, with exercises, AI feedback and Nour, your voice coach.',
+             f'<b>Free</b> lessons 1 and 2 &middot; <b>${C.ACADEMY_PRICE_USD}</b> / month for the full course', learn_live,
+             go('Start learning', 'ai/learn', 'academy_card') if learn_live else waitlist_btn('Introduction to Case Solving')),
+        card('mic', 'Fit Interviews', 'For personal and behavioural rounds', 'Practise your stories, motivation and leadership answers with realistic AI interviewers.',
+             'Pricing announced when it opens', False, waitlist_btn('Fit Interviews')),
+        card('chat', 'Case Interviews', 'For candidates with interviews coming up', 'Solve a live, spoken case with an interviewer you choose, then get a scored report.',
+             (f'<b>Free</b> first interview &middot; ' if free_first else '') + f'<b>${C.AI_PASS_PRICE_USD}</b> / month Practice Pass', case_live,
+             go(case_cta, 'ai/case-practice/start', 'free_interview_card') if case_live else waitlist_btn('Case Interviews')),
+        card('bolt', 'Case Math Mastery', 'For anyone slow or unsure on numbers', 'Build calculation speed and accuracy with interactive case-math practice.',
+             f'<b>${C.MATHS_PRICE_USD}</b> / month, or included in the Practice Pass', drills_live,
+             go('Practice case math', 'ai/maths', 'maths_card') if drills_live else waitlist_btn('Case Math Mastery')),
+    ]
+    catalog = f'''<section id="tools">
+  <div class="wrap">
+    <div class="section-head reveal"><p class="eyebrow">Preparation tools</p><h2>Six ways to prepare</h2></div>
+    <div class="lp-cards">{"".join(tools)}</div>
+  </div>
+</section>'''
+
+    # ---- Inside Mada AI: four product previews built from real interface patterns. Sample data, labelled.
+    lessons = [('Understanding Case Interviews', 'Free'), ('Approaching a Case', 'Free'), ('Building Structured Frameworks', 'Academy'), ('Solving Quantitative Problems', 'Academy')]
+    les = ''.join(f'<li><span>{t}</span><em class="{"free" if s == "Free" else ""}">{s}</em></li>' for t, s in lessons)
+    pv_ready = f'''<figure class="lp-pv"><div class="lp-pv-h"><span>Readiness Assessment</span><em>Sample</em></div>
+<div class="lp-bars">{hero_bars}</div><figcaption>Your score by skill, with the plan to improve it.</figcaption></figure>'''
+    pv_learn = f'''<figure class="lp-pv"><div class="lp-pv-h"><span>Mada Academy</span><em>Sample</em></div>
+<ul class="lp-lessons">{les}</ul>
+<div class="lp-chat"><p class="you">How do I decide which branch to open first?</p><p class="bot"><b>Nour</b> Start with the branch most likely to explain the change, and say why before you dig in.</p></div>
+<figcaption>Lessons, exercises and a voice coach, Nour.</figcaption></figure>'''
+    pv_ai = f'''<figure class="lp-pv"><div class="lp-pv-h"><span>AI case interview</span><em>Sample</em></div>
+<div class="lp-chat tall"><p class="bot"><b>Interviewer</b> Revenue is flat but profit fell 20%. Where would you start?</p><p class="you">I would split profit into revenue and costs, then check which one moved.</p><p class="bot"><b>Interviewer</b> Good. Costs rose. Which costs would you look at first, and why?</p></div>
+<figcaption>A spoken case with an interviewer you choose.</figcaption></figure>'''
+    pv_improve = f'''<figure class="lp-pv"><div class="lp-pv-h"><span>Your improvement plan</span><em>Sample</em></div>
+<div class="lp-score-grid"><div><h4>Strengths</h4><p>{_tick()} Clear structure<br>{_tick()} Confident delivery</p></div>
+<div><h4>To improve</h4><p>Quantitative speed<br>Closing with a recommendation</p></div></div>
+<p class="lp-next"><em>Recommended</em> Case Math drill, then a Case Interview</p>
+<figcaption>Feedback and a plan you can track over time.</figcaption></figure>'''
+    previews = f'''<section class="bg-mist" id="inside">
+  <div class="wrap">
+    <div class="section-head reveal"><p class="eyebrow">Inside Mada AI</p><h2>See what you will use</h2>
+      <p class="lede">Examples of the real experience. All content shown here is sample data for illustration.</p></div>
+    <div class="lp-pvs reveal">{pv_ready}{pv_learn}{pv_ai}{pv_improve}</div>
+  </div>
+</section>'''
+
+    # ---- Interviewers: three representatives, link to the full list on the start page.
+    pick = [p for p in INTERVIEWER_PROFILES if p['name'] in ('Tatiana', 'Arthur', 'Joe')]
+    minis = ''.join(f'''<div class="mini-persona reveal"><img src="{ctx.asset("img/interviewers/" + i["img"] + ".jpg")}" alt="{i["name"]}, {i["title"]}" width="160" height="160" loading="lazy">
+<h3>{i['name']}</h3><span class="tag">{i['title']}</span><p>{i['traits']}</p></div>''' for i in pick)
+    more = (f'<p class="lp-more"><a href="{u("ai/case-practice/start")}" data-lp="see_interviewers">Meet all {len(INTERVIEWER_PROFILES)} interviewers when you start a case {arrow}</a></p>' if case_live else '')
+    interviewers = f'''<section id="interviewers">
+  <div class="wrap">
+    <div class="section-head reveal"><p class="eyebrow">Your interviewers</p><h2>Practise with different styles</h2>
+      <p class="lede">Choose an interviewer, a case type and a difficulty level, so you are ready for a partner, a principal or a manager.</p></div>
+    <div class="mini-grid three">{minis}</div>
+    {more}
+  </div>
+</section>'''
+
+    # ---- Pricing and access. Source of truth: config prices and the access rules in the backend.
+    pass_note = '' if C.AI_PASS_LIVE else ' (coming soon)'
+    access_rows = [
+        ('Free', ['Readiness Assessment' if ready_live else '', 'Mada Academy lessons 1 and 2, with sign-in' if learn_live else '',
+                  'Your first AI case interview (limited places each day)' if free_first else '']),
+        (f'Practice Pass &middot; ${C.AI_PASS_PRICE_USD} / month{pass_note}', ['AI case interviews, up to 3 in 24 hours', 'Case Math Mastery included']),
+        (f'Mada Academy &middot; ${C.ACADEMY_PRICE_USD} / month', ['The full course, with AI feedback on every exercise', 'A separate subscription: the Practice Pass does not include it']),
+        (f'Case Math Mastery &middot; ${C.MATHS_PRICE_USD} / month', ['On its own, if you only want the drills']),
+    ]
+    acc = ''.join(
+        f'<div class="lp-acc reveal"><h3>{h}</h3><ul>' + ''.join(f'<li>{_tick()}<span>{x}</span></li>' for x in items if x) + '</ul></div>'
+        for h, items in access_rows)
+    pricing = f'''<section class="bg-mist" id="pricing">
+  <div class="wrap">
+    <div class="section-head reveal"><p class="eyebrow">Pricing and access</p><h2>Free to start. Pay only for what you use.</h2>
+      <p class="lede">The Academy and the Practice Pass are separate subscriptions. Fit Interviews and AI CV Review will be priced when they open.</p></div>
+    <div class="lp-accs">{acc}</div>
+  </div>
+</section>'''
+
+    # ---- AI plus human coaching: complementary, not competing. No claims about outcomes.
+    coaching = f'''<section id="coaching">
+  <div class="wrap">
+    <div class="section-head reveal"><p class="eyebrow">AI and human coaching</p><h2>Practice with AI. Refine with an expert.</h2></div>
+    <div class="lp-duo reveal">
+      <div class="lp-duo-c"><h3>Mada AI</h3><ul><li>{_tick()}<span>Practice any time, as often as you like</span></li><li>{_tick()}<span>Structured learning at your own pace</span></li><li>{_tick()}<span>Immediate, scored feedback after each session</span></li></ul></div>
+      <div class="lp-duo-c"><h3>Mada expert coaching</h3><ul><li>{_tick()}<span>Personal judgement on your story and answers</span></li><li>{_tick()}<span>Guidance from consultants who have interviewed for real</span></li><li>{_tick()}<span>Accountability through your search</span></li></ul></div>
+    </div>
+    <div class="btn-row center reveal"><a class="btn btn-primary" href="{u('expert')}" data-lp="expert">Explore expert coaching {arrow}</a></div>
+  </div>
+</section>'''
+
+    final_cta = ('Assess my readiness' if ready_live else 'See the tools')
+    final = f'''<section class="bg-navy">
+  <div class="wrap narrow center" style="text-align:center">
+    <h2>Start with where you stand</h2>
+    <p class="lede center" style="margin-top:16px">{free_note + " " if free_note else ""}Find your starting point, then learn, practise and improve at your own pace.</p>
+    <div class="btn-row" style="justify-content:center;margin-top:28px"><a class="btn btn-primary" href="{u("ai/readiness") if ready_live else "#tools"}" data-lp="assess_final">{final_cta} {arrow}</a>{(f'<a class="btn btn-ghost" href="{u("ai/case-practice/start")}" data-lp="free_interview_final">{case_cta} {arrow}</a>') if case_live else ''}</div>
+  </div>
+</section>'''
+
     body = f'''
-<header class="subhero ai-hero"><div class="wrap">
-  <p class="eyebrow">Mada AI</p>
-  <h1>Practice with purpose</h1>
-  <p class="lede">Walk into your consulting interview prepared. Realistic AI interviews, available 24/7, with structured feedback after every session.</p>
-  <div class="btn-row"><a class="btn btn-primary" href="#products">See what you can practice <span class="arrow" aria-hidden="true">&darr;</span></a>{assess_btn}</div>
+<header class="subhero ai-hero lp-hero"><div class="wrap lp-hero-grid">
+  <div>
+    <p class="eyebrow">Mada AI</p>
+    <h1>Learn smarter. Practise better. Interview confidently.</h1>
+    <p class="lede">Everything you need to prepare for consulting interviews, in one place. Build your skills, practise realistic interviews and get personalised feedback to improve.</p>
+    <div class="btn-row">{hero_primary}{hero_secondary}</div>
+    {f'<p class="lp-free">{free_note}</p>' if free_note else ''}
+  </div>
+  {hero_visual}
 </div></header>
 {journey}
-
-<section id="products">
-  <div class="wrap">
-    <div class="section-head reveal"><p class="eyebrow">What you can practice</p><h2>Six ways to prepare</h2></div>
-    {product_cards}
-  </div>
-</section>
-
-<section class="bg-mist" id="how-it-works">
-  <div class="wrap">
-    <div class="section-head reveal"><p class="eyebrow">How it works</p><h2>Your interview, your way</h2>
-      <p class="lede">Choose your interview format, customize your experience, and get actionable feedback.</p></div>
-    {how}
-  </div>
-</section>
-
-<section id="interviewers">
-  <div class="wrap">
-    <div class="section-head reveal"><p class="eyebrow">Your interviewers</p><h2>Different interviewers. Different styles</h2>
-      <p class="lede">From Partner to Manager, practice with different personalities and seniority to be ready for any interview.</p></div>
-    <div class="mini-grid">{minis}</div>
-  </div>
-</section>
-
-<section class="cmp-section" id="compare">
-  <div class="wrap">
-    <div class="section-head reveal"><p class="eyebrow">Compare your options</p><h2>The right preparation at every stage.</h2>
-      <p class="lede">Practice consistently with Mada AI. Explore ideas with general AI tools. Perfect your performance with expert coaches.</p></div>
-    <div class="reveal">{compare}</div>
-  </div>
-</section>
-
-<section class="bg-navy">
-  <div class="wrap narrow center" style="text-align:center">
-    <h2>Practice more with AI. Go further with experts.</h2>
-    <p class="lede center" style="margin-top:16px">Build your skills through consistent AI practice, then refine your performance with personalized coaching from experienced consultants.</p>
-    <div class="btn-row" style="justify-content:center;margin-top:28px"><a class="btn btn-primary" href="{u('ai/case-practice/start')}">Practice with Mada AI <span class="arrow" aria-hidden="true">&rarr;</span></a><a class="btn btn-ghost" href="{u('expert')}">Explore Expert Coaching <span class="arrow" aria-hidden="true">&rarr;</span></a></div>
-  </div>
-</section>
+{catalog}
+{previews}
+{interviewers}
+{pricing}
+{coaching}
+{final}
 <div id="waitlist-cfg" hidden data-api="{C.SUPABASE_URL}" data-key="{C.SUPABASE_PUBLISHABLE_KEY}"></div>
 '''
     page('ai', 'Mada AI',
-         'Mada AI: Readiness Assessment, AI CV Review, Mada Academy, Fit and Case Interviews and Case Math Mastery. Your first AI interview is free, then the Practice Pass is $100 a month.',
-         body, ctx, extra_js=('js/waitlist.js',))
+         'Mada AI: assess your readiness, learn case solving, practise realistic AI interviews and improve. The assessment and your first AI interview are free.' if (ready_live and free_first) else
+         'Mada AI: assess your readiness, learn case solving, practise realistic AI interviews and improve.',
+         body, ctx, extra_js=('js/ai-session.js', 'js/ai-landing.js', 'js/waitlist.js'))
 
 
 # ---------------------------------------------------------------- AI case practice: choose your interviewer
