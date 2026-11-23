@@ -210,6 +210,11 @@ COACHES = [
      'edu': ['BE Computer Engineering, Saint Joseph University of Beirut'],
      'count': '50+',
      'linkedin': 'https://www.linkedin.com/in/jad-jarade/'},
+    {'name': 'Karim El Melki', 'photo': 'karimelmelki.jpg', 'role': 'Associate Manager',
+     'prev': 'Ektis &middot; PwC &middot; KPMG &middot; Deloitte',
+     'edu': ['BBA, Finance, American University of Beirut'],
+     'count': '30+',
+     'linkedin': 'https://www.linkedin.com/in/karim-el-melki-057a0b99/'},
     {'name': 'Misha Faraz', 'photo': 'misha.jpg', 'role': 'Consultant',
      'prev': 'McKinsey &middot; Strategy&amp;',
      'edu': ['MBA, The Wharton School', 'BSc Economics and Management, King&rsquo;s College London'],
@@ -243,6 +248,7 @@ SCHOOLS = {
     'Natalie Tleel': ['INSEAD', 'University of Toronto'],
     'Misha Faraz': ['Wharton', "King's College London"],
     'Jad Jarade': ['Saint Joseph University of Beirut'],
+    'Karim El Melki': ['American University of Beirut'],
 }
 for _c in COACHES:
     _c['companies'] = [x.strip() for x in _c['prev'].split('&middot;')]
