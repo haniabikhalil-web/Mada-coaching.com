@@ -22,7 +22,7 @@
   function when(iso) { var d = new Date(iso); return isNaN(d) ? '' : d.toLocaleString(undefined, { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }); }
   var LABEL = {
     timing: { 'already-interviewing': 'Already interviewing', 'within-1-month': 'Within 1 month', '1-3-months': 'In 1–3 months', '3-6-months': 'In 3–6 months', later: 'Later than 6 months', exploring: 'Just exploring', 'not-answered': 'Not answered' },
-    tool: { 'intro-case-solving': 'Intro to case solving', 'fit-interviews': 'Fit interviews', 'full-mock-interviews': 'Full mock interviews', 'ai-cv-review': 'AI CV review' }
+    tool: { 'intro-case-solving': 'Intro to case solving', 'fit-interviews': 'Fit interviews', 'ai-cv-review': 'AI CV review' }
   };
 
   function load() {

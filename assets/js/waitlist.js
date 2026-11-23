@@ -11,7 +11,6 @@
   var SLUGS = {
     'Introduction to Case Solving': 'intro-case-solving',
     'Fit Interviews': 'fit-interviews',
-    'Full Mock Interviews': 'full-mock-interviews',
     'AI CV Review': 'ai-cv-review',
     'All Access': 'all-access'
   };
