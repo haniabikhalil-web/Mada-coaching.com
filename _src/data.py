@@ -205,7 +205,7 @@ COACHES = [
      'edu': ['MBA, INSEAD', 'BEng Chemical Engineering, minors in Business and Sustainable Energy, University of Toronto'],
      'count': '30+',
      'linkedin': 'https://www.linkedin.com/in/natalietleel/'},
-    {'name': 'Jad Jarade', 'photo': 'jad.jpg', 'role': 'Consultant',
+    {'name': 'Jad Jarade', 'photo': 'jad.jpg', 'role': 'Senior Consultant',
      'prev': 'Kearney',
      'edu': ['BE Computer Engineering, Saint Joseph University of Beirut'],
      'count': '50+',
