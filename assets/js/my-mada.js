@@ -11,7 +11,14 @@
   var REPORTS = app.getAttribute('data-reports') || '../reports/';
   var BOOK = app.getAttribute('data-book') || '../../expert/';
   var S = window.MadaSession;
+  var UI = window.MadaUI;
   var token = null, email = '';
+
+  // The product catalog (names, text, icons, status, links, CTA labels, prices) is written once, in the build, from the site config.
+  // Every tile on this page, owned or in Explore more, reads from it; nothing about a product is typed again below.
+  var CAT = {};
+  try { JSON.parse(app.getAttribute('data-catalog') || '[]').forEach(function (p) { CAT[p.id] = p; }); } catch (e) {}
+  function P(id) { return CAT[id] || { id: id, name: id, text: '', icon: '', status: 'soon', href: '', cta: '', price: '' }; }
 
   function el(tag, cls, text) {
     var n = document.createElement(tag);
@@ -132,52 +139,33 @@
   }
 
   // ---------------------------------------------------------------- page
-  var ICONS = {
-    interview: 'M12 3a3 3 0 0 0-3 3v6a3 3 0 0 0 6 0V6a3 3 0 0 0-3-3zM5 11a7 7 0 0 0 14 0M12 18v3',
-    maths: 'M5 4h14v16H5zM8 8h8M8 12h2M12 12h2M16 12h0M8 16h2M12 16h2M16 16h0',
-    reports: 'M7 3h8l4 4v14H7zM15 3v4h4M10 12h6M10 16h6',
-    coach: 'M9 11a3 3 0 1 0 0-6 3 3 0 0 0 0 6zM3 20a6 6 0 0 1 12 0M17 11a2.5 2.5 0 1 0 0-5M21 19a5 5 0 0 0-4-4.9',
-    unlimited: 'M7 8a4 4 0 1 0 0 8c4 0 6-8 10-8a4 4 0 1 1 0 8c-4 0-6-8-10-8z',
-    intro: 'M4 5a2 2 0 0 1 2-2h13v16H6a2 2 0 0 0-2 2zM4 19V5M9 8h6M9 12h4',
-    fit: 'M4 5h16v11H9l-5 4zM8 9.5h8M8 12.5h5',
-    mock: 'M12 3l9 5-9 5-9-5zM3 13l9 5 9-5M3 17.5l9 5 9-5',
-    cv: 'M7 3h8l4 4v14H7zM15 3v4h4M10 14l2 2 4-4'
-  };
-  function icon(name) {
-    var NS = 'http://www.w3.org/2000/svg';
-    var s = document.createElementNS(NS, 'svg');
-    s.setAttribute('viewBox', '0 0 24 24'); s.setAttribute('width', '22'); s.setAttribute('height', '22');
-    s.setAttribute('fill', 'none'); s.setAttribute('stroke', 'currentColor'); s.setAttribute('stroke-width', '1.8');
-    s.setAttribute('stroke-linecap', 'round'); s.setAttribute('stroke-linejoin', 'round'); s.setAttribute('aria-hidden', 'true');
-    var p = document.createElementNS(NS, 'path'); p.setAttribute('d', ICONS[name]); s.appendChild(p);
-    return s;
-  }
-
-  // One product tile. o: {icon, title, text, note, pill, pillCls, cta:{text,href}, manage:fn, owned}
-  function tile(o) {
-    var t = el('div', 'mm-tile' + (o.owned ? ' owned' : ' explore'));
-    var top = el('div', 'mm-tile-top');
-    var ic = el('span', 'mm-icon'); ic.appendChild(icon(o.icon)); top.appendChild(ic);
-    if (o.pill) top.appendChild(el('span', 'badge ' + (o.pillCls || ''), o.pill));
-    t.appendChild(top);
-    t.appendChild(el('h3', null, o.title));
-    if (o.text) t.appendChild(el('p', 'mm-text', o.text));
-    if (o.note) t.appendChild(el('p', 'mm-note', o.note));
-    var foot = el('div', 'mm-foot');
-    if (o.cta) foot.appendChild(link(o.cta.text, o.cta.href, o.owned ? 'btn btn-primary btn-sm' : 'btn btn-ghost btn-sm'));
-    if (!o.owned && !o.cta) return t;
-    if (o.owned) {
-      // Same row, same size, in every owned tile; an empty row where there is no subscription keeps the buttons level
-      var mrow = el('div', 'mm-mrow');
-      if (o.manage) {
-        var m = el('button', 'mm-manage', 'Manage subscription'); m.type = 'button';
-        m.addEventListener('click', function () { o.manage(m); });
-        mrow.appendChild(m);
+  // One product tile, built from its catalog entry p with the shared card. o (all optional) is what only this account knows:
+  // {owned, text, note, pill, pillCls, cta:{text,href}, manage:fn}. Anything not given here comes from the catalog.
+  function tile(p, o) {
+    o = o || {};
+    var owned = !!o.owned, soon = p.status !== 'live';
+    var cta = o.cta || (!soon && p.href && p.cta ? { text: p.cta, href: p.href } : null);
+    var foot = null;
+    if (cta || owned) {
+      foot = el('div', 'mm-foot');
+      if (!owned && !soon && p.price) foot.appendChild(el('p', 'mm-price', p.price));
+      if (cta) foot.appendChild(link(cta.text, cta.href, owned ? 'btn btn-primary btn-sm' : 'btn btn-ghost btn-sm'));
+      if (owned) {
+        // Same row, same size, in every owned tile; an empty row where there is no subscription keeps the buttons level
+        var mrow = el('div', 'mm-mrow');
+        if (o.manage) {
+          var m = el('button', 'mm-manage', 'Manage subscription'); m.type = 'button';
+          m.addEventListener('click', function () { o.manage(m); });
+          mrow.appendChild(m);
+        }
+        foot.appendChild(mrow);
       }
-      foot.appendChild(mrow);
     }
-    t.appendChild(foot);
-    return t;
+    return UI.card({
+      cls: 'mm-tile ' + (owned ? 'owned' : 'explore'), icon: p.icon, title: p.name,
+      text: o.text !== undefined ? o.text : p.text, note: o.note,
+      badge: o.pill || (soon ? 'Coming soon' : ''), badgeCls: o.pill ? (o.pillCls || '') : (soon ? 'soon' : ''), foot: foot
+    });
   }
   function portal(fn) {
     return function (btn) {
@@ -193,7 +181,7 @@
   function group(label, tiles) {
     var g = el('div', 'mm-group');
     g.appendChild(el('h2', 'mm-label', label));
-    var grid = el('div', 'mm-grid');
+    var grid = el('div', 'm-grid mm-grid');
     tiles.forEach(function (t) { grid.appendChild(t); });
     g.appendChild(grid);
     return g;
@@ -208,7 +196,7 @@
       if (h) h.classList.add('mm-compact');
     } else {
       t.textContent = 'Everything you have with Mada, in one place.';
-      l.textContent = 'Sign in once to see your Case Math Mastery, your AI case interviews and your reports, and to manage your subscription.';
+      l.textContent = 'Sign in once to see your Case Math Mastery, your Case Interviews and your reports, and to manage your subscription.';
       if (h) h.classList.remove('mm-compact');
     }
     l.hidden = false;
@@ -229,63 +217,58 @@
     var mine = [], more = [], notes = [];
     var failed = function (what) { notes.push('We could not load ' + what + ' just now. Refresh in a minute.'); };
 
+    var ex = {};   // Explore more tiles by catalog id; the order they appear in is set once, below
+
     // Practice Pass
     var passOn = !!(pass && pass.ok && pass.data && pass.data.active);
     if (pass && pass.error) failed('your Practice Pass');
     else if (passOn) {
-      mine.push(tile({ owned: true, icon: 'unlimited', title: 'Practice Pass', pill: 'Active', pillCls: 'good',
+      mine.push(tile(P('pass'), { owned: true, pill: 'Active', pillCls: 'good',
         text: 'Up to ' + pass.data.dailyLimit + ' interviews a day. Quality beats quantity, so space your sessions out and reflect on each report.', note: renewal(pass.data) + (typeof pass.data.minutesUsed === 'number' && pass.data.monthlyMinutes ? (renewal(pass.data) ? ' \u00b7 ' : '') + pass.data.minutesUsed + ' of ' + pass.data.monthlyMinutes + ' interview minutes used in the last ' + pass.data.monthlyWindowDays + ' days' : ''),
         cta: { text: 'Start an interview', href: START }, manage: portal('/functions/v1/pass-access') }));
     } else {
-      more.push(tile({ icon: 'unlimited', title: 'Practice Pass', text: 'One subscription for Case, Fit and Full Mock interviews, with Case Math Mastery included.', cta: { text: 'See the options', href: START } }));
+      ex.pass = tile(P('pass'));
     }
 
-    // Case interviews (single credits)
+    // Case Interviews (single credits)
     var credits = bal.ok && bal.data ? bal.data.credits : null;
     var list = rep.ok && rep.data ? (rep.data.reports || []) : null;
     if (credits === null && list === null) failed('your interviews');
     if (credits > 0 && !passOn) {
-      mine.push(tile({ owned: true, icon: 'interview', title: 'AI case interviews', pill: credits + ' ready', pillCls: 'good',
+      mine.push(tile(P('case'), { owned: true, pill: credits + ' ready', pillCls: 'good',
         text: 'You have ' + credits + ' practice interview' + (credits === 1 ? '' : 's') + ' ready to use.',
         cta: { text: 'Start a practice interview', href: START } }));
     } else if (!passOn && credits !== null && bal.data && bal.data.free_first) {
-      mine.push(tile({ owned: true, icon: 'interview', title: 'AI case interviews', pill: 'First one free', pillCls: 'good',
+      mine.push(tile(P('case'), { owned: true, pill: 'First one free', pillCls: 'good',
         text: 'Your first AI case interview is free. Choose an interviewer and a case, speak for about 25 minutes and get a scored report.',
         cta: { text: 'Start your free interview', href: START } }));
     } else if (!passOn && credits !== null) {
-      more.push(tile({ icon: 'interview', title: 'AI case interviews', text: 'Practice a real case with an AI interviewer and get a scored report.', cta: { text: 'Practice a case', href: START } }));
+      ex.case = tile(P('case'));
     }
 
-    // Maths drills
+    // Case Math Mastery
     if (!maths.off) {
       var mOn = !!(maths.ok && maths.data && maths.data.active);
       if (maths.error) failed('your Case Math Mastery');
       else if (mOn) {
         var pr = mathsProgress();
-        mine.push(tile({ owned: true, icon: 'maths', title: 'Case Math Mastery', pill: 'Active', pillCls: 'good',
-          text: pr ? pr.n + ' questions answered, ' + pr.pct + '% correct.' : 'Timed case-math questions with worked solutions.', note: renewal(maths.data),
+        mine.push(tile(P('maths'), { owned: true, pill: 'Active', pillCls: 'good',
+          text: pr ? pr.n + ' questions answered, ' + pr.pct + '% correct.' : undefined, note: renewal(maths.data),
           cta: { text: 'Open Case Math Mastery', href: MATHS_URL }, manage: portal('/functions/v1/maths-access') }));
       } else {
-        more.push(tile({ icon: 'maths', title: 'Case Math Mastery', text: 'Timed case-math questions with worked solutions and a progress report.', cta: { text: 'See Case Math Mastery', href: MATHS_URL } }));
+        ex.maths = tile(P('maths'));
       }
     }
 
     // Reports
     if (list && list.length) {
-      mine.push(tile({ owned: true, icon: 'reports', title: 'Your reports', pill: list.length + (list.length === 1 ? ' report' : ' reports'),
+      mine.push(tile({ id: 'reports', name: 'Your reports', icon: 'reports', status: 'live' }, { owned: true, pill: list.length + (list.length === 1 ? ' report' : ' reports'),
         text: 'Every practice interview you have taken, ready to read again.', cta: { text: 'See my reports', href: REPORTS } }));
     }
 
-    // Coaching, always something to explore
-    more.push(tile({ icon: 'coach', title: 'Coaching with a Mada coach', text: 'Work 1:1 with a consultant on your applications, cases and offers.', cta: { text: 'See coaching options', href: BOOK } }));
-
-    // Not built yet: shown so the road ahead is visible
-    [['intro', 'Introduction to Case Solving', 'A guided start for newcomers: how cases work and how to structure your first one.'],
-     ['fit', 'Fit Interviews', 'Practice behavioral and motivation questions with an AI interviewer and get feedback on your stories.'],
-     ['mock', 'Full Mock Interviews', 'A complete interview, case and fit together, with one report at the end.'],
-     ['cv', 'AI CV Review', 'Upload your CV and get structured feedback on what consulting recruiters look for.']].forEach(function (x) {
-      more.push(tile({ icon: x[0], title: x[1], text: x[2], pill: 'Coming soon', pillCls: 'soon' }));
-    });
+    // The rest of the catalog: always something to explore. Coming-soon products are shown so the road ahead is visible.
+    ['readiness', 'academy', 'coach', 'fit', 'cv'].forEach(function (id) { ex[id] = tile(P(id)); });
+    ['pass', 'readiness', 'academy', 'case', 'maths', 'coach', 'fit', 'cv'].forEach(function (id) { if (ex[id]) more.push(ex[id]); });
 
     if (mine.length) app.appendChild(group('Your products', mine));
     else {

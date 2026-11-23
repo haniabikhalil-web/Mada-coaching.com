@@ -1,5 +1,7 @@
 """Page content. Each function builds one page."""
 import re
+import json
+import html as _html
 from build import (Ctx, page, icon, faq, cta_band, intro_btn, book_href, waitlist_href, mailto, C)
 from data import (STAGES, FULL_JOURNEY, AI_TOOLS, HANI, COACHES, TESTIMONIALS, SEGMENTS, PRINCIPLES, faq_full)
 
@@ -737,9 +739,9 @@ def ai_learn():
 <section id="ln-pitch">
   <div class="wrap">
     <div class="journey three">
-      <div class="step"><div class="step-top">{icon('book')}<span class="num">01</span></div><h3>Read and practise</h3><p>Structured written lessons with interactive exercises and specific AI feedback.</p></div>
+      <div class="step"><div class="step-top">{icon('book')}<span class="num">01</span></div><h3>Read &amp; Practice</h3><p>Structured written lessons with interactive exercises and specific AI feedback.</p></div>
       <div class="step"><div class="step-top">{icon('chat')}<span class="num">02</span></div><h3>Talk with Nour</h3><p>A conversational AI tutor who explains, answers questions, helps you structure problems, works through cases with you and challenges your reasoning.</p></div>
-      <div class="step"><div class="step-top">{icon('play')}<span class="num">03</span></div><h3>Watch and learn</h3><p>Short instructional videos that explain concepts visually. <span class="ai-pill soon">Coming soon</span></p></div>
+      <div class="step"><div class="step-top">{icon('play')}<span class="num">03</span></div><h3>Watch &amp; Learn</h3><p>Short instructional videos that explain concepts visually. <span class="ai-pill soon">Coming soon</span></p></div>
     </div>
     <h2 class="lp-sub" style="margin-top:44px">What you will cover</h2>
     <ul class="lp-topics">{topics_html}</ul>
@@ -755,7 +757,7 @@ def ai_learn():
 '''
     page('ai/learn', 'Mada Academy',
          'Mada Academy: a structured course on consulting case interviews, with exercises, AI feedback and a conversational coach.',
-         body, ctx, noindex=True, extra_js=('js/ai-session.js', 'js/learn.js'))
+         body, ctx, noindex=True, extra_js=('js/mada-ui.js', 'js/ai-session.js', 'js/learn.js'))
 
 
 # ---------------------------------------------------------------- Mada Readiness Assessment
@@ -787,12 +789,47 @@ def ai_readiness():
 
 
 # ---------------------------------------------------------------- Mada AI "My Mada" (one sign-in; everything the candidate has, in one place)
+def product_catalog(u):
+    """The Mada AI product catalog. My Mada is its source of truth: every tile (the ones a candidate owns and the Explore more
+    ones) takes its name, text, icon, status, link, CTA label and price from here, so a change is made once. Coming-soon items
+    have no link. 'plan' and 'service' entries are not among the six Mada AI products but sit in the same grid."""
+    def status(flag):
+        return 'live' if flag else 'soon'
+    start = u('ai/case-practice/start')
+    maths_live = bool(C.MATHS_PAID_LIVE and C.SUPABASE_PUBLISHABLE_KEY)
+    return [
+        dict(id='pass', kind='plan', name='Practice Pass', icon='unlimited', status=status(C.AI_PASS_LIVE), href=start,
+             cta='See the options', price=f'${C.AI_PASS_PRICE_USD}/month',
+             text='One monthly subscription for your AI interviews, with Case Math Mastery included.'),
+        dict(id='readiness', kind='product', name='Readiness Assessment', icon='gauge', status=status(C.READINESS_LIVE), href=u('ai/readiness'),
+             cta='Take the assessment', price='Free',
+             text='A free eight-minute assessment of where you stand, with a personal plan for what to work on next.'),
+        dict(id='cv', kind='product', name='AI CV Review', icon='cv', status='soon', href='', cta='', price='',
+             text='Upload your CV and get structured feedback on what consulting recruiters look for.'),
+        dict(id='academy', kind='product', name='Mada Academy', icon='cap', status=status(C.LEARN_LIVE), href=u('ai/learn'),
+             cta='Open Mada Academy', price=f'${C.ACADEMY_PRICE_USD}/month for full access',
+             text='Structured lessons and exercises to learn case solving step by step, with Talk with Nour, your AI coach, in every lesson.'),
+        dict(id='fit', kind='product', name='Fit Interviews', icon='fit', status='soon', href='', cta='', price='',
+             text='Practice behavioral and motivation questions with an AI interviewer and get feedback on your stories.'),
+        dict(id='case', kind='product', name='Case Interviews', icon='interview', status='live', href=start,
+             cta='Practice a case', price=f'From ${C.AI_PRACTICE_PRICE_USD} per interview',
+             text='Practice a real case with an AI interviewer and get a scored report.'),
+        dict(id='maths', kind='product', name='Case Math Mastery', icon='maths', status=status(maths_live), href=u('ai/maths'),
+             cta='See Case Math Mastery', price=f'${C.MATHS_PRICE_USD}/month, included with Practice Pass',
+             text='Timed case-math questions with worked solutions and a progress report.'),
+        dict(id='coach', kind='service', name='Coaching with a Mada coach', icon='coach', status='live', href=u('expert'),
+             cta='See coaching options', price='',
+             text='Work 1:1 with a consultant on your applications, cases and offers.'),
+    ]
+
+
 def ai_account():
     ctx = Ctx('ai/account')
     u = ctx.url
     cfg_url = C.SUPABASE_URL if C.SUPABASE_PUBLISHABLE_KEY else ''
     cfg_key = C.SUPABASE_PUBLISHABLE_KEY or ''
     maths = '1' if (C.MATHS_PAID_LIVE and C.SUPABASE_PUBLISHABLE_KEY) else ''
+    catalog = _html.escape(json.dumps(product_catalog(u), separators=(',', ':')), quote=True)
     body = f'''
 <header class="subhero" id="mm-hero"><div class="wrap">
   <p class="eyebrow">Mada AI &middot; My Mada</p>
@@ -802,7 +839,7 @@ def ai_account():
 <section>
   <div class="wrap narrow">
     <div id="account-app" data-api="{cfg_url}" data-key="{cfg_key}" data-maths="{maths}"
-         data-maths-url="{u('ai/maths')}" data-start="{u('ai/case-practice/start')}" data-reports="{u('ai/reports')}" data-book="{u('expert')}" aria-live="polite">
+         data-maths-url="{u('ai/maths')}" data-start="{u('ai/case-practice/start')}" data-reports="{u('ai/reports')}" data-book="{u('expert')}" data-catalog="{catalog}" aria-live="polite">
       <noscript><p>This page needs JavaScript.</p></noscript>
       <p class="muted">Loading&hellip;</p>
     </div>
@@ -812,7 +849,7 @@ def ai_account():
 '''
     page('ai/account', 'My Mada',
          'Your Mada AI Case Math Mastery, case interviews and reports in one place.',
-         body, ctx, noindex=True, extra_js=('js/ai-session.js', 'js/my-profile.js', 'js/my-mada.js'))
+         body, ctx, noindex=True, extra_js=('js/mada-ui.js', 'js/ai-session.js', 'js/my-profile.js', 'js/my-mada.js'))
 
 
 # ---------------------------------------------------------------- Mada team dashboard (coach accounts only; the database refuses everyone else)
@@ -879,17 +916,19 @@ def ai_start():
 </div></header>
 <section>
   <div class="wrap">
-    <div id="call-app" data-api="{cfg_url}" data-key="{cfg_key}" data-price="{C.AI_PRACTICE_PRICE_USD}" data-pass-live="{1 if C.AI_PASS_LIVE else 0}" data-pass-price="{C.AI_PASS_PRICE_USD}" aria-live="polite">
+    <div id="call-app" data-api="{cfg_url}" data-key="{cfg_key}" data-price="{C.AI_PRACTICE_PRICE_USD}" data-pass-live="{1 if C.AI_PASS_LIVE else 0}" data-pass-price="{C.AI_PASS_PRICE_USD}" data-terms="{u('terms')}" aria-live="polite">
       <noscript><p>This page needs JavaScript and a microphone.</p></noscript>
       <p class="muted">Loading&hellip;</p>
     </div>
-    <p class="muted" style="margin-top:32px">Your earlier reports: <a href="{u('ai/reports')}">My reports</a>. Problems with your call? <a href="mailto:{C.EMAIL}">{C.EMAIL}</a>. The report is a Mada developmental assessment, not official employer scoring. See our <a href="{u('privacy')}">privacy policy</a>.</p>
+    <div class="m-info" data-mada-info data-reports="{u('ai/reports')}" data-support="mailto:{C.EMAIL}" data-privacy="{u('privacy')}" data-home="{u('')}">
+      <noscript><p class="muted">Your earlier reports: <a href="{u('ai/reports')}">My reports</a>. Problems with your call? <a href="mailto:{C.EMAIL}">{C.EMAIL}</a>. The report is a Mada developmental assessment, not official employer scoring. See our <a href="{u('privacy')}">privacy policy</a>.</p></noscript>
+    </div>
   </div>
 </section>
 '''
     page('ai/case-practice/start', 'Start AI case practice',
          'Sign in to My Mada, choose your interviewer, case type and difficulty, and start a spoken AI case interview.',
-         body, ctx, noindex=True, extra_js=('js/vendor/elevenlabs-client.js', 'js/ai-session.js', 'js/report-view.js', 'js/call.js'))
+         body, ctx, noindex=True, extra_js=('js/mada-ui.js', 'js/vendor/elevenlabs-client.js', 'js/ai-session.js', 'js/report-view.js', 'js/call.js'))
 
 
 # ---------------------------------------------------------------- coaches
