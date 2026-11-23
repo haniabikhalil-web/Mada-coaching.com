@@ -170,34 +170,9 @@
   // ---------------------------------------------------------------- dashboard
   function levelLabel(id) { for (var i = 0; i < LEVELS.length; i++) if (LEVELS[i].id === id) return LEVELS[i].title; return ''; }
 
-  var ICONS = {
-    check: ['M5 12.5l4.5 4.5L19 7.5'],
-    lock: ['M7 11V8a5 5 0 0 1 10 0v3', 'M6 11h12v9H6z'],
-    clock: ['M12 7v5l3 2', 'circle'],
-    arrow: ['M5 12h14', 'M13 6l6 6-6 6'],
-    flag: ['M6 21V4', 'M6 5h11l-2 4 2 4H6'],
-    book: ['M4 5.5C6.5 4.5 9.5 4.5 12 6c2.5-1.5 5.5-1.5 8-.5V19c-2.5-1-5.5-1-8 .5-2.5-1.5-5.5-1.5-8-.5z', 'M12 6v13.5'],
-    mic: ['M12 3a3 3 0 0 0-3 3v5a3 3 0 0 0 6 0V6a3 3 0 0 0-3-3z', 'M6 11a6 6 0 0 0 12 0', 'M12 17v4'],
-    play: ['M8 5.5v13l11-6.5z'],
-    compass: ['circle', 'M15.5 8.5l-2 5-5 2 2-5z'],
-    bars: ['M5 20v-8', 'M12 20V5', 'M19 20v-5'],
-    target: ['circle', 'M12 8a4 4 0 1 0 0 8 4 4 0 0 0 0-8z', 'M12 12h.01'],
-    layers: ['M12 3l9 5-9 5-9-5z', 'M3 12.5l9 5 9-5', 'M3 17l9 5 9-5'],
-    trophy: ['M8 21h8', 'M12 17v4', 'M7 4h10v5a5 5 0 0 1-10 0z', 'M7 6H4v2a3 3 0 0 0 3 3', 'M17 6h3v2a3 3 0 0 1-3 3'],
-    chat: ['M5 5h14a1 1 0 0 1 1 1v9a1 1 0 0 1-1 1H10l-5 4v-4H5a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1z']
-  };
   var STAGE_ICONS = ['compass', 'bars', 'target', 'layers', 'trophy'];
-  function icon(name) {
-    var NS = 'http://www.w3.org/2000/svg', s = document.createElementNS(NS, 'svg');
-    s.setAttribute('viewBox', '0 0 24 24'); s.setAttribute('class', 'ln-ic'); s.setAttribute('aria-hidden', 'true'); s.setAttribute('focusable', 'false');
-    (ICONS[name] || []).forEach(function (d) {
-      var p;
-      if (d === 'circle') { p = document.createElementNS(NS, 'circle'); p.setAttribute('cx', '12'); p.setAttribute('cy', '12'); p.setAttribute('r', '9'); }
-      else { p = document.createElementNS(NS, 'path'); p.setAttribute('d', d); }
-      s.appendChild(p);
-    });
-    return s;
-  }
+  // Icons come from the shared Mada UI kit, so every icon on the platform has the same drawing, stroke and size rules.
+  function icon(name) { return window.MadaUI.icon(name, 'ln-ic'); }
   function linkBtn(text, onClick) {
     var b = el('button', 'ln-link'); b.type = 'button'; b.appendChild(document.createTextNode(text)); b.appendChild(icon('arrow'));
     b.addEventListener('click', onClick); return b;
@@ -270,15 +245,13 @@
 
     // ---- three ways to learn (Watch is described as coming, never as available)
     var fm = el('section', 'ln-section'); fm.setAttribute('aria-label', 'Ways to learn');
-    var fgrid = el('div', 'ln-ways');
-    [['Read & practice', 'Written lessons, worked examples and exercises with specific feedback.', 'Available', 'book'],
+    var fgrid = el('div', 'm-grid ln-ways');
+    [['Read & Practice', 'Written lessons, worked examples and exercises with specific feedback.', 'Available', 'book'],
      ['Talk with Nour', 'Ask Nour to explain, test you or work an example through, by voice or in writing, inside any lesson.', 'Available', 'chat'],
-     ['Watch & learn', 'Short animated explainers are planned. Nothing is needed from them to finish a lesson.', 'Coming later', 'play']].forEach(function (w) {
-      var c = el('div', 'ln-way' + (w[2] === 'Available' ? '' : ' is-soon'));
-      var ic = el('span', 'ln-way-ic'); ic.appendChild(icon(w[3]));
-      var tx = el('div', 'ln-way-tx'); add(tx, add(el('h3'), document.createTextNode(w[0]), el('span', 'ln-state' + (w[2] === 'Available' ? ' ok' : ''), w[2])), el('p', null, w[1]));
-      add(c, ic, tx);
-      fgrid.appendChild(c);
+     ['Watch & Learn', 'Short animated explainers are planned. Nothing is needed from them to finish a lesson.', 'Coming later', 'play']].forEach(function (w) {
+      var ok = w[2] === 'Available';
+      fgrid.appendChild(window.MadaUI.card({ cls: 'ln-way' + (ok ? '' : ' is-soon'), icon: w[3], muted: !ok, title: w[0], text: w[1],
+        badge: w[2], badgeCls: ok ? 'good' : 'soon' }));
     });
     add(fm, fgrid); app.appendChild(fm);
 
@@ -338,7 +311,7 @@
       var card = el('button', 'ln-rs'); card.type = 'button';
       if (current) card.setAttribute('aria-current', 'step');
       var top = el('span', 'ln-rs-top');
-      var ic = el('span', 'ln-rs-ic'); ic.appendChild(icon(finished ? 'check' : STAGE_ICONS[i] || 'flag'));
+      var ic = el('span', 'ln-rs-ic m-icon round'); ic.appendChild(icon(finished ? 'check' : STAGE_ICONS[i] || 'flag'));
       add(top, ic, el('span', 'ln-rs-no', 'Stage ' + (i + 1)));
       var body = el('span', 'ln-rs-body');
       add(body, el('span', 'ln-rs-title', s.title), el('span', 'ln-rs-blurb', s.blurb));
@@ -346,10 +319,8 @@
       var stat = el('span', 'ln-rs-stat', label);
       var meta = el('span', 'ln-rs-meta', lessons ? done + ' of ' + lessons + ' lessons' : mods.length + (mods.length === 1 ? ' module' : ' modules'));
       add(foot, stat, meta);
-      if (lessons) {
-        var bar = el('span', 'ln-rs-bar'); bar.setAttribute('aria-hidden', 'true');
-        var fill = el('span'); fill.style.width = Math.round(done / Math.max(1, lessons) * 100) + '%'; bar.appendChild(fill); foot.appendChild(bar);
-      }
+      var bar = el('span', 'ln-rs-bar'); bar.setAttribute('aria-hidden', 'true');
+      var fill = el('span'); fill.style.width = lessons ? Math.round(done / Math.max(1, lessons) * 100) + '%' : '0'; bar.appendChild(fill); foot.appendChild(bar);
       add(card, top, body, foot);
       card.addEventListener('click', function () {
         var d = document.getElementById('ln-stage-' + s.id);
@@ -376,7 +347,7 @@
     if (m.draft) box.appendChild(el('p', 'ln-meta muted small', 'Draft for review. Only reviewers can see this module; learners see Coming soon.'));
     if (published) {
       var meta = el('p', 'ln-meta'); add(meta, icon('clock'), document.createTextNode(m.lessonCount + ' lessons · about ' + m.minutes + ' min')); box.appendChild(meta);
-      var list = el('div', 'ln-mods');
+      var list = el('div', 'm-grid ln-mods');
       m.lessons.forEach(function (k, i) {
         var l = lessonInfo(k); if (!l) return;
         list.appendChild(moduleCard(l, i, cur_next(k)));
@@ -402,7 +373,7 @@
     else if (m.attempted) head.appendChild(el('span', 'ln-state prog', 'In progress'));
     else if (m.free) head.appendChild(el('span', 'ln-state', 'Free'));
     add(card, head, el('h4', 'ln-mod-title', m.title));
-    if (!m.completed) card.appendChild(el('p', 'ln-mod-desc', m.objective));
+    card.appendChild(el('p', 'ln-mod-desc', m.objective));
     var meta = el('p', 'ln-meta'); add(meta, icon('clock'), document.createTextNode(m.minutes + ' min')); card.appendChild(meta);
     var act = el('div', 'ln-mod-act');
     if (m.locked) act.appendChild(linkBtn('See what unlocks it', function () { var u = document.getElementById('ln-upgrade'); if (u) u.scrollIntoView({ behavior: 'smooth', block: 'center' }); }));
@@ -658,7 +629,7 @@
     var wrap = el('div', 'ln-formats'); wrap.setAttribute('role', 'group'); wrap.setAttribute('aria-label', 'How would you like to learn this module?');
     var bRead = el('button', 'ln-fmt'), bTalk = el('button', 'ln-fmt'), bWatch = videos.length ? el('button', 'ln-fmt') : null;
     [bRead, bTalk, bWatch].forEach(function (b) { if (b) b.type = 'button'; });
-    add(bRead, icon('book'), el('span', null, 'Read & practice'));
+    add(bRead, icon('book'), el('span', null, 'Read & Practice'));
     add(bTalk, icon('mic'), el('span', null, 'Talk with ' + COACH));
     function show(which) {
       read.hidden = which !== 'read'; watch.hidden = which !== 'watch';
@@ -671,7 +642,7 @@
     bTalk.setAttribute('aria-pressed', 'false');
     add(wrap, bRead, bTalk);
     if (bWatch) {
-      add(bWatch, icon('play'), el('span', null, 'Watch & learn'));
+      add(bWatch, icon('play'), el('span', null, 'Watch & Learn'));
       bWatch.addEventListener('click', function () { show('watch'); });
       videos.forEach(function (v) { watch.appendChild(videoPlayer(v)); });
       add(watch, add(el('div', 'btn-row'), btn('Back to reading', 'btn btn-ghost', function () { show('read'); })));
@@ -681,7 +652,7 @@
       // No video yet: say so plainly. A disabled button, never a player with nothing in it.
       var soon = el('button', 'ln-fmt'); soon.type = 'button'; soon.disabled = true;
       soon.setAttribute('aria-label', 'Watch and learn: video explainers are coming soon');
-      add(soon, icon('play'), el('span', null, 'Watch & learn'), el('small', 'ln-soon', 'Coming soon'));
+      add(soon, icon('play'), el('span', null, 'Watch & Learn'), el('small', 'ln-soon', 'Coming soon'));
       wrap.appendChild(soon);
     }
     show('read');

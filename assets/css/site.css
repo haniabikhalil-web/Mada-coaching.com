@@ -492,7 +492,7 @@ a:hover .arrow{transform:translateX(3px)}
 
 /* ---- Mada AI call page (ai/case-practice/start) ---- */
 .rp-form label{display:flex;flex-direction:column;gap:6px;font-weight:600;color:var(--navy)}.rp-form select{font:inherit;padding:14px 16px;border:1.5px solid var(--line);border-radius:var(--radius-sm);background:#fff}
-.rp-consent{border:1.5px solid var(--line);border-radius:var(--radius-sm);padding:16px 18px;background:var(--mist)}.rp-consent ul{margin:10px 0 14px;padding-left:20px}.rp-consent li{margin:6px 0}
+.rp-consent{border:1.5px solid var(--line);border-radius:var(--radius-sm);padding:14px 18px;background:var(--mist)}.rp-consent ul{margin:8px 0 4px;padding-left:20px}.rp-consent li{margin:6px 0}
 .rp-form .rp-check{flex-direction:row;align-items:flex-start;gap:10px;font-weight:500}.rp-form .rp-check input{margin-top:4px;padding:0}
 .rp-notice{margin:0;padding:12px 14px;border-radius:var(--radius-sm);background:#fff4e5;color:#7a4a00}
 
@@ -778,14 +778,6 @@ section.mm-sec{padding-top:40px}
 .mm-manage:disabled{opacity:.5;cursor:default}
 .mm-group{margin-bottom:44px}
 .mm-label{font-family:var(--body);font-size:13px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--stone);margin:0 0 16px}
-.mm-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:16px}
-.mm-tile{display:flex;flex-direction:column;border-radius:var(--radius);padding:24px 22px;border:1px solid var(--line);background:#fff;min-height:100%}
-.mm-tile h3{margin:16px 0 6px}
-.mm-tile p{margin:0}
-.mm-tile .mm-text{color:var(--stone);font-size:15.5px;line-height:1.5}
-.mm-tile .mm-note{color:var(--stone);font-size:14px;margin-top:6px}
-.mm-tile-top{display:flex;align-items:center;justify-content:space-between;gap:10px}
-.mm-icon{width:44px;height:44px;border-radius:12px;display:grid;place-items:center;background:var(--cobalt-tint);color:var(--cobalt)}
 .mm-foot{display:flex;flex-direction:column;align-items:flex-start;gap:12px;margin-top:auto;padding-top:20px}
 .mm-foot .btn{align-self:flex-start}
 .mm-mrow{height:20px;line-height:20px}
@@ -793,7 +785,6 @@ section.mm-sec{padding-top:40px}
 .mm-tile.owned{box-shadow:var(--shadow);position:relative;overflow:hidden}
 .mm-tile.owned::before{content:"";position:absolute;left:0;right:0;top:0;height:3px;background:var(--cobalt)}
 .mm-tile.explore{background:var(--mist);border-color:transparent}
-.mm-tile.explore .mm-icon{background:#fff;color:var(--navy)}
 .mm-tile.explore h3{font-size:19px}
 .mm-empty{background:var(--mist);border-radius:var(--radius);padding:28px;margin-bottom:44px}
 .mm-empty h2{font-size:24px;margin-bottom:6px}
@@ -1185,9 +1176,6 @@ section.mm-sec{padding-top:40px}
 .ln-link{display:inline-flex;align-items:center;gap:6px;background:none;border:0;padding:var(--s1) 0;font:inherit;font-size:15px;font-weight:600;color:var(--cobalt);cursor:pointer}
 .ln-link .ln-ic{transition:transform .15s}
 .ln-link:hover .ln-ic{transform:translateX(3px)}
-.ln-mod.is-done{padding:var(--s2) var(--s3)}
-.ln-mod.is-done .ln-mod-act{margin-top:0;padding-top:4px}
-.ln-mod.is-done .ln-mod-title{font-size:17px}
 
 /* final challenge */
 .ln-final{display:flex;align-items:center;justify-content:space-between;gap:var(--s4);flex-wrap:wrap;margin:var(--s6) 0 var(--s3);padding:var(--s4);border-radius:20px;background:#F1F4FE}
@@ -1227,10 +1215,6 @@ section.mm-sec{padding-top:40px}
 }
 @media (max-width:560px){.ln-mods{grid-template-columns:1fr}.ln-section{margin-bottom:var(--s5)}}
 /* Mada Academy dashboard: ways to learn, stages, curriculum modules */
-.ln-ways{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:var(--s2)}
-.ln-way{background:#fff;border:1px solid var(--card-line);border-radius:16px;padding:var(--s3);display:flex;flex-direction:column;gap:6px}
-.ln-way h3{margin:0;font-size:1rem}
-.ln-way p{margin:0;font-size:14px;line-height:1.5;color:var(--stone)}
 .ln-way.is-soon{background:#FAFBFE;border-style:dashed}
 .ln-stage-sub{font-size:12.5px;line-height:1.35;color:var(--stone);font-weight:400}
 .ln-stage{border:1px solid var(--card-line);border-radius:16px;background:#fff;margin:0 0 var(--s2);padding:0}
@@ -1254,20 +1238,17 @@ section.mm-sec{padding-top:40px}
 .ln-covers{margin-top:6px;font-size:14px;color:var(--stone)}
 .ln-covers summary{cursor:pointer;font-weight:600;color:var(--navy)}
 .ln-covers ul{margin:8px 0 0;padding-left:20px;line-height:1.55}
-@media (max-width:900px){.ln-ways{grid-template-columns:1fr}}
 
 /* ---- Academy roadmap (v133): five stage cards joined by a rail; the current stage is filled ---- */
 .ln-roadmap{margin-bottom:var(--s5)}
-.ln-road{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:16px}
+.ln-road{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:16px;grid-auto-rows:1fr}
 .ln-road li{position:relative;display:flex}
-.ln-road li:not(:last-child)::after{content:"";position:absolute;top:43px;left:calc(100% - 20px);width:36px;height:2px;background:var(--card-line);z-index:2;pointer-events:none}
+.ln-road li:not(:last-child)::after{content:"";position:absolute;top:41px;left:100%;width:16px;height:2px;background:var(--card-line);pointer-events:none}
 .ln-road li.is-done:not(:last-child)::after{background:var(--cobalt)}
 .ln-rs{all:unset;box-sizing:border-box;cursor:pointer;display:flex;flex-direction:column;gap:14px;width:100%;padding:20px 18px 18px;border-radius:18px;background:#fff;border:1px solid var(--card-line);color:var(--navy);position:relative;transition:transform .18s ease,box-shadow .18s ease,border-color .18s ease}
 .ln-rs:hover{border-color:#B9C3E6;box-shadow:0 8px 24px rgba(15,31,75,.08);transform:translateY(-2px)}
 .ln-rs:focus-visible{outline:3px solid var(--cobalt);outline-offset:3px}
 .ln-rs-top{display:flex;align-items:center;gap:12px}
-.ln-rs-ic{display:grid;place-items:center;flex:none;width:46px;height:46px;border-radius:50%;background:var(--cobalt-tint);color:var(--cobalt)}
-.ln-rs-ic .ln-ic{width:22px;height:22px}
 .ln-rs-no{font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--stone)}
 .ln-rs-body{display:flex;flex-direction:column;gap:6px;flex:1}
 .ln-rs-title{font-family:var(--display);font-size:19px;line-height:1.2;font-weight:700;letter-spacing:-.01em}
@@ -1278,7 +1259,6 @@ section.mm-sec{padding-top:40px}
 .ln-rs-bar{flex-basis:100%;height:6px;border-radius:99px;background:var(--mist);overflow:hidden}
 .ln-rs-bar span{display:block;height:100%;border-radius:99px;background:var(--cobalt);transition:width .5s ease}
 .is-done .ln-rs-ic{background:var(--cobalt);color:#fff}
-.is-done .ln-rs-ic .ln-ic{stroke-width:3;width:20px;height:20px}
 .is-current .ln-rs{background:var(--navy);border-color:var(--navy);color:#fff;box-shadow:0 12px 32px rgba(15,31,75,.22)}
 .is-current .ln-rs:hover{border-color:var(--navy);transform:translateY(-3px)}
 .is-current .ln-rs-ic{background:#fff;color:var(--cobalt)}
@@ -1294,7 +1274,7 @@ section.mm-sec{padding-top:40px}
   .ln-road li::after{display:none}
 }
 @media (max-width:640px){
-  .ln-road{grid-template-columns:1fr;gap:12px}
+  .ln-road{grid-template-columns:1fr;gap:12px;grid-auto-rows:auto}
   .ln-rs{flex-direction:row;flex-wrap:wrap;align-items:flex-start;gap:12px}
   .ln-rs-top{flex-direction:column;align-items:flex-start;gap:6px}
   .ln-rs-body{flex:1 1 0;min-width:0}
@@ -1302,14 +1282,7 @@ section.mm-sec{padding-top:40px}
 }
 @media (prefers-reduced-motion:reduce){.ln-rs,.ln-rs-bar span{transition:none}.ln-rs:hover{transform:none}}
 @media (max-width:640px){.ln-roadmap .ln-sec-head{flex-direction:column;align-items:flex-start;gap:4px}}
-.ln-am .ln-mods{align-items:start}
 /* ways to learn, tidied */
-.ln-way{flex-direction:row;align-items:flex-start;gap:14px}
-.ln-way-ic{display:grid;place-items:center;flex:none;width:40px;height:40px;border-radius:12px;background:var(--cobalt-tint);color:var(--cobalt)}
-.ln-way.is-soon .ln-way-ic{background:var(--mist);color:var(--stone)}
-.ln-way-ic .ln-ic{width:20px;height:20px}
-.ln-way-tx{display:flex;flex-direction:column;gap:6px;min-width:0}
-.ln-way-tx h3{display:flex;flex-wrap:wrap;align-items:center;gap:6px 10px;font-size:1.02rem}
 
 /* feedback, structured */
 .ln-fbx{display:flex;flex-direction:column;gap:14px;animation:lnIn .25s ease both}
@@ -1606,3 +1579,61 @@ body.ln-focus #learn-app{padding-top:24px}
 @media (max-width:980px){.journey.three{grid-template-columns:1fr}.lp-topics{grid-template-columns:repeat(2,1fr)}}
 @media (max-width:560px){.lp-topics{grid-template-columns:1fr}}
 .subhero .lp-close-h,.lp-close-h{font-size:clamp(24px,6.7vw,52px);line-height:1.1}.lp-close-h span{display:block;white-space:nowrap}
+
+/* ---- Mada UI kit (v146): one icon, one icon box, one equal-height grid and one card, shared by My Mada, the Academy and the AI interview page.
+   Cards in a grid are always the same size: rows share the tallest height, the foot is pinned to the bottom, nothing has a fixed height. ---- */
+.m-ic{width:16px;height:16px;flex:none;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.m-icon{display:grid;place-items:center;flex:none;width:44px;height:44px;border-radius:12px;background:var(--cobalt-tint);color:var(--cobalt);line-height:0}
+.m-icon.round{border-radius:50%}
+.m-icon.muted{background:var(--mist);color:var(--stone)}
+.m-icon .m-ic{display:block;width:22px;height:22px;stroke-width:1.8}
+.m-grid{display:grid;gap:16px;align-items:stretch;grid-template-columns:repeat(3,minmax(0,1fr));grid-auto-rows:1fr}
+@media (max-width:900px){.m-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media (max-width:600px){.m-grid{grid-template-columns:1fr;grid-auto-rows:auto}}
+.m-card{display:flex;flex-direction:column;box-sizing:border-box;min-width:0;height:100%;padding:24px 22px;border:1px solid var(--card-line,#E4E7F0);border-radius:16px;background:#fff}
+.m-card-top{display:flex;align-items:center;justify-content:space-between;gap:10px;min-height:44px}
+.m-card-title{margin:16px 0 6px;font-size:19px;line-height:1.25;letter-spacing:-.01em}
+.m-card-text{margin:0;font-size:15.5px;line-height:1.5;color:var(--stone)}
+.m-card-note{margin:6px 0 0;font-size:14px;line-height:1.45;color:var(--stone)}
+.m-card-foot{margin-top:auto;padding-top:20px}
+.m-link{display:inline-flex;align-items:center;gap:6px;font-weight:600;color:var(--cobalt);text-decoration:none}
+.m-link:hover{text-decoration:underline;text-underline-offset:3px}
+.m-link:focus-visible{outline:3px solid var(--cobalt);outline-offset:3px;border-radius:6px}
+.m-link-arrow{display:inline-block;transition:transform .15s}
+.m-link:hover .m-link-arrow{transform:translateX(3px)}
+
+/* My Mada tiles: the card above, plus the owned accent, the explore tint and the shared foot */
+.mm-price{margin:0;font-size:14px;font-weight:600;color:var(--navy)}
+.mm-tile.explore .m-icon{background:#fff;color:var(--navy)}
+.mm-tile.explore .m-card-title{font-size:19px}
+
+/* Academy: lesson cards share one size whether done, next, locked or not started; ways to learn use the same card */
+.ln-mod{min-width:0}
+.ln-mod-desc{flex:1 1 auto}
+.ln-mod-act{display:flex;align-items:center;min-height:56px;box-sizing:border-box}
+.ln-mod-act .ln-link{min-height:44px}
+.ln-way .m-card-text{font-size:14px}
+.ln-ways{grid-template-columns:repeat(3,minmax(0,1fr))}
+@media (max-width:760px){.ln-ways{grid-template-columns:1fr;grid-auto-rows:auto}}
+
+/* AI interview: collapsed "Before you start", consent checkbox outside it */
+.rp-acc-btn{display:flex;width:100%;min-height:32px;align-items:center;justify-content:space-between;gap:12px;margin:0;padding:0;background:none;border:0;font:inherit;font-weight:700;color:var(--navy);text-align:left;cursor:pointer}
+.rp-acc-btn:focus-visible{outline:3px solid var(--cobalt);outline-offset:4px;border-radius:6px}
+.rp-acc-btn .rp-acc-chev{width:20px;height:20px;transition:transform .2s ease}
+.rp-acc-btn[aria-expanded="true"] .rp-acc-chev{transform:rotate(180deg)}
+.rp-acc-panel[hidden]{display:none}
+.rp-consent .rp-check{margin-top:12px;padding-top:12px;border-top:1px solid var(--line)}
+.rp-check a{color:var(--cobalt);font-weight:600;text-decoration:underline;text-underline-offset:3px}
+.rp-form .btn:disabled{opacity:.45;cursor:not-allowed}
+
+/* AI interview footer: three equal information cards and the brand line */
+.m-info{margin-top:40px}
+.m-info-grid{grid-auto-rows:1fr}
+@media (max-width:760px){.m-info-grid{grid-template-columns:1fr;grid-auto-rows:auto}}
+.m-info-card{background:var(--mist);border-color:transparent;transition:box-shadow .18s ease,transform .18s ease}
+.m-info-card:hover{box-shadow:var(--shadow);transform:translateY(-2px)}
+.m-info-card .m-card-title{font-size:18px;color:var(--navy)}
+.m-info-brand{margin:28px 0 0;padding-top:20px;border-top:1px solid var(--line);text-align:center;font-size:15px;color:var(--stone)}
+.m-info-brand a{font-weight:700;color:var(--navy);text-decoration:none}
+.m-info-brand a:hover{text-decoration:underline;text-underline-offset:3px}
+@media (prefers-reduced-motion:reduce){.m-info-card,.m-link-arrow,.rp-acc-btn .rp-acc-chev{transition:none}.m-info-card:hover,.m-link:hover .m-link-arrow{transform:none}}

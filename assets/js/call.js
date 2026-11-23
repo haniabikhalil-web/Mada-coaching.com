@@ -338,8 +338,15 @@
     form.appendChild(slotI); form.appendChild(slotC); form.appendChild(slotD);
     form.appendChild(el('p', 'muted', 'You will get a case of this type at random. You need a quiet place, a microphone and about 25 minutes. The interview ends automatically at 25 minutes.'));
 
+    // "Before you start": every disclosure stays, folded into an accordion that is closed by default. The consent checkbox sits
+    // outside it, so nobody has to open it to accept, and the Start button stays off until the box is ticked.
     var box = el('div', 'rp-consent');
-    box.appendChild(el('strong', null, 'Before you start'));
+    var tg = el('button', 'rp-acc-btn'); tg.type = 'button'; tg.id = 'rp-acc-btn';
+    tg.setAttribute('aria-expanded', 'false'); tg.setAttribute('aria-controls', 'rp-acc-panel');
+    tg.appendChild(el('span', null, 'Before you start'));
+    if (window.MadaUI) tg.appendChild(window.MadaUI.icon('chevron', 'rp-acc-chev'));
+    var panel = el('div', 'rp-acc-panel'); panel.id = 'rp-acc-panel'; panel.hidden = true;
+    panel.setAttribute('role', 'region'); panel.setAttribute('aria-labelledby', 'rp-acc-btn');
     var ul = el('ul');
     [
       'Your voice is recorded and turned into a transcript while you speak with ' + who() + ', an AI interviewer.',
@@ -348,14 +355,27 @@
       'Voice and transcript are processed by our providers ElevenLabs (the voice) and Anthropic (the scoring).',
       'Your report appears here at the end of the call and is emailed to ' + email + '.'
     ].forEach(function (t) { ul.appendChild(el('li', null, t)); });
-    box.appendChild(ul);
+    panel.appendChild(ul);
+    tg.addEventListener('click', function () {
+      var open = tg.getAttribute('aria-expanded') === 'true';
+      tg.setAttribute('aria-expanded', open ? 'false' : 'true');
+      panel.hidden = open;
+    });
+    box.appendChild(tg); box.appendChild(panel);
     var cl = el('label', 'rp-check');
     var cb = el('input'); cb.type = 'checkbox'; cb.required = true;
-    cl.appendChild(cb); cl.appendChild(el('span', null, ' I have read this and agree to the recording and scoring.'));
+    var ct = el('span');
+    ct.appendChild(document.createTextNode('I have read and accept the '));
+    var ta = el('a', null, 'Terms and Conditions'); ta.href = app.getAttribute('data-terms') || '../../terms/'; ta.target = '_blank'; ta.rel = 'noopener';
+    ct.appendChild(ta);
+    ct.appendChild(document.createTextNode(', including consent to recording, transcription, and AI scoring.'));
+    cl.appendChild(cb); cl.appendChild(ct);
     box.appendChild(cl);
     form.appendChild(box);
 
     var btn = el('button', 'btn btn-primary', 'Start the call'); btn.type = 'submit';
+    btn.disabled = true;   // on only once consent is given
+    cb.addEventListener('change', function () { btn.disabled = !cb.checked; });
     form.appendChild(btn);
     form.addEventListener('submit', function (e) {
       e.preventDefault();
