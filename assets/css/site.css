@@ -148,8 +148,8 @@ a:hover .arrow{transform:translateX(3px)}
 .card li{margin:4px 0}
 .card.dark .tag{color:var(--dawn)}
 .tag{font-size:12px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--cobalt);margin-bottom:12px;display:block}
-.icon{width:44px;height:44px;border-radius:12px;background:var(--cobalt-tint);color:var(--cobalt);display:grid;place-items:center;margin-bottom:20px}
-.icon svg{width:22px;height:22px}
+.icon{width:44px;height:44px;border-radius:12px;background:var(--cobalt-tint);color:var(--cobalt);display:flex;align-items:center;justify-content:center;flex:none;line-height:0;margin-bottom:20px}
+.icon svg{display:block;width:20px;height:20px;flex:none;margin:0;padding:0}
 .card.dark .icon{background:var(--navy-2);color:var(--dawn)}
 
 /* Beliefs */
@@ -1508,8 +1508,8 @@ body.ln-focus #learn-app{padding-top:24px}
 .lp-cards{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
 .lp-card{background:#fff;border:1px solid var(--line);border-radius:var(--radius);padding:24px;display:flex;flex-direction:column;gap:10px;box-shadow:var(--shadow)}
 .lp-card-top{display:flex;justify-content:space-between;align-items:center;min-height:42px}
-.lp-card-ic{width:42px;height:42px;border-radius:12px;background:var(--cobalt-tint);color:var(--cobalt);display:grid;place-items:center}
-.lp-card-ic .icon,.lp-card-ic svg{width:22px;height:22px}
+.lp-card-ic{width:44px;height:44px;border-radius:12px;background:var(--cobalt-tint);color:var(--cobalt);display:flex;align-items:center;justify-content:center;flex:none;line-height:0}
+.lp-card-ic svg{display:block;width:20px;height:20px;flex:none;margin:0;padding:0}
 .lp-card h3{font-size:22px}
 .lp-benefit{margin:0;color:var(--stone);font-size:16px;line-height:1.5;flex:1}
 .lp-note{margin:0;min-height:22px;font-size:14.5px;color:var(--stone)}.lp-note b{font-family:var(--display);font-size:20px;color:var(--ink)}
@@ -1583,10 +1583,10 @@ body.ln-focus #learn-app{padding-top:24px}
 /* ---- Mada UI kit (v146): one icon, one icon box, one equal-height grid and one card, shared by My Mada, the Academy and the AI interview page.
    Cards in a grid are always the same size: rows share the tallest height, the foot is pinned to the bottom, nothing has a fixed height. ---- */
 .m-ic{width:16px;height:16px;flex:none;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
-.m-icon{display:grid;place-items:center;flex:none;width:44px;height:44px;border-radius:12px;background:var(--cobalt-tint);color:var(--cobalt);line-height:0}
+.m-icon{display:flex;align-items:center;justify-content:center;flex:none;width:44px;height:44px;border-radius:12px;background:var(--cobalt-tint);color:var(--cobalt);line-height:0}
 .m-icon.round{border-radius:50%}
 .m-icon.muted{background:var(--mist);color:var(--stone)}
-.m-icon .m-ic{display:block;width:22px;height:22px;stroke-width:1.8}
+.m-icon .m-ic{display:block;width:20px;height:20px;margin:0;stroke-width:1.8}
 .m-grid{display:grid;gap:16px;align-items:stretch;grid-template-columns:repeat(3,minmax(0,1fr));grid-auto-rows:1fr}
 @media (max-width:900px){.m-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media (max-width:600px){.m-grid{grid-template-columns:1fr;grid-auto-rows:auto}}

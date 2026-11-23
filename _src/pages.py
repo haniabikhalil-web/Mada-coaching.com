@@ -459,7 +459,7 @@ def ai():
     def card(ic, title, benefit, foot_html, note='', soon=False):
         pill = '<span class="ai-pill soon">Coming soon</span>' if soon else ''
         return f'''<article class="lp-card reveal">
-<div class="lp-card-top"><span class="lp-card-ic">{icon(ic)}</span>{pill}</div>
+<div class="lp-card-top"><span class="lp-card-ic">{icon(ic, wrap=False)}</span>{pill}</div>
 <h3>{title}</h3>
 <p class="lp-benefit">{benefit}</p>
 <p class="lp-note">{note}</p>
