@@ -843,7 +843,19 @@ def ai_account():
       <noscript><p>This page needs JavaScript.</p></noscript>
       <p class="muted">Loading&hellip;</p>
     </div>
-    <p class="muted" style="margin-top:32px">Questions? <a href="mailto:{C.EMAIL}">{C.EMAIL}</a>. See our <a href="{u('privacy')}">privacy policy</a>.</p>
+    <div class="ms-foot">
+      <div class="ms-grid">
+        <a class="ms-card" href="mailto:{C.EMAIL}">
+          <span class="ms-ic">{icon('chat', wrap=False)}</span>
+          <span class="ms-body"><span class="ms-title">Questions?</span><span class="ms-cta">{C.EMAIL}</span></span>
+        </a>
+        <a class="ms-card" href="{u('privacy')}">
+          <span class="ms-ic">{icon('shield', wrap=False)}</span>
+          <span class="ms-body"><span class="ms-title">Privacy policy</span><span class="ms-cta">Read our privacy policy <span class="ms-arrow" aria-hidden="true">&rarr;</span></span></span>
+        </a>
+      </div>
+      <p class="ms-brand"><a href="{u('')}">Mada</a> &ndash; Prepare smarter. Interview confidently.</p>
+    </div>
   </div>
 </section>
 '''
