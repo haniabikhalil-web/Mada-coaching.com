@@ -248,7 +248,7 @@
     var fgrid = el('div', 'm-grid ln-ways');
     [['Read & Practice', 'Written lessons, worked examples and exercises with specific feedback.', 'Available', 'book'],
      ['Talk with Nour', 'Ask Nour to explain, test you or work an example through, by voice or in writing, inside any lesson.', 'Available', 'chat'],
-     ['Watch & Learn', '45 short animated explainers across 6 modules, being published one by one. Optional: you never need them to finish a lesson.', 'Coming soon', 'play']].forEach(function (w) {
+     ['Watch & Learn', '45 short animated explainers across 6 modules, the first is live now, with more published one by one. Optional: you never need them to finish a lesson.', 'Available', 'play']].forEach(function (w) {
       var ok = w[2] === 'Available';
       fgrid.appendChild(window.MadaUI.card({ cls: 'ln-way' + (ok ? '' : ' is-soon'), icon: w[3], muted: !ok, title: w[0], text: w[1],
         badge: w[2], badgeCls: ok ? 'good' : 'soon' }));
@@ -312,8 +312,54 @@
     if (live) foot.appendChild(el('span', 'wl-chip is-live', v.locked ? 'Included with Mada Academy' : 'Available'));
     else foot.appendChild(el('span', 'wl-chip', 'Coming soon'));
     body.appendChild(foot);
+    if (live) {
+      var play = btn(v.locked ? 'Unlock with Mada Academy' : 'Watch video', 'btn ' + (v.locked ? 'btn-secondary' : 'btn-primary') + ' wl-play', function () {
+        if (v.locked) { var u = document.getElementById('ln-upgrade'); if (u) { u.scrollIntoView({ behavior: 'smooth', block: 'center' }); return; } }
+        openVideo(v, play);
+      });
+      play.setAttribute('aria-label', (v.locked ? 'Unlock with Mada Academy: ' : 'Watch video ' + v.number + ': ') + v.title);
+      body.appendChild(play);
+    }
     c.appendChild(body);
     return c;
+  }
+  // Secure playback: the server (learn-video) checks Academy access and returns short-lived signed links to a private file. Nothing here
+  // knows a permanent file address, and the link is never written to the page text or storage.
+  function openVideo(v, opener) {
+    var dlg = el('div', 'vp-overlay'); dlg.setAttribute('role', 'dialog'); dlg.setAttribute('aria-modal', 'true'); dlg.setAttribute('aria-label', v.title);
+    var box = el('div', 'vp-box');
+    var close = btn('\u00D7', 'vp-close', shut); close.setAttribute('aria-label', 'Close video');
+    var title = el('p', 'vp-title', 'Video ' + v.number + ': ' + v.title);
+    var stage = el('div', 'vp-stage'); var msg = el('p', 'vp-msg', 'Preparing your video...'); msg.setAttribute('role', 'status'); stage.appendChild(msg);
+    add(box, close, title, stage); dlg.appendChild(box); document.body.appendChild(dlg);
+    var prevOverflow = document.body.style.overflow; document.body.style.overflow = 'hidden';
+    function shut() {
+      var vid = stage.querySelector('video'); if (vid) { vid.pause(); vid.removeAttribute('src'); vid.load(); }
+      document.removeEventListener('keydown', onKey); document.body.style.overflow = prevOverflow;
+      if (dlg.parentNode) dlg.parentNode.removeChild(dlg);
+      if (opener) opener.focus();
+    }
+    function onKey(e) { if (e.key === 'Escape') shut(); }
+    document.addEventListener('keydown', onKey);
+    dlg.addEventListener('click', function (e) { if (e.target === dlg) shut(); });
+    close.focus();
+    fn('learn-video', { video: v.id }).then(function (r) {
+      if (!dlg.parentNode) return;
+      if (r.status === 401) { shut(); return expired(); }
+      if (!r.ok || !r.json || !r.json.url) {
+        msg.textContent = r.status === 403 ? 'This video is included with Mada Academy.' : errText(r, 'This video could not be loaded. Try again shortly.');
+        return;
+      }
+      clear(stage);
+      var vid = document.createElement('video');
+      vid.controls = true; vid.autoplay = true; vid.playsInline = true; vid.preload = 'metadata';
+      vid.setAttribute('controlsList', 'nodownload noremoteplayback'); vid.setAttribute('disablePictureInPicture', ''); vid.setAttribute('crossorigin', 'anonymous');
+      vid.addEventListener('contextmenu', function (e) { e.preventDefault(); });
+      vid.addEventListener('error', function () { clear(stage); stage.appendChild(el('p', 'vp-msg', 'This video could not be played. Close it and try again.')); });
+      if (r.json.captions) { var tr = document.createElement('track'); tr.kind = 'captions'; tr.label = 'English'; tr.srclang = 'en'; tr.src = r.json.captions; tr.default = true; vid.appendChild(tr); }
+      vid.src = r.json.url;
+      stage.appendChild(vid);
+    });
   }
   function watchSection(w) {
     var sec = el('section', 'ln-section'); sec.id = 'ln-watch'; sec.setAttribute('aria-labelledby', 'ln-watch-h');
