@@ -248,7 +248,7 @@
     var fgrid = el('div', 'm-grid ln-ways');
     [['Read & Practice', 'Written lessons, worked examples and exercises with specific feedback.', 'Available', 'book'],
      ['Talk with Nour', 'Ask Nour to explain, test you or work an example through, by voice or in writing, inside any lesson.', 'Available', 'chat'],
-     ['Watch & Learn', 'Short animated explainers are planned. Nothing is needed from them to finish a lesson.', 'Coming later', 'play']].forEach(function (w) {
+     ['Watch & Learn', '45 short animated explainers across 6 modules, being published one by one. Optional: you never need them to finish a lesson.', 'Coming soon', 'play']].forEach(function (w) {
       var ok = w[2] === 'Available';
       fgrid.appendChild(window.MadaUI.card({ cls: 'ln-way' + (ok ? '' : ' is-soon'), icon: w[3], muted: !ok, title: w[0], text: w[1],
         badge: w[2], badgeCls: ok ? 'good' : 'soon' }));
@@ -270,6 +270,9 @@
     });
     app.appendChild(csec);
 
+    // ---- Watch & Learn: the video curriculum (placeholders until each video is published)
+    if (dash.watch) app.appendChild(watchSection(dash.watch));
+
     // ---- assessments, apart from lessons
     var asec = el('section', 'ln-section');
     var ah = el('div', 'ln-sec-head'); ah.appendChild(el('h2', 'ln-h2', 'Assessments')); asec.appendChild(ah);
@@ -287,6 +290,67 @@
 
     if (r) app.appendChild(readinessCard(dash.readiness, dash.mini.result));
     app.appendChild(rubricBox());
+  }
+
+  // ---------------------------------------------------------------- Watch & Learn: the video curriculum
+  // One catalog from the server (learn-state: watch). A video is playable only when the server marks it "available"; every other video is a
+  // branded placeholder with no play control and no link to a player. Publishing a video changes the catalog, not this code.
+  function watchThumb(v) {
+    var t = el('div', 'wl-thumb'); t.setAttribute('aria-hidden', 'true');
+    t.innerHTML = '<svg viewBox="0 0 160 90" focusable="false"><rect x="62" y="14" width="36" height="14" rx="4"/><path d="M80 28v14M44 42h72M44 42v10M116 42v10" fill="none"/><rect x="26" y="52" width="36" height="14" rx="4"/><rect x="98" y="52" width="36" height="14" rx="4"/></svg>';
+    t.appendChild(el('span', 'wl-no', (v.number < 10 ? '0' : '') + v.number));
+    return t;
+  }
+  function watchCard(v) {
+    var live = v.status === 'available';
+    var c = el('article', 'wl-card' + (live ? '' : ' is-soon'));
+    c.setAttribute('aria-label', 'Video ' + v.number + ': ' + v.title + (live ? '' : ', coming soon'));
+    c.appendChild(watchThumb(v));
+    var body = el('div', 'wl-body');
+    add(body, el('p', 'wl-k', 'Video ' + (v.number < 10 ? '0' : '') + v.number + ' · ' + v.duration), el('h4', 'wl-t', v.title), el('p', 'wl-d', v.description));
+    var foot = el('p', 'wl-foot');
+    if (live) foot.appendChild(el('span', 'wl-chip is-live', v.locked ? 'Included with Mada Academy' : 'Available'));
+    else foot.appendChild(el('span', 'wl-chip', 'Coming soon'));
+    body.appendChild(foot);
+    c.appendChild(body);
+    return c;
+  }
+  function watchSection(w) {
+    var sec = el('section', 'ln-section'); sec.id = 'ln-watch'; sec.setAttribute('aria-labelledby', 'ln-watch-h');
+    var head = el('div', 'ln-sec-head');
+    var h = el('h2', 'ln-h2', 'Watch & Learn'); h.id = 'ln-watch-h';
+    add(head, h, el('span', 'ln-note', w.counts.available + ' of ' + w.counts.total + ' videos available'));
+    sec.appendChild(head);
+    sec.appendChild(el('p', 'ln-note wl-intro', 'Short animated explainers that go with the lessons. New videos are added over time, and watching is always optional.'));
+    var byId = {}; w.videos.forEach(function (v) { byId[v.id] = v; });
+    w.modules.forEach(function (m, i) {
+      var d = document.createElement('details'); d.className = 'ln-stage wl-mod'; d.id = 'wl-mod-' + m.id;
+      if (i === 0) d.open = true;
+      var sm = document.createElement('summary');
+      var vids = m.videos.map(function (id) { return byId[id]; }).filter(Boolean);
+      var avail = vids.filter(function (v) { return v.status === 'available'; }).length;
+      add(sm, el('span', 'ln-stage-t', 'Module ' + m.order + ': ' + m.title), el('span', 'ln-note', vids.length + ' videos' + (avail ? ' · ' + avail + ' available' : '')));
+      d.appendChild(sm);
+      add(d, el('p', 'wl-mod-d', m.description));
+      var grid = el('div', 'wl-grid'); vids.forEach(function (v) { grid.appendChild(watchCard(v)); });
+      d.appendChild(grid);
+      sec.appendChild(d);
+    });
+    return sec;
+  }
+  // Videos that go with one lesson (matched from the same catalog). Shown on the lesson page as a quiet note, never as a requirement.
+  function lessonVideos(key) {
+    if (!dash.watch) return null;
+    var vids = dash.watch.videos.filter(function (v) { return v.lessons.indexOf(key) >= 0; });
+    if (!vids.length) return null;
+    var box = el('div', 'wl-related');
+    box.appendChild(el('p', 'wl-related-k', 'Related video' + (vids.length > 1 ? 's' : '') + ' (optional)'));
+    vids.forEach(function (v) {
+      var row = el('p', 'wl-related-row');
+      add(row, el('span', 'wl-related-t', 'Video ' + (v.number < 10 ? '0' : '') + v.number + ': ' + v.title), el('span', 'wl-chip' + (v.status === 'available' ? ' is-live' : ''), v.status === 'available' ? 'Available' : 'Coming soon'));
+      box.appendChild(row);
+    });
+    return box;
   }
 
   // The learning roadmap. State is always said in words as well as shown: Completed, In progress, Up next, Coming soon.
@@ -545,6 +609,7 @@
     var read = el('div', 'ln-read'), watch = el('div', 'ln-watch'); watch.hidden = true;
     var fmt = formatSwitch(key, read, watch, m.videos || []);
     app.appendChild(fmt);
+    var rel = lessonVideos(key); if (rel) app.appendChild(rel);
     if (VOICE_SRC) { var sums = el('div', 'ln-sums-holder'); app.appendChild(sums); savedSummaries(key, sums); }
 
     var body = el('div', 'ln-body');
