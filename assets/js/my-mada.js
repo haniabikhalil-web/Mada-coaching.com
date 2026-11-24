@@ -227,7 +227,7 @@
         text: 'Up to ' + pass.data.dailyLimit + ' interviews a day. Quality beats quantity, so space your sessions out and reflect on each report.', note: renewal(pass.data) + (typeof pass.data.minutesUsed === 'number' && pass.data.monthlyMinutes ? (renewal(pass.data) ? ' \u00b7 ' : '') + pass.data.minutesUsed + ' of ' + pass.data.monthlyMinutes + ' interview minutes used in the last ' + pass.data.monthlyWindowDays + ' days' : ''),
         cta: { text: 'Start an interview', href: START }, manage: portal('/functions/v1/pass-access') }));
     } else {
-      ex.pass = tile(P('pass'));
+      ex.pass = true;
     }
 
     // Case Interviews (single credits)
@@ -243,7 +243,7 @@
         text: 'Your first AI case interview is free. Choose an interviewer and a case, speak for about 25 minutes and get a scored report.',
         cta: { text: 'Start your free interview', href: START } }));
     } else if (!passOn && credits !== null) {
-      ex.case = tile(P('case'));
+      ex.case = true;
     }
 
     // Case Math Mastery
@@ -256,7 +256,7 @@
           text: pr ? pr.n + ' questions answered, ' + pr.pct + '% correct.' : undefined, note: renewal(maths.data),
           cta: { text: 'Open Case Math Mastery', href: MATHS_URL }, manage: portal('/functions/v1/maths-access') }));
       } else {
-        ex.maths = tile(P('maths'));
+        ex.maths = true;
       }
     }
 
@@ -267,8 +267,8 @@
     }
 
     // The rest of the catalog: always something to explore. Coming-soon products are shown so the road ahead is visible.
-    ['readiness', 'academy', 'coach', 'fit', 'cv'].forEach(function (id) { ex[id] = tile(P(id)); });
-    ['pass', 'readiness', 'academy', 'case', 'maths', 'coach', 'fit', 'cv'].forEach(function (id) { if (ex[id]) more.push(ex[id]); });
+    ['readiness', 'academy', 'coach', 'fit', 'cv'].forEach(function (id) { ex[id] = true; });
+    ['pass', 'readiness', 'academy', 'case', 'maths', 'coach', 'fit', 'cv'].forEach(function (id) { if (ex[id] && P(id)) more.push(P(id)); });
 
     if (mine.length) app.appendChild(group('Your products', mine));
     else {
@@ -278,7 +278,7 @@
       app.appendChild(empty);
     }
     notes.forEach(function (n) { app.appendChild(el('p', 'muted mm-err', n)); });
-    app.appendChild(group(mine.length ? 'Explore more' : 'Explore', more));
+    app.appendChild(UI.exploreMore({ label: mine.length ? 'Explore more' : 'Explore', products: more }));
     if (window.MadaProfile) {
       var pfHost = el('div', 'pf-host');
       app.insertBefore(pfHost, top.nextSibling);   // the first-time card sits right under "Signed in as"

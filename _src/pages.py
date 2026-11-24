@@ -768,7 +768,7 @@ def ai_readiness():
         app = '<p class="muted">The assessment opens soon.</p>'
     else:
         app = (f'<div id="readiness-app" data-api="{C.SUPABASE_URL}" data-key="{C.SUPABASE_PUBLISHABLE_KEY}" data-start="{u("ai/case-practice/start")}"'
-               f' data-academy="{u("ai/learn")}" data-maths="{u("ai/maths")}" data-expert="{u("expert")}" data-cv="{u("cv-review")}" data-privacy="{u("privacy")}" aria-live="polite">'
+               f' data-academy="{u("ai/learn")}" data-maths="{u("ai/maths")}" data-expert="{u("expert")}" data-cv="{u("cv-review")}" data-privacy="{u("privacy")}" data-account="{u("ai/account")}" data-catalog="{_html.escape(json.dumps(product_catalog(u), separators=(",", ":")), quote=True)}" aria-live="polite">'
                '<noscript><p>This page needs JavaScript.</p></noscript></div>')
     body = f'''
 <header class="subhero"><div class="wrap">
@@ -779,13 +779,16 @@ def ai_readiness():
 <section>
   <div class="wrap narrow">
     {app}
-    <p class="muted" style="margin-top:32px;text-align:center">Prefer to talk it through with a person? <a href="{u('expert')}">Work with a Mada coach</a>. Your saved reports live in <a href="{u('ai/account')}">My Mada</a>.</p>
+    <div data-mada-nav="pair" data-expert="{u('expert')}" data-account="{u('ai/account')}"><div class="m-nav-grid m-nav-pair">
+      <a class="m-nav-card" href="{u('expert')}"><span class="m-icon">{icon('people', wrap=False)}</span><span class="m-nav-body"><span class="m-nav-title">Work with a Mada coach</span><span class="m-nav-text">Get personalized guidance from an experienced consultant.</span></span><span class="m-nav-go">{icon('arrow', wrap=False)}</span></a>
+      <a class="m-nav-card" href="{u('ai/account')}"><span class="m-icon">{icon('dashboard', wrap=False)}</span><span class="m-nav-body"><span class="m-nav-title">My Mada</span><span class="m-nav-text">Access your saved assessments, reports and progress.</span></span><span class="m-nav-go">{icon('arrow', wrap=False)}</span></a>
+    </div></div>
   </div>
 </section>
 '''
     page('ai/readiness', 'Mada Readiness Assessment',
-         'Mada Readiness Assessment: a free eight-minute assessment of your consulting applications, case interviews and fit interviews, with a personal plan.',
-         body, ctx, noindex=True, extra_js=('js/ai-session.js', 'js/report-insights.js', 'js/readiness.js'))
+         'Mada Readiness Assessment: a free ten-minute assessment of your consulting applications, case interviews and fit interviews, with a personal plan.',
+         body, ctx, noindex=True, extra_js=('js/mada-ui.js', 'js/ai-session.js', 'js/report-insights.js', 'js/readiness.js'))
 
 
 # ---------------------------------------------------------------- Mada AI "My Mada" (one sign-in; everything the candidate has, in one place)
@@ -803,7 +806,7 @@ def product_catalog(u):
              text='One monthly subscription for your AI interviews, with Case Math Mastery included.'),
         dict(id='readiness', kind='product', name='Readiness Assessment', icon='gauge', status=status(C.READINESS_LIVE), href=u('ai/readiness'),
              cta='Take the assessment', price='Free',
-             text='A free eight-minute assessment of where you stand, with a personal plan for what to work on next.'),
+             text='A free ten-minute assessment of where you stand, with a personal plan for what to work on next.'),
         dict(id='cv', kind='product', name='AI CV Review', icon='cv', status='soon', href='', cta='', price='',
              text='Upload your CV and get structured feedback on what consulting recruiters look for.'),
         dict(id='academy', kind='product', name='Mada Academy', icon='cap', status=status(C.LEARN_LIVE), href=u('ai/learn'),
@@ -906,13 +909,17 @@ def ai_reports():
       <noscript><p>This page needs JavaScript to show your reports.</p></noscript>
       <p class="muted">Loading&hellip;</p>
     </div>
-    <p class="muted" style="margin-top:32px">Questions about a report? <a href="mailto:{C.EMAIL}">{C.EMAIL}</a> or <a href="{u('expert')}">book a coach</a>. Everything you have with Mada is in <a href="{u('ai/account')}">My Mada</a>.</p>
+    <div data-mada-nav="guidance" data-email="{C.EMAIL}" data-expert="{u('expert')}" data-account="{u('ai/account')}"><section class="m-guidance"><h2 class="m-guidance-title">Need a little more guidance?</h2><div class="m-nav-grid m-nav-trio">
+      <a class="m-nav-card" href="mailto:{C.EMAIL}"><span class="m-icon">{icon('mail', wrap=False)}</span><span class="m-nav-body"><span class="m-nav-title">Contact us</span><span class="m-nav-text">Questions about your report? We&rsquo;re here to help.</span><span class="m-nav-cta">Email us &rarr;</span></span></a>
+      <a class="m-nav-card" href="{u('expert')}"><span class="m-icon">{icon('chat', wrap=False)}</span><span class="m-nav-body"><span class="m-nav-title">Speak with a coach</span><span class="m-nav-text">Discuss your results and build a personalized preparation plan.</span><span class="m-nav-cta">Book a coach &rarr;</span></span></a>
+      <a class="m-nav-card" href="{u('ai/account')}"><span class="m-icon">{icon('dashboard', wrap=False)}</span><span class="m-nav-body"><span class="m-nav-title">My Mada</span><span class="m-nav-text">Access your reports, assessments and learning progress.</span><span class="m-nav-cta">Open My Mada &rarr;</span></span></a>
+    </div></section></div>
   </div>
 </section>
 '''
     page('ai/reports', 'My reports',
          'All your Mada AI interview reports in one place.',
-         body, ctx, noindex=True, extra_js=('js/ai-session.js', 'js/report-insights.js', 'js/my-reports.js'))
+         body, ctx, noindex=True, extra_js=('js/mada-ui.js', 'js/ai-session.js', 'js/report-insights.js', 'js/my-reports.js'))
 
 
 def ai_start():
