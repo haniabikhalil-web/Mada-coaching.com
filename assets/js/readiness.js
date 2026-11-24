@@ -15,6 +15,10 @@
     assessment: ''
   };
   var PRIVACY = app.getAttribute('data-privacy') || '../../privacy/';
+  var UI = window.MadaUI;
+  var ACCOUNT = app.getAttribute('data-account') || '../account/';
+  var CAT = {};
+  try { JSON.parse(app.getAttribute('data-catalog') || '[]').forEach(function (p) { CAT[p.id] = p; }); } catch (e) {}
   var S = window.MadaSession, I = window.MadaInsights;
   var token = null, email = '';
   var bank = null, steps = [];
@@ -66,7 +70,7 @@
   function signIn(msg, after) {
     clear(app);
     var form = el('form', 'rp-form card mx-card');
-    add(form, el('h3', null, 'Sign in to save your report'), el('p', 'muted', msg || 'Enter your email and we will send you a one-time code. New here? The same step creates your account.'));
+    add(form, el('h3', null, 'Sign in to save'), el('p', 'muted', msg || 'Enter your email and we will send you a one-time code. New here? The same step creates your account.'));
     var input = el('input'); input.type = 'email'; input.required = true; input.autocomplete = 'email'; input.placeholder = 'you@example.com'; input.setAttribute('aria-label', 'Email address');
     var go = el('button', 'btn btn-primary', 'Email me a code'); go.type = 'submit';
     add(form, input, go);
@@ -78,7 +82,7 @@
         codeForm(after);
       });
     });
-    add(form, btn('Back to my report', 'btn btn-ghost btn-sm', function () { if (after) after(); else intro(); }));
+    add(form, btn(after ? 'Back' : 'Back to the start', 'btn btn-ghost btn-sm', function () { if (after) after(); else intro(); }));
     app.appendChild(form);
   }
   function codeForm(after) {
@@ -135,7 +139,7 @@
     var resume = saved && Object.keys(saved.answers || {}).length ? { profile: saved.profile, answers: saved.answers } : (d && Object.keys(d.answers).length + Object.keys(d.profile || {}).length ? d : null);
     var box = el('div', 'rd-intro');
     add(box, el('p', 'eyebrow', 'Mada Readiness Assessment'), el('h2', null, 'How ready are you for consulting recruitment?'),
-      el('p', 'lede', 'About eight minutes. 31 short questions on your applications, case interviews and fit interviews. You get a personal report with your scores, your strengths, what to improve first and a plan.'));
+      el('p', 'lede', 'About ten minutes. ' + steps.length + ' short questions on your applications, case interviews and fit interviews. You get a personal report with your scores, your strengths, what to improve first and a plan.'));
     var list = el('ul', 'rd-ticks');
     ['Free. You can see your full report without an account.', 'Scenario and number questions, not only self-ratings.', 'Honest about its limits: your answers show how ready you feel. A scored Mada AI interview shows how you actually perform.'].forEach(function (t) { add(list, el('li', null, t)); });
     box.appendChild(list);
@@ -147,6 +151,7 @@
       add(row, btn('Assess my readiness', 'btn btn-primary', function () { st = { profile: {}, answers: {}, idx: 0 }; track('readiness_start'); step(); }));
     }
     box.appendChild(row);
+    if (saved && (saved.questionsUpdated || saved.droppedAnswers)) add(box, el('p', 'rd-note-line', 'We have improved some questions since you started. Your answers to the unchanged questions are kept, and we will ask the rest again.'));
     add(box, el('p', 'muted rd-fine', 'Your answers stay in this browser until you choose to save them. If you save, they are stored privately in My Mada and you can delete them any time.'));
     app.appendChild(box);
   }
@@ -192,7 +197,9 @@
       b.addEventListener('click', function () {
         if (multi) {
           var arr = (st.profile[q.id] || []).slice(), k = arr.indexOf(o.id);
-          if (k >= 0) arr.splice(k, 1); else arr.push(o.id);
+          if (k >= 0) arr.splice(k, 1);
+          else if (q.exclusive && o.id === q.exclusive) arr = [o.id];
+          else { if (q.exclusive) { var x = arr.indexOf(q.exclusive); if (x >= 0) arr.splice(x, 1); } arr.push(o.id); }
           st.profile[q.id] = arr; saveDraft(); paint();
         } else {
           if (s.kind === 'profile') st.profile[q.id] = o.id; else st.answers[q.id] = o.id;
@@ -209,11 +216,12 @@
     if (multi) { cont = btn('Continue', 'btn btn-primary', function () { next(); }); nav.appendChild(cont); }
     else if (cur) nav.appendChild(btn('Next', 'btn btn-ghost btn-sm', function () { next(); }));
     wrap.appendChild(nav);
-    if (token) {
-      var saveRow = el('p', 'rd-fine muted');
-      add(saveRow, btn('Save and finish later', 'rd-linkbtn', function () { saveProgress(); }), document.createTextNode(' (saves your answers privately to My Mada)'));
-      wrap.appendChild(saveRow);
-    }
+    var saveBox = el('div', 'rd-save');
+    var sb = el('button', 'btn btn-ghost rd-save-btn'); sb.type = 'button';
+    add(sb, UI.icon('bookmark'), el('span', null, 'Save and finish later'));
+    sb.addEventListener('click', function () { track('readiness_save_later'); if (token) saveProgress(); else signIn('Sign in to save your progress. We email you a one-time code, and your answers wait for you in My Mada.', function () { if (token) saveProgress(); else step(); }); });
+    add(saveBox, sb, el('p', 'rd-save-note', 'Your progress is saved privately in My Mada.'));
+    wrap.appendChild(saveBox);
     app.appendChild(wrap); paint();
     if (st.idx === 0 || st.idx === 6) track('readiness_section', { index: st.idx });
     top();
@@ -226,7 +234,7 @@
       if (!r.ok) { step(); return; }
       clear(app);
       var b = el('div', 'rd-intro');
-      add(b, el('h2', null, 'Saved'), el('p', 'lede', 'Your answers are saved in My Mada. Come back to this page any time to carry on.'), btn('Keep going', 'btn btn-primary', step));
+      add(b, el('h2', null, 'Saved'), el('p', 'lede', 'Your progress is saved privately in My Mada. Come back to this page any time to carry on.'), btn('Keep going', 'btn btn-primary', step));
       app.appendChild(b);
     });
   }
@@ -431,6 +439,13 @@
     }
     return sec;
   }
+  // Explore more: the other Mada products, live ones first. The assessment itself becomes a retake card, since they just took it.
+  function exploreSection() {
+    var prods = [{ id: 'retake', name: 'Retake the assessment', icon: 'refresh', status: 'live', href: '#', cta: 'Retake', price: 'Free',
+      text: 'See how your readiness has moved since your last attempt.', onClick: function (e) { e.preventDefault(); retake(); } }];
+    ['academy', 'case', 'maths', 'pass', 'coach', 'fit', 'cv'].forEach(function (id) { if (CAT[id]) prods.push(CAT[id]); });
+    return UI.exploreMore({ label: 'Explore more', products: prods });
+  }
   function hub(state) {
     clear(app);
     var v = state.latest, wrap = el('div', 'rd-wrap');
@@ -441,6 +456,7 @@
     wrap.appendChild(reportBody(v));
     wrap.appendChild(planSection(v));
     if (state.progress) wrap.appendChild(progressSection(state.progress));
+    wrap.appendChild(exploreSection());
     var del = el('section', 'rd-section'); del.appendChild(el('h3', null, 'Your data'));
     del.appendChild(el('p', 'muted', 'Your answers are private to you. You can delete them at any time.'));
     var b = btn('Delete my assessment data', 'btn btn-ghost btn-sm', function () {

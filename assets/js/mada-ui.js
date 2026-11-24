@@ -32,7 +32,11 @@
     // support and information
     reports: ['M7 3h8l4 4v14H7z', 'M15 3v4h4', 'M10 12h6', 'M10 16h6'],
     headset: ['M4 15v-3a8 8 0 0 1 16 0v3', 'M4 13h3v6H5.5A1.5 1.5 0 0 1 4 17.5z', 'M20 13h-3v6h1.5a1.5 1.5 0 0 0 1.5-1.5z', 'M17 19c0 1.5-2 2-5 2'],
-    shield: ['M12 3l7 3v5c0 4.5-3 8-7 10-4-2-7-5.5-7-10V6z', 'M9 12l2.2 2.2L15.5 10']
+    shield: ['M12 3l7 3v5c0 4.5-3 8-7 10-4-2-7-5.5-7-10V6z', 'M9 12l2.2 2.2L15.5 10'],
+    bookmark: ['M7 4h10a1 1 0 0 1 1 1v15l-6-4-6 4V5a1 1 0 0 1 1-1z'],
+    mail: ['M4 6h16v12H4z', 'M4.5 7l7.5 6 7.5-6'],
+    dashboard: ['M4 4h7v7H4z', 'M13 4h7v4h-7z', 'M13 10h7v10h-7z', 'M4 13h7v7H4z'],
+    refresh: ['M20 11a8 8 0 0 0-14.5-3.5L4 9', 'M4 4v5h5', 'M4 13a8 8 0 0 0 14.5 3.5L20 15', 'M20 20v-5h-5']
   };
 
   // Optical centring: each glyph is shifted so the middle of its drawing, not just its 24px canvas, sits in the middle of the box.
@@ -112,11 +116,105 @@
     host.appendChild(brand);
   }
 
-  window.MadaUI = { icons: ICONS, icon: icon, iconBox: iconBox, card: card, el: el, infoFooter: infoFooter };
+
+  // ---------------------------------------------------------------- navigation cards (one component, every page)
+  // A whole card is the link. o: {icon, title, text, cta, href, onClick}. Without cta the card ends in a small arrow.
+  function navCard(o) {
+    var a = el('a', 'm-nav-card' + (o.cls ? ' ' + o.cls : ''));
+    a.href = o.href || '#';
+    a.appendChild(iconBox(o.icon));
+    var body = el('span', 'm-nav-body');
+    body.appendChild(el('span', 'm-nav-title', o.title));
+    body.appendChild(el('span', 'm-nav-text', o.text));
+    if (o.cta) {
+      var c = el('span', 'm-nav-cta', o.cta + ' ');
+      var arrow = el('span', 'm-link-arrow', '→'); arrow.setAttribute('aria-hidden', 'true'); c.appendChild(arrow);
+      body.appendChild(c);
+    }
+    a.appendChild(body);
+    if (!o.cta) { var go = el('span', 'm-nav-go'); go.appendChild(icon('arrow')); a.appendChild(go); }
+    if (o.onClick) a.addEventListener('click', o.onClick);
+    return a;
+  }
+
+  // Hosts: <div data-mada-nav="pair|guidance" data-expert data-account data-email> holds plain links for when scripts do not run.
+  function navHost(host) {
+    var d = host.dataset || {}, kind = d.madaNav;
+    host.textContent = '';
+    if (kind === 'pair') {
+      var g = el('div', 'm-nav-grid m-nav-pair');
+      g.appendChild(navCard({ icon: 'coach', title: 'Work with a Mada coach', text: 'Get personalized guidance from an experienced consultant.', href: d.expert }));
+      g.appendChild(navCard({ icon: 'dashboard', title: 'My Mada', text: 'Access your saved assessments, reports and progress.', href: d.account }));
+      host.appendChild(g);
+    } else if (kind === 'guidance') {
+      var sec = el('section', 'm-guidance'); sec.setAttribute('aria-labelledby', 'm-guidance-h');
+      var h = el('h2', 'm-guidance-title', 'Need a little more guidance?'); h.id = 'm-guidance-h'; sec.appendChild(h);
+      var g2 = el('div', 'm-nav-grid m-nav-trio');
+      g2.appendChild(navCard({ icon: 'mail', title: 'Contact us', text: 'Questions about your report? We’re here to help.', cta: 'Email us', href: 'mailto:' + (d.email || '') }));
+      g2.appendChild(navCard({ icon: 'chat', title: 'Speak with a coach', text: 'Discuss your results and build a personalized preparation plan.', cta: 'Book a coach', href: d.expert }));
+      g2.appendChild(navCard({ icon: 'dashboard', title: 'My Mada', text: 'Access your reports, assessments and learning progress.', cta: 'Open My Mada', href: d.account }));
+      sec.appendChild(g2); host.appendChild(sec);
+    }
+  }
+
+  // ---------------------------------------------------------------- "Explore more": product cards with a small illustration each
+  // The illustrations are constant markup written here (never user data), so they are set as markup; every other string uses textContent.
+  var ART = {
+    pass: '<rect x="46" y="28" width="148" height="70" rx="12" class="a3"/><circle cx="46" cy="63" r="9" class="bg"/><circle cx="194" cy="63" r="9" class="bg"/><path d="M148 36v54" class="ln" stroke-dasharray="4 5"/><rect x="62" y="44" width="62" height="8" rx="4" class="a1"/><rect x="62" y="60" width="44" height="6" rx="3" class="a4"/><rect x="62" y="74" width="52" height="6" rx="3" class="a4"/><circle cx="171" cy="63" r="15" class="a1"/><path d="M164 63l5 5 9-10" class="st"/>',
+    readiness: '<path d="M62 98a58 58 0 0 1 116 0" class="gb"/><path d="M62 98a58 58 0 0 1 82-52.8" class="gf"/><path d="M120 98l26-36" class="nd"/><circle cx="120" cy="98" r="8" class="a2"/><rect x="82" y="108" width="76" height="6" rx="3" class="a4"/>',
+    retake: '<path d="M62 98a58 58 0 0 1 116 0" class="gb"/><path d="M62 98a58 58 0 0 1 58-58" class="gf"/><path d="M146 62l-26 36" class="nd"/><circle cx="120" cy="98" r="8" class="a2"/><path d="M168 38a26 26 0 1 1-8 36" class="ln2"/><path d="M160 28l10 12-14 3" class="st2"/>',
+    academy: '<rect x="44" y="20" width="152" height="26" rx="9" class="a3"/><circle cx="62" cy="33" r="8" class="a1"/><path d="M58 33l3 3 6-6" class="st"/><rect x="78" y="29" width="70" height="7" rx="3.5" class="a4"/><rect x="44" y="51" width="152" height="26" rx="9" class="a3"/><circle cx="62" cy="64" r="8" class="a1"/><path d="M58 64l3 3 6-6" class="st"/><rect x="78" y="60" width="86" height="7" rx="3.5" class="a4"/><rect x="44" y="82" width="152" height="26" rx="9" class="a3"/><circle cx="62" cy="95" r="8" class="ol"/><rect x="78" y="91" width="58" height="7" rx="3.5" class="a4"/>',
+    case: '<path d="M44 34h92a8 8 0 0 1 8 8v26a8 8 0 0 1-8 8H82l-16 14V76h-22a8 8 0 0 1-8-8V42a8 8 0 0 1 8-8z" class="a2"/><rect x="56" y="46" width="64" height="6" rx="3" class="a3"/><rect x="56" y="58" width="44" height="6" rx="3" class="a3"/><path d="M110 70h92a8 8 0 0 1 8 8v18a8 8 0 0 1-8 8h-12v14l-16-14h-64a8 8 0 0 1-8-8V78a8 8 0 0 1 8-8z" class="a3"/><rect x="122" y="80" width="5" height="14" rx="2.5" class="a1"/><rect x="133" y="76" width="5" height="22" rx="2.5" class="a1"/><rect x="144" y="82" width="5" height="10" rx="2.5" class="a1"/><rect x="155" y="74" width="5" height="26" rx="2.5" class="a1"/><rect x="166" y="80" width="5" height="14" rx="2.5" class="a1"/>',
+    maths: '<rect x="82" y="14" width="76" height="100" rx="12" class="a3"/><rect x="92" y="24" width="56" height="20" rx="5" class="a2"/><rect x="98" y="31" width="30" height="6" rx="3" class="a4"/><rect x="92" y="52" width="14" height="14" rx="4" class="a4"/><rect x="113" y="52" width="14" height="14" rx="4" class="a4"/><rect x="134" y="52" width="14" height="14" rx="4" class="a1"/><rect x="92" y="73" width="14" height="14" rx="4" class="a4"/><rect x="113" y="73" width="14" height="14" rx="4" class="a4"/><rect x="134" y="73" width="14" height="14" rx="4" class="a4"/><rect x="92" y="94" width="35" height="14" rx="4" class="a4"/><rect x="134" y="94" width="14" height="14" rx="4" class="a1"/><rect x="38" y="76" width="10" height="32" rx="3" class="a1"/><rect x="52" y="62" width="10" height="46" rx="3" class="a4"/><rect x="192" y="68" width="10" height="40" rx="3" class="a4"/><rect x="206" y="52" width="10" height="56" rx="3" class="a1"/>',
+    coach: '<circle cx="82" cy="46" r="15" class="a2"/><path d="M52 104a30 30 0 0 1 60 0z" class="a2"/><circle cx="160" cy="52" r="13" class="a1"/><path d="M134 104a26 26 0 0 1 52 0z" class="a1"/><path d="M100 14h60a8 8 0 0 1 8 8v14a8 8 0 0 1-8 8h-30l-12 11V44h-18a8 8 0 0 1-8-8V22a8 8 0 0 1 8-8z" class="a3"/><rect x="108" y="24" width="44" height="5" rx="2.5" class="a4"/><rect x="108" y="33" width="28" height="5" rx="2.5" class="a4"/>',
+    fit: '<rect x="56" y="16" width="128" height="96" rx="12" class="a3"/><rect x="70" y="30" width="34" height="14" rx="5" class="a1"/><rect x="110" y="33" width="60" height="8" rx="4" class="a4"/><rect x="70" y="52" width="34" height="14" rx="5" class="a2"/><rect x="110" y="55" width="48" height="8" rx="4" class="a4"/><rect x="70" y="74" width="34" height="14" rx="5" class="a2"/><rect x="110" y="77" width="56" height="8" rx="4" class="a4"/><circle cx="178" cy="100" r="14" class="a1"/><path d="M178 92l2.6 5.4 5.9.8-4.3 4.1 1 5.9-5.2-2.8-5.2 2.8 1-5.9-4.3-4.1 5.9-.8z" class="a3"/>',
+    cv: '<rect x="68" y="12" width="104" height="104" rx="10" class="a3"/><rect x="82" y="26" width="38" height="8" rx="4" class="a2"/><rect x="82" y="42" width="76" height="5" rx="2.5" class="a4"/><rect x="82" y="53" width="64" height="5" rx="2.5" class="a4"/><rect x="78" y="67" width="84" height="20" rx="6" class="a5"/><rect x="86" y="74" width="60" height="6" rx="3" class="a1"/><rect x="82" y="95" width="56" height="5" rx="2.5" class="a4"/><circle cx="168" cy="96" r="16" class="a1"/><path d="M161 96l5 5 9-10" class="st"/>',
+    coaching: ''
+  };
+  ART.coaching = ART.coach;
+
+  // o: {title, label, products:[{id,name,text,icon,status,href,cta,price,onClick,note}], lead}
+  // Live products come first, then coming-soon ones, so what a candidate can use today is what they see first.
+  function exploreCard(p) {
+    var soon = p.status !== 'live';
+    var c = el(soon ? 'article' : 'a', 'xp-card xp-' + p.id + (soon ? ' is-soon' : ''));
+    if (!soon) { c.href = p.href || '#'; if (p.onClick) c.addEventListener('click', p.onClick); }
+    var art = el('span', 'xp-art'); art.setAttribute('aria-hidden', 'true');
+    var svg = document.createElementNS(NS, 'svg'); svg.setAttribute('viewBox', '0 0 240 128'); svg.setAttribute('class', 'xp-svg'); svg.setAttribute('focusable', 'false');
+    svg.innerHTML = ART[p.id] || '';
+    art.appendChild(svg);
+    var ic = iconBox(p.icon || 'compass'); ic.className += ' xp-ic'; art.appendChild(ic);
+    if (soon) art.appendChild(el('span', 'badge m-badge soon xp-badge', 'Coming soon'));
+    else if (p.badge) art.appendChild(el('span', 'badge m-badge good xp-badge', p.badge));
+    c.appendChild(art);
+    c.appendChild(el(soon ? 'h3' : 'span', 'xp-title', p.name));
+    c.appendChild(el('span', 'xp-text', p.text || ''));
+    c.appendChild(el('span', 'xp-price', soon ? '' : (p.price || '')));
+    var foot = el('span', 'xp-cta');
+    if (!soon) {
+      foot.appendChild(el('span', 'xp-cta-text', p.cta || 'Open'));
+      var arrow = el('span', 'm-link-arrow', '→'); arrow.setAttribute('aria-hidden', 'true'); foot.appendChild(arrow);
+    } else foot.appendChild(el('span', 'xp-cta-soon', 'Not open yet'));
+    c.appendChild(foot);
+    return c;
+  }
+  function exploreMore(o) {
+    var g = el('section', 'xp-group');
+    if (o.label) g.appendChild(el('h2', 'mm-label', o.label));
+    var live = (o.products || []).filter(function (p) { return p.status === 'live'; }), soon = (o.products || []).filter(function (p) { return p.status !== 'live'; });
+    var grid = el('div', 'xp-grid');
+    live.concat(soon).forEach(function (p) { grid.appendChild(exploreCard(p)); });
+    g.appendChild(grid);
+    return g;
+  }
+
+  window.MadaUI = { icons: ICONS, icon: icon, iconBox: iconBox, card: card, el: el, infoFooter: infoFooter, navCard: navCard, navHost: navHost, exploreMore: exploreMore, exploreCard: exploreCard };
 
   function boot() {
     var hosts = document.querySelectorAll('[data-mada-info]');
     for (var i = 0; i < hosts.length; i++) infoFooter(hosts[i]);
+    var navs = document.querySelectorAll('[data-mada-nav]');
+    for (var j = 0; j < navs.length; j++) navHost(navs[j]);
   }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot); else boot();
 })();
